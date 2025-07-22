@@ -28,7 +28,7 @@ public class HomeController : Controller
             return View();
         }
 
-        var kullanici = _context.Users.FirstOrDefault(o => o.KullaniciAdi == username);
+        var kullanici = _context.Operators.FirstOrDefault(o => o.KullaniciAdi == username);
 
         if (kullanici != null)
         {
@@ -50,7 +50,7 @@ public class HomeController : Controller
             return RedirectToAction("Index");
         }
 
-        var admin = _context.Admin.FirstOrDefault(a => a.KullaniciAdi == adminUsername && a.Sifre == adminPassword);
+        var admin = _context.Admins.FirstOrDefault(a => a.KullaniciAdi == adminUsername && a.Sifre == adminPassword);
 
         if (admin != null)
         {
