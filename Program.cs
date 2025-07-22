@@ -1,4 +1,4 @@
-using FanucProject.Data;
+using FanucRelease.Data; // <-- DÜZELTİLDİ
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

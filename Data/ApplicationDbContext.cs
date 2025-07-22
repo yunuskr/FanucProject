@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace FanucProject.Data
+namespace FanucRelease.Data
 {
     public class ApplicationDbContext : DbContext
     {
@@ -8,7 +8,8 @@ namespace FanucProject.Data
             : base(options)
         {
         }
-
+        public DbSet<User> Users { get; set; }
+        public DbSet<Admin> Admin { get; set; }
         // Şimdilik DbSet<> tanımlamıyoruz
     }
 }
