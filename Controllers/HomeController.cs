@@ -19,8 +19,50 @@ public class HomeController : Controller
     {
         return View();
     }
+    [HttpPost]
+    public IActionResult Index(string username)
+    {
+        if (string.IsNullOrEmpty(username))
+        {
+            TempData["Error"] = "Kullanıcı adı boş olamaz.";
+            return View();
+        }
 
+        var kullanici = _context.Users.FirstOrDefault(o => o.KullaniciAdi == username);
 
+        if (kullanici != null)
+        {
+            // Kullanıcı bulunduysa yönlendir
+            return RedirectToAction("Panel", "Operator");
+        }
+        else
+        {
+            TempData["Error"] = "Kullanıcı bulunamadı.";
+            return View();
+        }
+    }
+    [HttpPost]
+    public IActionResult AdminLogin(string adminUsername, string adminPassword)
+    {
+        if (string.IsNullOrEmpty(adminUsername) || string.IsNullOrEmpty(adminPassword))
+        {
+            TempData["AdminError"] = "Kullanıcı adı veya şifre boş olamaz.";
+            return RedirectToAction("Index");
+        }
+
+        var admin = _context.Admin.FirstOrDefault(a => a.KullaniciAdi == adminUsername && a.Sifre == adminPassword);
+
+        if (admin != null)
+        {
+            // Giriş başarılı → Admin paneline yönlendir
+            return RedirectToAction("Panel", "Admin");
+        }
+        else
+        {
+            TempData["AdminError"] = "Kullanıcı adı veya şifre yanlış.";
+            return RedirectToAction("Index");
+        }
+    }
     public IActionResult Privacy()
     {
         return View();
