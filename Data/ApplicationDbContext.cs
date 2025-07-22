@@ -8,7 +8,7 @@ namespace FanucRelease.Data
             : base(options)
         {
         }
-        public DbSet<User> Users { get; set; }
+        public DbSet<Operator> Users { get; set; }
         public DbSet<Admin> Admin { get; set; }
         // Şimdilik DbSet<> tanımlamıyoruz
     }
