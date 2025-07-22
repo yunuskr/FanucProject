@@ -19,36 +19,7 @@ public class HomeController : Controller
     {
         return View();
     }
-    [HttpPost]
-    public IActionResult Index(string username, string userpassword, bool rememberMe)
-    {
-        var user = _context.Users
-            .FirstOrDefault(u => u.KullaniciAdi == username && u.Sifre == userpassword);
 
-        if (user != null)
-        {
-            // Cookie ayarı (beni hatırla)
-            if (rememberMe)
-            {
-                Response.Cookies.Append("rememberedUser", username, new CookieOptions
-                {
-                    Expires = DateTimeOffset.Now.AddDays(30)
-                });
-            }
-            else
-            {
-                Response.Cookies.Delete("rememberedUser");
-            }
-
-            // Giriş başarılı, yönlendir
-            return RedirectToAction("Index", "Home"); // veya başka bir sayfa
-        }
-        else
-        {
-            ViewBag.Error = "Kullanıcı adı veya şifre hatalı.";
-            return View();
-        }
-    }
 
     public IActionResult Privacy()
     {
