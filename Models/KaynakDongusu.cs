@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FanucRelease.Models
 {
@@ -28,6 +29,15 @@ namespace FanucRelease.Models
         [Display(Name = "Oluşturulma Tarihi")]
         [DataType(DataType.Date)]
         public DateTime OlusturulmaTarihi { get; set; } = DateTime.Today;
+
+        // Foreign Key
+        [Required]
+        [Display(Name = "Operatör")]
+        public int OperatorId { get; set; }
+
+        // Navigation Property
+        [ForeignKey("OperatorId")]
+        public virtual Operator Operator { get; set; } = null!;
 
         // Hesaplanmış özellik - Dakika cinsinden süre
         [Display(Name = "Toplam Süre (dakika)")]
