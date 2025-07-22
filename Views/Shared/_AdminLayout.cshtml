@@ -1,51 +1,409 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+
 <head>
+
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Admin Panel</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/FanucRelease.styles.css" asp-append-version="true" />
+    <title>Ülkem Çiçek Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
+    <meta content="Themesbrand" name="author" />
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="~/assets/images/favicon.ico">
+    <!-- Bootstrap Css -->
+    <link href="~/assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css" />
+    <!-- Icons Css -->
+    <link href="~/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
+    <!-- App Css-->
+    <link href="~/assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css" />
+
+
+
+    @RenderSection("Styles", required: false)
 </head>
+
+
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">BlogWeb</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+
+    <!-- <body data-layout="horizontal" data-topbar="colored"> -->
+
+    <!-- Begin page -->
+    <div id="layout-wrapper">
+        <header id="page-topbar">
+            <div class="navbar-header">
+                <div class="d-flex">
+                    <!-- LOGO -->
+                    <div class="navbar-brand-box">
+                        <a href="~/index.html" class="logo logo-dark">
+                            <span class="logo-sm">
+                                <img src="~/assets/images/logo-sm.png" alt="" height="22">
+                            </span>
+                            <span class="logo-lg">
+                                <img src="~/assets/images/logo-dark.png" alt="" height="20">
+                            </span>
+                        </a>
+
+                        <a href="~/index.html" class="logo logo-light">
+                            <span class="logo-sm">
+                                <img src="~/assets/images/logo-sm.png" alt="" height="22">
+                            </span>
+                            <span class="logo-lg">
+                                <img src="~/assets/images/logo-light.png" alt="" height="20">
+                            </span>
+                        </a>
+                    </div>
+
+                    <button type="button"
+                        class="btn btn-sm px-3 font-size-16 header-item waves-effect vertical-menu-btn">
+                        <i class="fa fa-fw fa-bars"></i>
+                    </button>
+
+                    <!-- App Search-->
+                    <form class="app-search d-none d-lg-block">
+                        <div class="position-relative">
+                            <input type="text" class="form-control" placeholder="Search...">
+                            <span class="uil-search"></span>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="d-flex">
+
+                    <div class="dropdown d-inline-block d-lg-none ms-2">
+                        <button type="button" class="btn header-item noti-icon waves-effect"
+                            id="page-header-search-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
+                            aria-expanded="false">
+                            <i class="uil-search"></i>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
+                            aria-labelledby="page-header-search-dropdown">
+
+                            <form class="p-3">
+                                <div class="m-0">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" placeholder="Search ..."
+                                            aria-label="Recipient's username">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-primary" type="submit"><i
+                                                    class="mdi mdi-magnify"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    
+
+                    
+
+                    <div class="dropdown d-none d-lg-inline-block ms-1">
+                        <button type="button" class="btn header-item noti-icon waves-effect"
+                            data-bs-toggle="fullscreen">
+                            <i class="uil-minus-path"></i>
+                        </button>
+                    </div>
+
+                    <div class="dropdown d-inline-block">
+                        <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
+                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <img class="rounded-circle header-profile-user" src="~/favicon.ico"
+                                alt="Header Avatar">
+                            <span class="d-none d-xl-inline-block ms-1 fw-medium font-size-15">Emirhan</span>
+                            <i class="uil-angle-down d-none d-xl-inline-block font-size-15"></i>
+                        </button>
+                    </div>
+
+                    <div class="dropdown d-inline-block">
+                        <button type="button" class="btn header-item noti-icon right-bar-toggle waves-effect">
+                            <i class="uil-cog"></i>
+                        </button>
+                    </div>
+
                 </div>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+        </header>
+        <!-- ========== Left Sidebar Start ========== -->
+        <div class="vertical-menu">
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - BlogWeb - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <!-- LOGO -->
+            <div class="navbar-brand-box">
+                <a asp-controller="" asp-action="" class="logo logo-dark">
+                    <span class="logo-sm">
+                        <img src="~/assets/images/logo-sm.png" alt="" height="22">
+                    </span>
+                    <span class="logo-lg">
+                        <img src="~/assets/images/logo-dark.png" alt="" height="20">
+                    </span>
+                </a>
+
+                <a href="~/index.html" class="logo logo-light">
+                    <span class="logo-sm">
+                        <img src="~/assets/images/logo-sm.png" alt="" height="22">
+                    </span>
+                    <span class="logo-lg">
+                        <img src="~/assets/images/logo-light.png" alt="" height="20">
+                    </span>
+                </a>
+            </div>
+
+            <button type="button" class="btn btn-sm px-3 font-size-16 header-item waves-effect vertical-menu-btn">
+                <i class="fa fa-fw fa-bars"></i>
+            </button>
+
+            <div data-simplebar class="sidebar-menu-scroll">
+                <!--- Sidemenu -->
+                <div id="sidebar-menu">
+                    <!-- Left Menu Start -->
+                    <ul class="metismenu list-unstyled" id="side-menu">
+                        <li class="menu-title">Menu</li>
+
+                        <!-- Ana Sayfa -->
+                        <li>
+                            <a asp-area="" asp-controller="Home" asp-action="Index" class="waves-effect">
+                                <i class="uil-home-alt"></i>
+                                <span>Ana Sayfa</span>
+                            </a>
+                        </li>
+
+                        <!-- Çiçekler -->
+                        <li>
+                            <a asp-area="Admin" asp-controller="Cicekler" asp-action="Index" class="waves-effect">
+                                <i class="uil-petrol"></i>
+                                <span>Çiçekler</span>
+                            </a>
+                        </li>
+
+                        <!-- Çiçek Türleri -->
+                        <li>
+                            <a asp-area="Admin" asp-controller="CicekTuru" asp-action="Index" class="waves-effect">
+                                <i class="uil-list-ul"></i>
+                                <span>Çiçek Türleri</span>
+                            </a>
+                        </li>
+                         <li>
+                            <a asp-area="Admin" asp-controller="IletisimBilgileri" asp-action="Index" class="waves-effect">
+                                <i class="uil-list-ul"></i>
+                                <span>İletişim Bilgilerim</span>
+                            </a>
+                        </li>
+                         <li>
+                            <a asp-area="Admin" asp-controller="Ilceler" asp-action="Index" class="waves-effect">
+                                <i class="uil-list-ul"></i>
+                                <span>İlçeler</span>
+                            </a>
+                        </li>
+
+                        <!-- Gönderim Amaçları -->
+                        <li>
+                            <a asp-area="Admin" asp-controller="GonderimAmaci" asp-action="Index" class="waves-effect">
+                                <i class="uil-map-pin"></i>
+                                <span>Gönderim Amaçları</span>
+                            </a>
+                        </li>
+
+                        <!-- Kampanyalar -->
+                        <li>
+                            <a asp-area="Admin" asp-controller="Kampanya" asp-action="Index" class="waves-effect">
+                                <i class="uil-gift"></i>
+                                <span>Kampanyalar</span>
+                            </a>
+                        </li>
+
+                        <!-- Topbar Kampanya -->
+                        <li>
+                            <a asp-area="Admin" asp-controller="Topbar" asp-action="Index" class="waves-effect">
+                                <i class="uil-megaphone"></i>
+                                <span>Topbar Kampanya</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a asp-area="Admin" asp-controller="Slider" asp-action="Index" class="waves-effect">
+                                <i class="uil-gift"></i>
+                                <span>Anasayfa Slider</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a asp-area="Admin" asp-controller="HakkimizdaAdmin" asp-action="Index" class="waves-effect">
+                                <i class="uil-gift"></i>
+                                <span>Hakkımızda</span>
+                            </a>
+                        </li>
+
+                        <!-- Aktif Siparişler -->
+                        <li>
+                            <a asp-area="Admin" asp-controller="Siparisler" asp-action="Index" class="waves-effect">
+                                <i class="uil-shopping-cart-alt"></i>
+                                <span>Aktif Siparişler</span>
+                            </a>
+                        </li>
+
+                        <!-- Metalar (alt menülü) -->
+                        <li>
+                            <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                <i class="uil-tag-alt"></i>
+                                <span>Metalar</span>
+                            </a>
+                            <ul class="sub-menu" aria-expanded="false">
+                                <li>
+                                    <a asp-area="Admin" asp-controller="MetaTags" asp-action="Index"
+                                        asp-route-pageName="Home/Index">
+                                        Ana Sayfa
+                                    </a>
+                                </li>
+                                <li>
+                                    <a asp-area="Admin" asp-controller="MetaTags" asp-action="Index"
+                                        asp-route-pageName="Iletisim/Index">
+                                        İletişim
+                                    </a>
+                                </li>
+                                <li>
+                                    <a asp-area="Admin" asp-controller="MetaTags" asp-action="Index"
+                                        asp-route-pageName="Hakkimizda/index">
+                                        Hakkımızda
+                                    </a>
+                                </li>
+                                <li>
+                                    <a asp-area="Admin" asp-controller="MetaTags" asp-action="Index"
+                                        asp-route-pageName="Urunler/Index">
+                                        Ürünler
+                                    </a>
+                                </li>
+                                <li>
+                                    <a asp-area="Admin" asp-controller="MetaTags" asp-action="Index"
+                                        asp-route-pageName="Kampanya/Index">
+                                        Kampanya
+                                    </a>
+                                </li>
+                                <li>
+                                    <a asp-area="Admin" asp-controller="MetaTags" asp-action="Index"
+                                        asp-route-pageName="Takip/Index">
+                                        Sipariş Takip
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                    </ul>
+                </div>
+                <!-- Sidebar -->
+            </div>
         </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <!-- Left Sidebar End -->
+
+
+
+        <!-- ============================================================== -->
+        <!-- Start right Content here -->
+        <!-- ============================================================== -->
+        <div class="main-content">
+
+            <div class="page-content">
+                <div class="container-fluid">
+
+                    @RenderBody()
+
+
+                </div> <!-- container-fluid -->
+            </div>
+            <!-- End Page-content -->
+        </div>
+        <!-- end main content-->
+    </div>
+    <!-- END layout-wrapper -->
+    <!-- Right Sidebar -->
+    <div class="right-bar">
+        <div data-simplebar class="h-100">
+            <div class="rightbar-title d-flex align-items-center p-3">
+
+                <h5 class="m-0 me-2">Settings</h5>
+
+              
+            </div>
+
+            <!-- Settings -->
+            <hr class="m-0" />
+
+            <div class="p-4">
+                
+
+                <h6 class="mt-4 mb-3 pt-2">Topbar Color</h6>
+
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="topbar-color" id="topbar-color-light"
+                        value="light" onchange="document.body.setAttribute('data-topbar', 'light')">
+                    <label class="form-check-label" for="topbar-color-light">Light</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="topbar-color" id="topbar-color-dark" value="dark"
+                        onchange="document.body.setAttribute('data-topbar', 'dark')">
+                    <label class="form-check-label" for="topbar-color-dark">Dark</label>
+                </div>
+
+                <h6 class="mt-4 mb-3 pt-2 sidebar-setting">Sidebar Size</h6>
+
+                <div class="form-check sidebar-setting">
+                    <input class="form-check-input" type="radio" name="sidebar-size" id="sidebar-size-default"
+                        value="default" onchange="document.body.setAttribute('data-sidebar-size', 'lg')">
+                    <label class="form-check-label" for="sidebar-size-default">Default</label>
+                </div>
+                <div class="form-check sidebar-setting">
+                    <input class="form-check-input" type="radio" name="sidebar-size" id="sidebar-size-compact"
+                        value="compact" onchange="document.body.setAttribute('data-sidebar-size', 'small')">
+                    <label class="form-check-label" for="sidebar-size-compact">Compact</label>
+                </div>
+                <div class="form-check sidebar-setting">
+                    <input class="form-check-input" type="radio" name="sidebar-size" id="sidebar-size-small"
+                        value="small" onchange="document.body.setAttribute('data-sidebar-size', 'sm')">
+                    <label class="form-check-label" for="sidebar-size-small">Small (Icon View)</label>
+                </div>
+
+                <h6 class="mt-4 mb-3 pt-2 sidebar-setting">Sidebar Color</h6>
+
+                <div class="form-check sidebar-setting">
+                    <input class="form-check-input" type="radio" name="sidebar-color" id="sidebar-color-light"
+                        value="light" onchange="document.body.setAttribute('data-sidebar', 'light')">
+                    <label class="form-check-label" for="sidebar-color-light">Light</label>
+                </div>
+                <div class="form-check sidebar-setting">
+                    <input class="form-check-input" type="radio" name="sidebar-color" id="sidebar-color-dark"
+                        value="dark" onchange="document.body.setAttribute('data-sidebar', 'dark')">
+                    <label class="form-check-label" for="sidebar-color-dark">Dark</label>
+                </div>
+                <div class="form-check sidebar-setting">
+                    <input class="form-check-input" type="radio" name="sidebar-color" id="sidebar-color-colored"
+                        value="colored" onchange="document.body.setAttribute('data-sidebar', 'colored')">
+                    <label class="form-check-label" for="sidebar-color-colored">Colored</label>
+                </div>
+
+            
+            </div>
+
+        </div> <!-- end slimscroll-menu-->
+    </div>
+    <!-- /Right-bar -->
+
+    <!-- Right bar overlay-->
+    <div class="rightbar-overlay"></div>
+
+
+
+    <script src="~/assets/libs/jquery/jquery.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="~/assets/libs/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="~/assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/assets/libs/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="~/assets/libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js"></script>
+    <script src="~/assets/libs/jszip/jszip.min.js"></script>
+    <script src="~/assets/libs/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="~/assets/libs/datatables.net-buttons/js/buttons.print.min.js"></script>
+    <script src="~/assets/libs/datatables.net-buttons/js/buttons.colVis.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- Bootstrap JS -->
     @await RenderSectionAsync("Scripts", required: false)
+
 </body>
+
 </html>
