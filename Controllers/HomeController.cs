@@ -55,7 +55,7 @@ public class HomeController : Controller
         if (admin != null)
         {
             // Giriş başarılı → Admin paneline yönlendir
-            return RedirectToAction("Panel", "Admin");
+            return RedirectToAction("Index", "Home", new { area = "Admin" });
         }
         else
         {
