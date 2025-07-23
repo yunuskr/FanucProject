@@ -1,4 +1,6 @@
 using FanucRelease.Data; // <-- DÜZELTİLDİ
+using FanucRelease.Services;
+using FanucRelease.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +11,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // MVC servisleri
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped(typeof(IGenericService<>), typeof(GenericService<>));
 
 var app = builder.Build();
 
