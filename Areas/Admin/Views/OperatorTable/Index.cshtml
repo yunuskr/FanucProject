@@ -1,0 +1,31 @@
+@model List<FanucRelease.Models.Operator>
+@{
+    ViewData["Title"] = "Operatör Kullanıcıları";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<table class="table table-centered datatable dt-responsive nowrap table-card-list" style="width: 100%;">
+    <thead>
+        <tr class="bg-transparent">
+            <th>#</th>
+            <th>Kullanıcı Adı</th>
+            <th>Ad</th>
+            <th>Soyad</th>
+            <th>İşlem</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.KullaniciAdi</td>
+                <td>@item.Ad</td>
+                <td>@item.Soyad</td>
+                <td>
+                    <a href="#" class="px-2 text-primary"><i class="uil uil-pen"></i></a>
+                    <a href="#" class="px-2 text-danger"><i class="uil uil-trash-alt"></i></a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

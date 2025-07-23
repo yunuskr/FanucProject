@@ -1,0 +1,45 @@
+@model List<FanucRelease.Models.Admin>
+@{
+    ViewData["Title"] = "Admin Kullanıcıları";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h4 class="mb-4">Admin Kullanıcıları</h4>
+
+<table class="table table-centered datatable dt-responsive nowrap table-card-list"
+       style="border-collapse: collapse; border-spacing: 0 12px; width: 100%;">
+    <thead>
+        <tr class="bg-transparent">
+            <th style="width: 24px;">
+                <div class="form-check text-center font-size-16">
+                    <input type="checkbox" class="form-check-input" id="checkAll">
+                </div>
+            </th>
+            <th>#ID</th>
+            <th>Kullanıcı Adı</th>
+            <th>Şifre</th>
+            <th style="width: 120px;">İşlem</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var admin in Model)
+        {
+            <tr>
+                <td>
+                    <div class="form-check text-center font-size-16">
+                        <input type="checkbox" class="form-check-input">
+                    </div>
+                </td>
+                <td>@admin.Id</td>
+                <td>@admin.KullaniciAdi</td>
+                <td>@admin.Sifre</td>
+                <td>
+                    <a href="@Url.Action("Edit", "Admin", new { id = admin.Id, area = "Admin" })"
+                       class="px-3 text-primary"><i class="uil uil-pen font-size-18"></i></a>
+                    <a href="@Url.Action("Delete", "Admin", new { id = admin.Id, area = "Admin" })"
+                       class="px-3 text-danger"><i class="uil uil-trash-alt font-size-18"></i></a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
