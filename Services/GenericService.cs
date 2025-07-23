@@ -16,29 +16,35 @@ namespace FanucRelease.Services
             _dbSet = _context.Set<T>();
         }
 
-        public IEnumerable<T> GetAll() => _dbSet;
-
-        public T? GetById(int id) => _dbSet.Find(id);
-
-        public void Add(T entity)
+        public async Task<IEnumerable<T>> GetAllAsync()
         {
-            _dbSet.Add(entity);
-            _context.SaveChanges();
+            return await _dbSet.ToListAsync();
         }
 
-        public void Update(T entity)
+        public async Task<T?> GetByIdAsync(int id)
+        {
+            return await _dbSet.FindAsync(id);
+        }
+
+        public async Task AddAsync(T entity)
+        {
+            await _dbSet.AddAsync(entity);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateAsync(T entity)
         {
             _dbSet.Update(entity);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void Delete(int id)
+        public async Task DeleteAsync(int id)
         {
-            var entity = _dbSet.Find(id);
+            var entity = await _dbSet.FindAsync(id);
             if (entity != null)
             {
                 _dbSet.Remove(entity);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
         }
     }
