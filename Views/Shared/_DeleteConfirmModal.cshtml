@@ -1,0 +1,20 @@
+<!-- Global Silme Onay Modali -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteConfirmModalLabel">Silme Onayı</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bu kaydı silmek istediğinize emin misiniz?</p>
+                <input type="hidden" id="deleteId">
+                <input type="hidden" id="deleteUrl">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Sil</button>
+            </div>
+        </div>
+    </div>
+</div>

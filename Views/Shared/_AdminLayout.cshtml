@@ -21,7 +21,20 @@
 
     @RenderSection("Styles", required: false)
 </head>
+<style>
+    .has-arrow.active {
+    font-weight: bold;
+}
+.has-arrow::after {
+    content: '\25BC'; /* Aşağı ok */
+    float: right;
+    transition: transform 0.2s;
+}
 
+.has-arrow.active::after {
+    transform: rotate(180deg); /* Yukarı ok */
+}
+</style>
 
 <body>
 
@@ -152,145 +165,29 @@
             </button>
 
             <div data-simplebar class="sidebar-menu-scroll">
-                <!--- Sidemenu -->
                 <div id="sidebar-menu">
-                    <!-- Left Menu Start -->
                     <ul class="metismenu list-unstyled" id="side-menu">
-                        <li class="menu-title">Menu</li>
 
-                        <!-- Ana Sayfa -->
-                        <li>
-                            <a asp-area="" asp-controller="Home" asp-action="Index" class="waves-effect">
-                                <i class="uil-home-alt"></i>
-                                <span>Ana Sayfa</span>
-                            </a>
-                        </li>
+                        <!-- Menü Başlığı -->
+                        <li class="menu-title">Kullanıcı</li>
 
-                        <!-- Çiçekler -->
+                        <!-- Açılır/Kapanır Kullanıcı Menüsü -->
                         <li>
-                            <a asp-area="Admin" asp-controller="Cicekler" asp-action="Index" class="waves-effect">
-                                <i class="uil-petrol"></i>
-                                <span>Çiçekler</span>
+                            <a href="javascript:void(0);" class="has-arrow waves-effect">
+                                <i class="uil-users-alt"></i>
+                                <span>Kullanıcı</span>
                             </a>
-                        </li>
-
-                        <!-- Çiçek Türleri -->
-                        <li>
-                            <a asp-area="Admin" asp-controller="CicekTuru" asp-action="Index" class="waves-effect">
-                                <i class="uil-list-ul"></i>
-                                <span>Çiçek Türleri</span>
-                            </a>
-                        </li>
-                         <li>
-                            <a asp-area="Admin" asp-controller="IletisimBilgileri" asp-action="Index" class="waves-effect">
-                                <i class="uil-list-ul"></i>
-                                <span>İletişim Bilgilerim</span>
-                            </a>
-                        </li>
-                         <li>
-                            <a asp-area="Admin" asp-controller="Ilceler" asp-action="Index" class="waves-effect">
-                                <i class="uil-list-ul"></i>
-                                <span>İlçeler</span>
-                            </a>
-                        </li>
-
-                        <!-- Gönderim Amaçları -->
-                        <li>
-                            <a asp-area="Admin" asp-controller="GonderimAmaci" asp-action="Index" class="waves-effect">
-                                <i class="uil-map-pin"></i>
-                                <span>Gönderim Amaçları</span>
-                            </a>
-                        </li>
-
-                        <!-- Kampanyalar -->
-                        <li>
-                            <a asp-area="Admin" asp-controller="Kampanya" asp-action="Index" class="waves-effect">
-                                <i class="uil-gift"></i>
-                                <span>Kampanyalar</span>
-                            </a>
-                        </li>
-
-                        <!-- Topbar Kampanya -->
-                        <li>
-                            <a asp-area="Admin" asp-controller="Topbar" asp-action="Index" class="waves-effect">
-                                <i class="uil-megaphone"></i>
-                                <span>Topbar Kampanya</span>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a asp-area="Admin" asp-controller="Slider" asp-action="Index" class="waves-effect">
-                                <i class="uil-gift"></i>
-                                <span>Anasayfa Slider</span>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a asp-area="Admin" asp-controller="HakkimizdaAdmin" asp-action="Index" class="waves-effect">
-                                <i class="uil-gift"></i>
-                                <span>Hakkımızda</span>
-                            </a>
-                        </li>
-
-                        <!-- Aktif Siparişler -->
-                        <li>
-                            <a asp-area="Admin" asp-controller="Siparisler" asp-action="Index" class="waves-effect">
-                                <i class="uil-shopping-cart-alt"></i>
-                                <span>Aktif Siparişler</span>
-                            </a>
-                        </li>
-
-                        <!-- Metalar (alt menülü) -->
-                        <li>
-                            <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                <i class="uil-tag-alt"></i>
-                                <span>Metalar</span>
-                            </a>
-                            <ul class="sub-menu" aria-expanded="false">
-                                <li>
-                                    <a asp-area="Admin" asp-controller="MetaTags" asp-action="Index"
-                                        asp-route-pageName="Home/Index">
-                                        Ana Sayfa
-                                    </a>
-                                </li>
-                                <li>
-                                    <a asp-area="Admin" asp-controller="MetaTags" asp-action="Index"
-                                        asp-route-pageName="Iletisim/Index">
-                                        İletişim
-                                    </a>
-                                </li>
-                                <li>
-                                    <a asp-area="Admin" asp-controller="MetaTags" asp-action="Index"
-                                        asp-route-pageName="Hakkimizda/index">
-                                        Hakkımızda
-                                    </a>
-                                </li>
-                                <li>
-                                    <a asp-area="Admin" asp-controller="MetaTags" asp-action="Index"
-                                        asp-route-pageName="Urunler/Index">
-                                        Ürünler
-                                    </a>
-                                </li>
-                                <li>
-                                    <a asp-area="Admin" asp-controller="MetaTags" asp-action="Index"
-                                        asp-route-pageName="Kampanya/Index">
-                                        Kampanya
-                                    </a>
-                                </li>
-                                <li>
-                                    <a asp-area="Admin" asp-controller="MetaTags" asp-action="Index"
-                                        asp-route-pageName="Takip/Index">
-                                        Sipariş Takip
-                                    </a>
-                                </li>
+                            <ul class="sub-menu" style="display: none;">
+                                <li><a asp-area="Admin" asp-controller="OperatorTable" asp-action="Index">Operatör</a></li>
+                                <li><a asp-area="Admin" asp-controller="AdminTable" asp-action="Index">Admin</a></li>
                             </ul>
                         </li>
 
-                    </ul>
-                </div>
-                <!-- Sidebar -->
-            </div>
-        </div>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
         <!-- Left Sidebar End -->
 
 
@@ -388,7 +285,7 @@
     <!-- Right bar overlay-->
     <div class="rightbar-overlay"></div>
 
-
+    
 
     <script src="~/assets/libs/jquery/jquery.min.js"></script>
     <!-- DataTables JS -->
@@ -401,6 +298,25 @@
     <script src="~/assets/libs/datatables.net-buttons/js/buttons.print.min.js"></script>
     <script src="~/assets/libs/datatables.net-buttons/js/buttons.colVis.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.has-arrow').click(function (e) {
+                e.preventDefault();
+
+                // Alt menüyü bul
+                var submenu = $(this).next('.sub-menu');
+
+                // Diğer açık alt menüleri kapatmak istiyorsan bunu aktif et:
+                // $('.sub-menu').not(submenu).slideUp();
+
+                // Menü toggle
+                submenu.slideToggle(200);
+
+                // Ok ikonunu döndürmek istersen aktif et
+                $(this).toggleClass('active');
+            });
+        });
+    </script>
     <!-- Bootstrap JS -->
     @await RenderSectionAsync("Scripts", required: false)
 

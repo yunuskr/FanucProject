@@ -1,0 +1,187 @@
+@model List<FanucRelease.Models.Operator>
+@{
+    ViewData["Title"] = "Operatör Kullanıcıları";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+@Html.Partial("_DeleteConfirmModal")
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">Operatör Kullanıcıları</h4>
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addOperatorModal">
+        <i class="uil uil-plus me-1"></i> Yeni Operatör Ekle
+    </button>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="addOperatorModal" tabindex="-1" aria-labelledby="addOperatorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="addOperatorForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addOperatorModalLabel">Yeni Operatör Ekle</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="operatorId" name="Id" />
+                    <div class="mb-3">
+                        <label for="kullaniciAdi" class="form-label">Kullanıcı Adı</label>
+                        <input type="text" class="form-control" id="kullaniciAdi" name="KullaniciAdi" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ad" class="form-label">Ad</label>
+                        <input type="text" class="form-control" id="ad" name="Ad" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="soyad" class="form-label">Soyad</label>
+                        <input type="text" class="form-control" id="soyad" name="Soyad" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Kaydet</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<table class="table table-centered datatable dt-responsive nowrap table-card-list"
+       style="border-collapse: collapse; border-spacing: 0 12px; width: 100%;">
+    <thead>
+        <tr class="bg-transparent">
+            <th style="width: 24px;">
+                <div class="form-check text-center font-size-16">
+                    <input type="checkbox" class="form-check-input" id="checkAll">
+                </div>
+            </th>
+            <th>#ID</th>
+            <th>Kullanıcı Adı</th>
+            <th>Ad</th>
+            <th>Soyad</th>
+            <th style="width: 120px;">İşlem</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var op in Model)
+        {
+            <tr>
+                <td>
+                    <div class="form-check text-center font-size-16">
+                        <input type="checkbox" class="form-check-input">
+                    </div>
+                </td>
+                <td>@op.Id</td>
+                <td>@op.KullaniciAdi</td>
+                <td>@op.Ad</td>
+                <td>@op.Soyad</td>
+                <td>
+                    <a href="javascript:void(0);" class="px-3 text-primary edit-operator"
+                       data-id="@op.Id"
+                       data-kullaniciadi="@op.KullaniciAdi"
+                       data-ad="@op.Ad"
+                       data-soyad="@op.Soyad">
+                        <i class="uil uil-pen font-size-18"></i>
+                    </a>
+                    <a href="javascript:void(0);" class="px-3 text-danger btn-delete"
+                    data-id="@op.Id"
+                    data-url="@Url.Action("Delete", "OperatorTable", new { area = "Admin" })">
+                    <i class="uil uil-trash-alt font-size-18"></i>
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+<!-- Modal Açma İşlemi -->
+
+<script>
+    let isEditMode = false;
+
+    $(document).ready(function () {
+        // Modal submit
+        $("#addOperatorForm").submit(function (e) {
+            e.preventDefault();
+
+            const id = $("#operatorId").val();
+            const url = isEditMode
+                ? '@Url.Action("UpdateOperator", "OperatorTable", new { area = "Admin" })'
+                : '@Url.Action("AddOperator", "OperatorTable", new { area = "Admin" })';
+
+            const data = {
+                Id: id,
+                KullaniciAdi: $("#kullaniciAdi").val(),
+                Ad: $("#ad").val(),
+                Soyad: $("#soyad").val()
+            };
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: data,
+                success: function () {
+                    location.reload();
+                },
+                error: function () {
+                    alert("İşlem başarısız.");
+                }
+            });
+        });
+
+        // Düzenle butonuna tıklanırsa
+        $(".edit-operator").click(function () {
+            isEditMode = true;
+
+            $("#operatorId").val($(this).data("id"));
+            $("#kullaniciAdi").val($(this).data("kullaniciadi"));
+            $("#ad").val($(this).data("ad"));
+            $("#soyad").val($(this).data("soyad"));
+
+            $("#addOperatorModalLabel").text("Operatör Düzenle");
+            $("#addOperatorModal").modal("show");
+        });
+
+        // Modal kapandığında resetle
+        $('#addOperatorModal').on('hidden.bs.modal', function () {
+            isEditMode = false;
+            $('#addOperatorForm')[0].reset();
+            $('#operatorId').val('');
+            $("#addOperatorModalLabel").text("Yeni Operatör Ekle");
+        });
+    });
+</script>
+<!-- Onay Modalı -->
+
+<script>
+        $(document).ready(function () {
+            // Silme butonuna tıklanınca modalı aç
+            $(document).on("click", ".btn-delete", function () {
+                const id = $(this).data("id");
+                const url = $(this).data("url");
+
+                $("#deleteId").val(id);
+                $("#deleteUrl").val(url);
+                $("#deleteConfirmModal").modal("show");
+            });
+
+            // Silme onay butonuna tıklanınca AJAX gönder
+            $("#confirmDeleteBtn").click(function () {
+                const id = $("#deleteId").val();
+                const url = $("#deleteUrl").val();
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: { id: id },
+                    success: function () {
+                        $("#deleteConfirmModal").modal("hide");
+                        location.reload();
+                    },
+                    error: function () {
+                        alert("Silme işlemi başarısız oldu.");
+                    }
+                });
+            });
+        });
+    </script>
+}
