@@ -22,24 +22,25 @@ public class HomeController : Controller
     [HttpPost]
     public IActionResult Index(string username)
     {
-        if (string.IsNullOrEmpty(username))
-        {
-            TempData["Error"] = "Kullanıcı adı boş olamaz.";
-            return View();
-        }
+        // if (string.IsNullOrEmpty(username))
+        // {
+        //     TempData["Error"] = "Kullanıcı adı boş olamaz.";
+        //     return View();
+        // }
 
-        var kullanici = _context.Operators.FirstOrDefault(o => o.KullaniciAdi == username);
+        // var kullanici = _context.Operators.FirstOrDefault(o => o.KullaniciAdi == username);
 
-        if (kullanici != null)
-        {
-            // Kullanıcı bulunduysa yönlendir
-            return RedirectToAction("Panel", "Operator");
-        }
-        else
-        {
-            TempData["Error"] = "Kullanıcı bulunamadı.";
-            return View();
-        }
+        // if (kullanici != null)
+        // {
+        //     // Kullanıcı bulunduysa yönlendir
+        //     return RedirectToAction("Panel", "Operator");
+        // }
+        // else
+        // {
+        //     TempData["Error"] = "Kullanıcı bulunamadı.";
+        //     return View();
+        // }
+        return View();
     }
     [HttpPost]
     public IActionResult AdminLogin(string adminUsername, string adminPassword)
