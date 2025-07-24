@@ -4,12 +4,12 @@ using FanucRelease.Models;
 using FanucRelease.Data;
 namespace FanucRelease.Controllers;
 
-public class HomeController : Controller
+public class LoginController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
+    private readonly ILogger<LoginController> _logger;
     private readonly ApplicationDbContext _context;
 
-    public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
+    public LoginController(ILogger<LoginController> logger, ApplicationDbContext context)
     {
         _logger = logger;
         _context = context;
@@ -22,8 +22,24 @@ public class HomeController : Controller
     [HttpPost]
     public IActionResult Index(string username)
     {
-        
-        return View();
+        if (string.IsNullOrEmpty(username))
+        {
+            TempData["Error"] = "Kullanıcı adı boş olamaz.";
+            return View();
+        }
+
+        var kullanici = _context.Operators.FirstOrDefault(o => o.KullaniciAdi == username);
+
+        if (kullanici != null)
+        {
+            // Kullanıcı bulunduysa yönlendir
+            return RedirectToAction("Index", "Home");
+        }
+        else
+        {
+            TempData["Error"] = "Kullanıcı bulunamadı.";
+            return View();
+        }
     }
     [HttpPost]
     public IActionResult AdminLogin(string adminUsername, string adminPassword)
