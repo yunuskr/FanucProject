@@ -1,53 +1,51 @@
+@* _Layout.cshtml *@
 <!doctype html>
-<html lang="en">
-
+<html lang="tr">
 <head>
-
     <meta charset="utf-8" />
-    <title>Ülkem Çiçek Admin Panel</title>
+    <title>Fanuc Release Admin Panel</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
     <meta content="Themesbrand" name="author" />
-    <!-- App favicon -->
+
+    <!-- Favicon -->
     <link rel="shortcut icon" href="~/assets/images/favicon.ico">
-    <!-- Bootstrap Css -->
+
+    <!-- CSS -->
     <link href="~/assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css" />
-    <!-- Icons Css -->
     <link href="~/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
-    <!-- App Css-->
     <link href="~/assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css" />
 
-
-
     @RenderSection("Styles", required: false)
-</head>
-<style>
-    .has-arrow.active {
-    font-weight: bold;
-}
-.has-arrow::after {
-    content: '\25BC'; /* Aşağı ok */
-    float: right;
-    transition: transform 0.2s;
-}
 
-.has-arrow.active::after {
-    transform: rotate(180deg); /* Yukarı ok */
-}
-</style>
+    <style>
+        /* Menü oku ve aktif görünüm */
+        .has-arrow.active { font-weight: bold; }
+        .has-arrow::after {
+            content: '\25BC';
+            float: right;
+            transition: transform 0.2s;
+        }
+        .has-arrow.active::after { transform: rotate(180deg); }
+
+        /* MetisMenu görünürlük netleştirme (tema çakışmalarına karşı) */
+        .sub-menu.mm-collapse { display: none; }
+        .sub-menu.mm-collapse.mm-show { display: block; }
+    </style>
+</head>
 
 <body>
-
     <!-- <body data-layout="horizontal" data-topbar="colored"> -->
 
-    <!-- Begin page -->
     <div id="layout-wrapper">
+        <!-- Topbar -->
         <header id="page-topbar">
             <div class="navbar-header">
                 <div class="d-flex">
                     <!-- LOGO -->
                     <div class="navbar-brand-box">
-                        <a href="~/index.html" class="logo logo-dark">
+                        <a href="~/" class="logo logo-dark">
                             <span class="logo-sm">
                                 <img src="~/assets/images/logo-sm.png" alt="" height="22">
                             </span>
@@ -55,8 +53,7 @@
                                 <img src="~/assets/images/logo-dark.png" alt="" height="20">
                             </span>
                         </a>
-
-                        <a href="~/index.html" class="logo logo-light">
+                        <a href="~/" class="logo logo-light">
                             <span class="logo-sm">
                                 <img src="~/assets/images/logo-sm.png" alt="" height="22">
                             </span>
@@ -66,12 +63,11 @@
                         </a>
                     </div>
 
-                    <button type="button"
-                        class="btn btn-sm px-3 font-size-16 header-item waves-effect vertical-menu-btn">
+                    <button type="button" class="btn btn-sm px-3 font-size-16 header-item waves-effect vertical-menu-btn">
                         <i class="fa fa-fw fa-bars"></i>
                     </button>
 
-                    <!-- App Search-->
+                    <!-- Search -->
                     <form class="app-search d-none d-lg-block">
                         <div class="position-relative">
                             <input type="text" class="form-control" placeholder="Search...">
@@ -81,65 +77,83 @@
                 </div>
 
                 <div class="d-flex">
-
+                    <!-- Mobile search -->
                     <div class="dropdown d-inline-block d-lg-none ms-2">
                         <button type="button" class="btn header-item noti-icon waves-effect"
-                            id="page-header-search-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
-                            aria-expanded="false">
+                                id="page-header-search-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="uil-search"></i>
                         </button>
-                        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
-                            aria-labelledby="page-header-search-dropdown">
-
+                        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0" aria-labelledby="page-header-search-dropdown">
                             <form class="p-3">
                                 <div class="m-0">
                                     <div class="input-group">
-                                        <input type="text" class="form-control" placeholder="Search ..."
-                                            aria-label="Recipient's username">
-                                        <div class="input-group-append">
-                                            <button class="btn btn-primary" type="submit"><i
-                                                    class="mdi mdi-magnify"></i></button>
-                                        </div>
+                                        <input type="text" class="form-control" placeholder="Search ..." aria-label="Recipient's username">
+                                        <button class="btn btn-primary" type="submit"><i class="mdi mdi-magnify"></i></button>
                                     </div>
                                 </div>
                             </form>
                         </div>
                     </div>
 
-                    
-
-                    
-
+                    <!-- Fullscreen -->
                     <div class="dropdown d-none d-lg-inline-block ms-1">
-                        <button type="button" class="btn header-item noti-icon waves-effect"
-                            data-bs-toggle="fullscreen">
+                        <button type="button" class="btn header-item noti-icon waves-effect" data-bs-toggle="fullscreen">
                             <i class="uil-minus-path"></i>
                         </button>
                     </div>
 
-                    <div class="dropdown d-inline-block">
-                        <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
-                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <img class="rounded-circle header-profile-user" src="~/favicon.ico"
-                                alt="Header Avatar">
-                            <span class="d-none d-xl-inline-block ms-1 fw-medium font-size-15">Emirhan</span>
-                            <i class="uil-angle-down d-none d-xl-inline-block font-size-15"></i>
-                        </button>
-                    </div>
+                    <!-- User -->
+                    <!-- Admin: kullanıcı dropdown -->
+                        <div class="dropdown d-inline-block">
+                            <button type="button" class="btn header-item waves-effect" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img class="rounded-circle header-profile-user" src="~/assets/images/users/avatar-4.jpg" alt="">
+                                <span class="ms-2">
+                                    @(User?.Identity?.IsAuthenticated == true ? User.Identity!.Name : "Misafir")
+                                </span>
+                                <i class="uil-angle-down ms-1"></i>
+                            </button>
 
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <div class="dropdown-header noti-title">
+                                    <h6 class="text-overflow m-0">Hoş geldin, @User.Identity!.Name!</h6>
+                                </div>
+
+                                <a class="dropdown-item" href="#">
+                                    <i class="uil uil-user-circle me-1 text-muted"></i> Profilim
+                                </a>
+                                <a class="dropdown-item" href="#">
+                                    <i class="uil uil-cog me-1 text-muted"></i> Ayarlar
+                                </a>
+
+                                <a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="Index">
+                                    <i class="uil uil-home me-1 text-muted"></i> Kullanıcı Paneline Dön
+                                </a>
+
+                                <hr class="dropdown-divider my-1" />
+
+                                <form asp-controller="Login" asp-action="Logout" method="post" class="px-2">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        <i class="uil uil-sign-out-alt me-1 text-muted"></i> Çıkış Yap
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                    <!-- Right bar toggle -->
                     <div class="dropdown d-inline-block">
                         <button type="button" class="btn header-item noti-icon right-bar-toggle waves-effect">
                             <i class="uil-cog"></i>
                         </button>
                     </div>
-
                 </div>
             </div>
         </header>
+        <!-- /Topbar -->
+
         <!-- ========== Left Sidebar Start ========== -->
         <div class="vertical-menu">
-
-            <!-- LOGO -->
+            <!-- LOGO (sidebar içi) -->
             <div class="navbar-brand-box">
                 <a asp-controller="" asp-action="" class="logo logo-dark">
                     <span class="logo-sm">
@@ -149,8 +163,7 @@
                         <img src="~/assets/images/logo-dark.png" alt="" height="20">
                     </span>
                 </a>
-
-                <a href="~/index.html" class="logo logo-light">
+                <a href="~/" class="logo logo-light">
                     <span class="logo-sm">
                         <img src="~/assets/images/logo-sm.png" alt="" height="22">
                     </span>
@@ -168,127 +181,120 @@
                 <div id="sidebar-menu">
                     <ul class="metismenu list-unstyled" id="side-menu">
 
-                        <!-- Menü Başlığı -->
-                        <li class="menu-title">Kullanıcı</li>
+                        <!-- Başlık -->
+                        <li class="menu-title">Yönetim Menüsü</li>
 
-                        <!-- Açılır/Kapanır Kullanıcı Menüsü -->
+                        <!-- Açılır Menülü Kullanıcı Grubu -->
                         <li>
                             <a href="javascript:void(0);" class="has-arrow waves-effect">
                                 <i class="uil-users-alt"></i>
-                                <span>Kullanıcı</span>
+                                <span>Kullanıcı Yönetimi</span>
                             </a>
-                            <ul class="sub-menu" style="display: none;">
+                            <ul class="sub-menu" aria-expanded="false">
                                 <li><a asp-area="Admin" asp-controller="OperatorTable" asp-action="Index">Operatör</a></li>
                                 <li><a asp-area="Admin" asp-controller="AdminTable" asp-action="Index">Admin</a></li>
                             </ul>
                         </li>
 
-                                </ul>
-                            </div>
-                        </div>
+                    </ul>
+                </div>
+            </div>
 
-                    </div>
-        <!-- Left Sidebar End -->
-
-
+        </div>
+        <!-- /Left Sidebar End -->
 
         <!-- ============================================================== -->
         <!-- Start right Content here -->
         <!-- ============================================================== -->
         <div class="main-content">
-
             <div class="page-content">
                 <div class="container-fluid">
-
                     @RenderBody()
-
-
-                </div> <!-- container-fluid -->
+                </div>
             </div>
-            <!-- End Page-content -->
         </div>
-        <!-- end main content-->
+        <!-- ============================================================== -->
+        <!-- End right Content -->
+        <!-- ============================================================== -->
     </div>
     <!-- END layout-wrapper -->
+
     <!-- Right Sidebar -->
     <div class="right-bar">
         <div data-simplebar class="h-100">
             <div class="rightbar-title d-flex align-items-center p-3">
-
                 <h5 class="m-0 me-2">Settings</h5>
-
-              
             </div>
 
-            <!-- Settings -->
             <hr class="m-0" />
 
             <div class="p-4">
-                
-
                 <h6 class="mt-4 mb-3 pt-2">Topbar Color</h6>
-
                 <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="topbar-color" id="topbar-color-light"
-                        value="light" onchange="document.body.setAttribute('data-topbar', 'light')">
+                           value="light" onchange="document.body.setAttribute('data-topbar', 'light')">
                     <label class="form-check-label" for="topbar-color-light">Light</label>
                 </div>
                 <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="topbar-color" id="topbar-color-dark" value="dark"
-                        onchange="document.body.setAttribute('data-topbar', 'dark')">
+                           onchange="document.body.setAttribute('data-topbar', 'dark')">
                     <label class="form-check-label" for="topbar-color-dark">Dark</label>
                 </div>
 
                 <h6 class="mt-4 mb-3 pt-2 sidebar-setting">Sidebar Size</h6>
-
                 <div class="form-check sidebar-setting">
                     <input class="form-check-input" type="radio" name="sidebar-size" id="sidebar-size-default"
-                        value="default" onchange="document.body.setAttribute('data-sidebar-size', 'lg')">
+                           value="default" onchange="document.body.setAttribute('data-sidebar-size', 'lg')">
                     <label class="form-check-label" for="sidebar-size-default">Default</label>
                 </div>
                 <div class="form-check sidebar-setting">
                     <input class="form-check-input" type="radio" name="sidebar-size" id="sidebar-size-compact"
-                        value="compact" onchange="document.body.setAttribute('data-sidebar-size', 'small')">
+                           value="compact" onchange="document.body.setAttribute('data-sidebar-size', 'small')">
                     <label class="form-check-label" for="sidebar-size-compact">Compact</label>
                 </div>
                 <div class="form-check sidebar-setting">
                     <input class="form-check-input" type="radio" name="sidebar-size" id="sidebar-size-small"
-                        value="small" onchange="document.body.setAttribute('data-sidebar-size', 'sm')">
+                           value="small" onchange="document.body.setAttribute('data-sidebar-size', 'sm')">
                     <label class="form-check-label" for="sidebar-size-small">Small (Icon View)</label>
                 </div>
 
                 <h6 class="mt-4 mb-3 pt-2 sidebar-setting">Sidebar Color</h6>
-
                 <div class="form-check sidebar-setting">
                     <input class="form-check-input" type="radio" name="sidebar-color" id="sidebar-color-light"
-                        value="light" onchange="document.body.setAttribute('data-sidebar', 'light')">
+                           value="light" onchange="document.body.setAttribute('data-sidebar', 'light')">
                     <label class="form-check-label" for="sidebar-color-light">Light</label>
                 </div>
                 <div class="form-check sidebar-setting">
                     <input class="form-check-input" type="radio" name="sidebar-color" id="sidebar-color-dark"
-                        value="dark" onchange="document.body.setAttribute('data-sidebar', 'dark')">
+                           value="dark" onchange="document.body.setAttribute('data-sidebar', 'dark')">
                     <label class="form-check-label" for="sidebar-color-dark">Dark</label>
                 </div>
                 <div class="form-check sidebar-setting">
                     <input class="form-check-input" type="radio" name="sidebar-color" id="sidebar-color-colored"
-                        value="colored" onchange="document.body.setAttribute('data-sidebar', 'colored')">
+                           value="colored" onchange="document.body.setAttribute('data-sidebar', 'colored')">
                     <label class="form-check-label" for="sidebar-color-colored">Colored</label>
                 </div>
-
-            
             </div>
-
-        </div> <!-- end slimscroll-menu-->
+        </div>
     </div>
-    <!-- /Right-bar -->
+    <!-- /Right Sidebar -->
 
-    <!-- Right bar overlay-->
     <div class="rightbar-overlay"></div>
 
-    
-
+    <!-- JS: Sıra çok önemli -->
     <script src="~/assets/libs/jquery/jquery.min.js"></script>
-    <!-- DataTables JS -->
+    <script src="~/assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- MetisMenu (doğru yol) -->
+    <script src="~/assets/libs/metismenu/metisMenu.min.js"></script>
+
+    <script src="~/assets/libs/simplebar/simplebar.min.js"></script>
+    <script src="~/assets/libs/node-waves/waves.min.js"></script>
+
+    <!-- Tema ana script -->
+    <script src="~/assets/js/app.js"></script>
+
+    <!-- (Opsiyonel) DataTables -->
     <script src="~/assets/libs/datatables.net/js/jquery.dataTables.min.js"></script>
     <script src="~/assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
     <script src="~/assets/libs/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
@@ -297,29 +303,51 @@
     <script src="~/assets/libs/datatables.net-buttons/js/buttons.html5.min.js"></script>
     <script src="~/assets/libs/datatables.net-buttons/js/buttons.print.min.js"></script>
     <script src="~/assets/libs/datatables.net-buttons/js/buttons.colVis.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $('.has-arrow').click(function (e) {
-                e.preventDefault();
 
-                // Alt menüyü bul
-                var submenu = $(this).next('.sub-menu');
-
-                // Diğer açık alt menüleri kapatmak istiyorsan bunu aktif et:
-                // $('.sub-menu').not(submenu).slideUp();
-
-                // Menü toggle
-                submenu.slideToggle(200);
-
-                // Ok ikonunu döndürmek istersen aktif et
-                $(this).toggleClass('active');
-            });
-        });
-    </script>
-    <!-- Bootstrap JS -->
     @await RenderSectionAsync("Scripts", required: false)
 
-</body>
+    <script>
+        // MetisMenu güvenli init + fallback
+        (function () {
+            function initMetisMenuSafe() {
+                var $menu = $("#side-menu");
+                if (!$menu.length) {
+                    console.error("#side-menu bulunamadı");
+                    return;
+                }
+                if (typeof $.fn.metisMenu !== "function") {
+                    console.error("metisMenu yüklü değil (dosya yolu/404 veya çift jQuery). Fallback devrede.");
+                    return;
+                }
+                try {
+                    if ($menu.data('mm')) { $menu.metisMenu('dispose'); }
+                } catch (e) { /* eski sürümse dispose yok, sorun değil */ }
+                $menu.metisMenu({ toggle: true });
+            }
 
+            // Fallback: metisMenu yoksa dahi aç/kapa çalışsın
+            document.addEventListener("click", function (e) {
+                var btn = e.target.closest("a.has-arrow");
+                if (!btn) return;
+                var sub = btn.parentElement.querySelector(".sub-menu");
+                if (!sub) return;
+
+                if (typeof $.fn.metisMenu !== "function") {
+                    e.preventDefault();
+                    btn.classList.toggle("active");
+                    if (sub.classList.contains("mm-show")) {
+                        sub.classList.remove("mm-show");
+                        sub.style.display = "none";
+                    } else {
+                        sub.classList.add("mm-show");
+                        sub.style.display = "block";
+                    }
+                }
+            });
+
+            // Sayfa hazır olunca deneyelim
+            $(function () { initMetisMenuSafe(); });
+        })();
+    </script>
+</body>
 </html>

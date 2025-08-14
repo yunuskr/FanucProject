@@ -21,6 +21,7 @@ namespace FanucRelease.Areas.Admin.Controllers
             return View(operators); // --> Views/Admin/OperatorTable/Index.cshtml
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddOperator([FromForm] Operator model)
         {
             if (ModelState.IsValid)
@@ -31,6 +32,7 @@ namespace FanucRelease.Areas.Admin.Controllers
             return BadRequest(ModelState);
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateOperator([FromForm] Operator model)
         {
             if (ModelState.IsValid)

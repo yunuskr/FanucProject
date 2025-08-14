@@ -1,4 +1,101 @@
 @{
+    ViewData["Title"] = "Anasayfa";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var hour = DateTime.Now.Hour;
+    var selam = hour < 12 ? "Günaydın" : (hour < 18 ? "İyi günler" : "İyi akşamlar");
+    var ad = (User?.Identity?.IsAuthenticated ?? false) ? User.Identity?.Name : "Kullanıcı";
 }
-<p>Anasayfa</p>
+
+<div class="welcome-hero mb-4">
+    <!-- text-white -> text-dark -->
+    <div class="p-4 p-lg-5 text-dark rounded-3">
+        <h2 class="mb-2">@selam, @ad 👋</h2>
+        <!-- text-white-50 -> text-dark -->
+        <p class="mb-0 text-dark">
+            Robentex Robot Takip’e hoş geldin. Başlamak için soldaki <strong>menü</strong>den bir bölüm seç.
+        </p>
+    </div>
+</div>
+
+<div class="alert alert-info shadow-sm mb-4" role="alert">
+    <i class="uil-megaphone me-1"></i>
+    Bu alanı duyuru / kısa not için kullanabilirsin. İstersen tamamen kaldır.
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header d-flex align-items-center">
+                <i class="uil-activity me-2"></i> Anlık Veriler
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled icon-list mb-0">
+                    <li><i class="uil-wrench me-2"></i>Kaynak Parametre Bilgileri</li>
+                    <li><i class="uil-file-alt me-2"></i>Program Bilgileri</li>
+                    <li><i class="uil-package me-2"></i>Parça Bilgileri</li>
+                    <li><i class="uil-bell me-2"></i>Alarmlar</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header d-flex align-items-center">
+                <i class="uil-history me-2"></i> Geçmiş Veriler
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled icon-list mb-0">
+                    <li><i class="uil-check-circle me-2"></i>Tamamlanan Kaynaklar</li>
+                    <li><i class="uil-clipboard-alt me-2"></i>Tamamlanan Program Bilgileri</li>
+                    <li><i class="uil-box me-2"></i>Tamamlanan Parça Bilgileri</li>
+                    <li><i class="uil-bell-school me-2"></i>Geçmiş Alarmlar</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3 g-3">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header d-flex align-items-center">
+                <i class="uil-rocket me-2"></i> Hızlı Başlangıç
+            </div>
+            <div class="card-body">
+                <ol class="mb-0 small lh-lg">
+                    <li>Sol üstteki <em>hamburger</em> ikonuyla menüyü genişlet.</li>
+                    <li><strong>Anlık Veriler</strong> bölümünden ihtiyacın olan alanı aç.</li>
+                    <li>Geçmişe bakmak için <strong>Geçmiş Veriler</strong> menüsünü kullan.</li>
+                    <li>Kullanıcı menüsünden <em>Profil/Ayarlar</em> ve <em>Çıkış</em> işlemlerini yönet.</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header d-flex align-items-center">
+                <i class="uil-lightbulb-alt me-2"></i> İpuçları
+            </div>
+            <div class="card-body">
+                <ul class="mb-0 small lh-lg">
+                    <li>Sayfa genişliğini artırmak için sağ üstteki <em>ayar</em> (dişli) panelini kullan.</li>
+                    <li>Koyu/Açık modu üst bardan tek tıkla değiştirebilirsin.</li>
+                    <li>Menüdeki başlıklar açılır/kapanır; alt başlıklara buradan ulaşılır.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Sarı arka plan + siyah yazı */
+    .welcome-hero .rounded-3 {
+        background: #FFC107;             /* sarı */
+        color: #000;                     /* siyah yazı */
+        box-shadow: 0 10px 30px rgba(0,0,0,.12);
+    }
+    /* Listeler */
+    .icon-list li { padding:.25rem 0; display:flex; align-items:center; }
+    .icon-list i { opacity:.9; }
+</style>

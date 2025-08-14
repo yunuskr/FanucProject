@@ -44,16 +44,12 @@ namespace FanucRelease.Areas.Admin.Controllers
         }
 
         // Silme
-        // [HttpPost]
-        // public async Task<IActionResult> Delete(int id)
-        // {
-        //     var admin = await _adminService.GetByIdAsync(id);
-        //     if (admin != null)
-        //     {
-        //         await _adminService.DeleteAsync(admin);
-        //         return Ok();
-        //     }
-        //     return NotFound();
-        // }
-    }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            await _adminService.DeleteAsync(id);
+            return Ok();
+        }
+            }
 }

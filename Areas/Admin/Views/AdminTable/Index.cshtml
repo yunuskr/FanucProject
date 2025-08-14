@@ -18,6 +18,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <form id="addAdminForm">
+                @Html.AntiForgeryToken()
                 <div class="modal-header">
                     <h5 class="modal-title" id="addAdminModalLabel">Yeni Admin Ekle</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
@@ -47,9 +48,7 @@
     <thead>
         <tr class="bg-transparent">
             <th style="width: 24px;">
-                <div class="form-check text-center font-size-16">
-                    <input type="checkbox" class="form-check-input" id="checkAll">
-                </div>
+                
             </th>
             <th>#ID</th>
             <th>Kullanıcı Adı</th>
@@ -62,9 +61,7 @@
         {
             <tr>
                 <td>
-                    <div class="form-check text-center font-size-16">
-                        <input type="checkbox" class="form-check-input">
-                    </div>
+                    
                 </td>
                 <td>@admin.Id</td>
                 <td>@admin.KullaniciAdi</td>
@@ -89,81 +86,86 @@
 
 @section Scripts {
 <script>
+$(document).ready(function () {
     let isAdminEditMode = false;
 
-    $(document).ready(function () {
-        // Kaydet
-        $("#addAdminForm").submit(function (e) {
-            e.preventDefault();
+    $("#addAdminForm").on("submit", function (e) {
+        e.preventDefault();
 
-            const id = $("#adminId").val();
-            const url = isAdminEditMode
-                ? '@Url.Action("UpdateAdmin", "AdminTable", new { area = "Admin" })'
-                : '@Url.Action("AddAdmin", "AdminTable", new { area = "Admin" })';
+        const token = $('input[name="__RequestVerificationToken"]').val();
 
-            const data = {
-                Id: id,
-                KullaniciAdi: $("#adminKullaniciAdi").val(),
-                Sifre: $("#adminSifre").val()
-            };
+        const url = isAdminEditMode
+            ? '@Url.Action("UpdateAdmin", "AdminTable", new { area = "Admin" })'
+            : '@Url.Action("AddAdmin", "AdminTable", new { area = "Admin" })';
 
-            $.ajax({
-                type: "POST",
-                url: url,
-                data: data,
-                success: function () {
-                    location.reload();
-                },
-                error: function () {
-                    alert("İşlem başarısız oldu.");
-                }
-            });
-        });
+        const data = {
+            Id: $("#adminId").val(),
+            KullaniciAdi: $("#adminKullaniciAdi").val(),
+            Sifre: $("#adminSifre").val()
+        };
 
-        // Düzenle butonu
-        $(".edit-admin").click(function () {
-            isAdminEditMode = true;
+        if (!isAdminEditMode) {
+            delete data.Id;         // veya: data.Id = 0;
+        }
 
-            $("#adminId").val($(this).data("id"));
-            $("#adminKullaniciAdi").val($(this).data("kullaniciadi"));
-            $("#adminSifre").val($(this).data("sifre"));
-
-            $("#addAdminModalLabel").text("Admin Düzenle");
-            $("#addAdminModal").modal("show");
-        });
-
-        $('#addAdminModal').on('hidden.bs.modal', function () {
-            isAdminEditMode = false;
-            $('#addAdminForm')[0].reset();
-            $('#adminId').val('');
-            $("#addAdminModalLabel").text("Yeni Admin Ekle");
-        });
-
-        // Silme modalı
-        $(document).on("click", ".btn-delete", function () {
-            const id = $(this).data("id");
-            const url = $(this).data("url");
-            $("#deleteId").val(id);
-            $("#deleteUrl").val(url);
-            $("#deleteConfirmModal").modal("show");
-        });
-
-        $("#confirmDeleteBtn").click(function () {
-            const id = $("#deleteId").val();
-            const url = $("#deleteUrl").val();
-            $.ajax({
-                type: "POST",
-                url: url,
-                data: { id: id },
-                success: function () {
-                    $("#deleteConfirmModal").modal("hide");
-                    location.reload();
-                },
-                error: function () {
-                    alert("Silme başarısız oldu.");
-                }
-            });
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: data,
+            headers: { 'RequestVerificationToken': token },
+            success: function () { location.reload(); },
+            error: function (xhr) {
+                console.error(xhr.responseText);
+                alert("İşlem başarısız oldu.");
+            }
         });
     });
+
+    // Düzenle
+    $(".edit-admin").on("click", function () {
+        isAdminEditMode = true;
+        $("#adminId").val($(this).data("id"));
+        $("#adminKullaniciAdi").val($(this).data("kullaniciadi"));
+        $("#adminSifre").val($(this).data("sifre"));
+        $("#addAdminModalLabel").text("Admin Düzenle");
+        $("#addAdminModal").modal("show");
+    });
+
+    // Modal reset
+    $('#addAdminModal').on('hidden.bs.modal', function () {
+        isAdminEditMode = false;
+        $('#addAdminForm')[0].reset();
+        $('#adminId').val(''); // Add modunda göndermeyeceğiz zaten
+        $("#addAdminModalLabel").text("Yeni Admin Ekle");
+    });
+
+    // Silme – token ekle
+    $(document).on("click", ".btn-delete", function () {
+        $("#deleteId").val($(this).data("id"));
+        $("#deleteUrl").val($(this).data("url"));
+        $("#deleteConfirmModal").modal("show");
+    });
+
+    $("#confirmDeleteBtn").on("click", function () {
+        const id = $("#deleteId").val();
+        const url = $("#deleteUrl").val();
+        const token = $('input[name="__RequestVerificationToken"]').val();
+
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: { id: id },
+            headers: { 'RequestVerificationToken': token },
+            success: function () {
+                $("#deleteConfirmModal").modal("hide");
+                location.reload();
+            },
+            error: function (xhr) {
+                console.error(xhr.responseText);
+                alert("Silme başarısız oldu.");
+            }
+        });
+    });
+});
 </script>
 }

@@ -1,4 +1,107 @@
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Hoş geldiniz";
 }
-<p>asdasdasdasd</p>
+
+<div class="container-fluid py-3">
+    <!-- Hero -->
+    <div class="card border-0 shadow-sm welcome-hero mb-4 position-relative overflow-hidden">
+        <div class="card-body p-4 p-md-5 text-white">
+            <div class="d-flex align-items-center">
+                <div class="hero-badge me-3">
+                    <i class="uil uil-robot"></i>
+                </div>
+                <div>
+                    <h2 class="mb-1 fw-semibold">Hoş geldiniz 👋</h2>
+                    <div class="text-white-50 mb-2">
+                        Fanuc kaynak operasyon paneline hoş geldiniz. Sol menüden modülleri açabilirsiniz.
+                    </div>
+                    <div class="small text-white-75">
+                        <span id="nowText"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dekoratif dalga -->
+        <svg class="hero-wave" viewBox="0 0 1440 120" preserveAspectRatio="none">
+            <path d="M0,64L48,58.7C96,53,192,43,288,48C384,53,480,75,576,85.3C672,96,768,96,864,80C960,64,1056,32,1152,26.7C1248,21,1344,43,1392,53.3L1440,64L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z" opacity=".2"></path>
+        </svg>
+    </div>
+
+    <!-- Bilgilendirici kutular (link değil, sadece karşılama içeriği) -->
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 info-card">
+                <div class="card-body d-flex">
+                    <i class="uil uil-shield-check fs-3 me-3 text-primary"></i>
+                    <div>
+                        <div class="fw-semibold mb-1">Güvenli Çalışma</div>
+                        <div class="text-muted small">Gün başında gaz akışı, tel besleme ve topraklama kontrolünü yapmayı unutmayın.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 info-card">
+                <div class="card-body d-flex">
+                    <i class="uil uil-book-open fs-3 me-3 text-info"></i>
+                    <div>
+                        <div class="fw-semibold mb-1">Hızlı İpucu</div>
+                        <div class="text-muted small">Dikiş başlangıç/bitiş parametreleri için standart şablonu kullanın; tutarlılık kaliteyi artırır.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 info-card">
+                <div class="card-body d-flex">
+                    <i class="uil uil-bell fs-3 me-3 text-warning"></i>
+                    <div>
+                        <div class="fw-semibold mb-1">Duyuru</div>
+                        <div class="text-muted small">12.08 güncellemesi tamamlandı. Parametre ekranları yeni tema ile yenilendi.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // TR yerelleştirmesi ile tarih-saat
+    function renderNow(){
+        const now = new Date();
+        const fmt = new Intl.DateTimeFormat('tr-TR', {
+            weekday:'long', day:'2-digit', month:'long', year:'numeric',
+            hour:'2-digit', minute:'2-digit'
+        });
+        document.getElementById('nowText').textContent = fmt.format(now);
+    }
+    renderNow();
+    setInterval(renderNow, 1000);
+</script>
+
+<style>
+    .welcome-hero{
+        background: linear-gradient(135deg,#0ea5e9,#6366f1);
+        border-radius: 1rem;
+    }
+    .welcome-hero .card-body{ position: relative; z-index: 2; }
+    .hero-badge{
+        width:64px;height:64px;min-width:64px;
+        display:flex;align-items:center;justify-content:center;
+        background: rgba(255,255,255,.15);
+        border:1px solid rgba(255,255,255,.25);
+        border-radius: 16px;
+        box-shadow: inset 0 0 20px rgba(255,255,255,.1);
+        font-size: 28px; color:#fff;
+    }
+    .hero-wave{
+        position:absolute;left:0;right:0;bottom:-1px;height:70px;width:100%;
+        fill:#fff;
+    }
+    .info-card{ border-radius: 1rem; transition: transform .15s ease, box-shadow .15s ease; }
+    .info-card:hover{ transform: translateY(-2px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.08)!important; }
+</style>
+}

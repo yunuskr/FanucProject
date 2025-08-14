@@ -1,24 +1,39 @@
-using FanucRelease.Data; // <-- DÜZELTİLDİ
+using FanucRelease.Data;
 using FanucRelease.Services;
 using FanucRelease.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Veritabanı bağlantısı
+// DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// MVC servisleri
+// MVC
 builder.Services.AddControllersWithViews();
+
+// DI
 builder.Services.AddScoped(typeof(IGenericService<>), typeof(GenericService<>));
+
+// 🔐 AUTH — Build'tan ÖNCE!
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(opt =>
+    {
+        opt.LoginPath = "/Login/Index";
+        opt.AccessDeniedPath = "/Login/Index";
+        opt.SlidingExpiration = true;
+        opt.ExpireTimeSpan = TimeSpan.FromHours(8);
+    });
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// Middleware
+// Pipeline
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    app.UseExceptionHandler("/Login/Error");
     app.UseHsts();
 }
 
@@ -27,14 +42,17 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// 🔐 Auth middleware sırası: önce Authentication, sonra Authorization
+app.UseAuthentication();
 app.UseAuthorization();
 
-// Varsayılan route
+// Routes (önce Areas, sonra Default)
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Admin}/{action=Index}/{id?}");
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Login}/{action=Index}/{id?}");
-app.MapControllerRoute(
-    name: "areas",
-    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
