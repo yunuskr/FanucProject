@@ -84,79 +84,9 @@
                     </div>
 
                     <!-- Dil -->
-                    <div class="dropdown d-inline-block language-switch">
-                        <button type="button" class="btn header-item waves-effect"
-                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <img src="assets/images/flags/us.jpg" alt="Header Language" height="16">
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-end">
-                            <a href="javascript:void(0);" class="dropdown-item notify-item">
-                                <img src="assets/images/flags/spain.jpg" alt="user-image" class="me-1" height="12"> <span class="align-middle">Spanish</span>
-                            </a>
-                            <a href="javascript:void(0);" class="dropdown-item notify-item">
-                                <img src="assets/images/flags/germany.jpg" alt="user-image" class="me-1" height="12"> <span class="align-middle">German</span>
-                            </a>
-                            <a href="javascript:void(0);" class="dropdown-item notify-item">
-                                <img src="assets/images/flags/italy.jpg" alt="user-image" class="me-1" height="12"> <span class="align-middle">Italian</span>
-                            </a>
-                            <a href="javascript:void(0);" class="dropdown-item notify-item">
-                                <img src="assets/images/flags/russia.jpg" alt="user-image" class="me-1" height="12"> <span class="align-middle">Russian</span>
-                            </a>
-                        </div>
-                    </div>
+                   
 
-                    <!-- Uygulamalar -->
-                    <div class="dropdown d-none d-lg-inline-block ms-1">
-                        <button type="button" class="btn header-item noti-icon waves-effect"
-                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="uil-apps"></i>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
-                            <div class="px-lg-2">
-                                <div class="row g-0">
-                                    <div class="col">
-                                        <a class="dropdown-icon-item" href="#">
-                                            <img src="assets/images/brands/github.png" alt="Github">
-                                            <span>GitHub</span>
-                                        </a>
-                                    </div>
-                                    <div class="col">
-                                        <a class="dropdown-icon-item" href="#">
-                                            <img src="assets/images/brands/bitbucket.png" alt="bitbucket">
-                                            <span>Bitbucket</span>
-                                        </a>
-                                    </div>
-                                    <div class="col">
-                                        <a class="dropdown-icon-item" href="#">
-                                            <img src="assets/images/brands/dribbble.png" alt="dribbble">
-                                            <span>Dribbble</span>
-                                        </a>
-                                    </div>
-                                </div>
-
-                                <div class="row g-0">
-                                    <div class="col">
-                                        <a class="dropdown-icon-item" href="#">
-                                            <img src="assets/images/brands/dropbox.png" alt="dropbox">
-                                            <span>Dropbox</span>
-                                        </a>
-                                    </div>
-                                    <div class="col">
-                                        <a class="dropdown-icon-item" href="#">
-                                            <img src="assets/images/brands/mail_chimp.png" alt="mail_chimp">
-                                            <span>Mail Chimp</span>
-                                        </a>
-                                    </div>
-                                    <div class="col">
-                                        <a class="dropdown-icon-item" href="#">
-                                            <img src="assets/images/brands/slack.png" alt="slack">
-                                            <span>Slack</span>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                
 
                     <!-- Fullscreen -->
                     <div class="dropdown d-none d-lg-inline-block ms-1">
@@ -216,7 +146,6 @@
                         <div class="dropdown d-inline-block">
                             <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
                                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <img class="rounded-circle header-profile-user" src="~/assets/images/users/avatar-4.jpg" alt="Header Avatar">
                                 <span class="d-none d-xl-inline-block ms-1 fw-medium font-size-15">
                                     @(User?.Identity?.IsAuthenticated == true ? User.Identity!.Name : "Misafir")
                                 </span>
@@ -263,7 +192,7 @@
                                 {
                                     <a class="dropdown-item" asp-controller="Login" asp-action="Index">
                                         <i class="uil uil-sign-in-alt font-size-18 align-middle me-1 text-muted"></i>
-                                        <span class="align-middle">Giriş Yap</span>
+                                        <span class="align-middle">Çıkış Yap</span>
                                     </a>
                                 }
                             </div>
@@ -325,7 +254,7 @@
                                 <span>Anlık Veriler</span>
                             </a>
                             <ul class="sub-menu" aria-expanded="false">
-                                <li><a href="anlik-kaynak-parametre-bilgileri.html">Kaynak Parametre Bilgileri</a></li>
+                                <li><a asp-controller="AKaynakParametre" asp-action="Index">Kaynak Parametre Bilgileri</a></li>
                                 <li><a href="anlik-program-bilgileri.html">Program Bilgileri</a></li>
                                 <li><a href="anlik-parca-bilgileri.html">Parça Bilgileri</a></li>
                                 <li><a href="anlik-alarmlar.html">Alarmlar</a></li>
@@ -423,6 +352,6 @@
 
     <!-- App js -->
     <script src="assets/js/app.js"></script>
-
+@RenderSection("Scripts", required: false)
 </body>
 </html>

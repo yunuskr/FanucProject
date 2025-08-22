@@ -1,0 +1,118 @@
+@using System.Text.Json
+@model KaynakViewModel
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Kaynak Takip Paneli</h2>
+        <div>
+            <span id="robotRunStatus" class="badge bg-danger me-2">Robot Run</span>
+            <span id="kaynakLiveStatus" class="badge bg-danger">Kaynak Live</span>
+        </div>
+    </div>
+
+    <!-- Grafik -->
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <h5>Kaynak Parametreleri (Voltaj, Amper, Tel Hızı)</h5>
+            <canvas id="kaynakChart" height="120"></canvas>
+        </div>
+    </div>
+
+    <!-- Kaynak Döngüleri Tablosu -->
+    <div class="row">
+        <div class="col-md-12">
+            <h5>Kaynak Döngüleri</h5>
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Başlangıç</th>
+                        <th>Bitiş</th>
+                        <th>Süre (dk)</th>
+                        <th>Tamamlandı</th>
+                        <th>Operatör</th>
+                        <th>Tarih</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var d in Model.Donguler)
+                {
+                    <tr>
+                        <td>@d.BaslangicSaati</td>
+                        <td>@d.BitisSaati</td>
+                        <td>@d.ToplamSureDakika</td>
+                        <td>@(d.Tamamlandi ? "✔" : "✘")</td>
+                        <td>@($"{d.Operator.Ad} {d.Operator.Soyad}")</td>
+                        <td>@d.OlusturulmaTarihi.ToShortDateString()</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        var ctx = document.getElementById('kaynakChart').getContext('2d');
+
+        // İlk veriler (server tarafı)
+        var labels     = @Html.Raw(JsonSerializer.Serialize(Model.Parametreler.Select(p => p.OlcumZamani.ToString("HH:mm"))));
+        var voltajData = @Html.Raw(JsonSerializer.Serialize(Model.Parametreler.Select(p => p.Voltaj)));
+        var amperData  = @Html.Raw(JsonSerializer.Serialize(Model.Parametreler.Select(p => p.Amper)));
+        var telData    = @Html.Raw(JsonSerializer.Serialize(Model.Parametreler.Select(p => p.TelSurmeHizi)));
+
+        // Grafik
+        var kaynakChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: 'Voltaj (V)', borderColor: 'red', fill: false, data: voltajData },
+                    { label: 'Amper (A)', borderColor: 'blue', fill: false, data: amperData },
+                    { label: 'Tel Hızı', borderColor: 'green', fill: false, data: telData }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { title: { display: true, text: 'Zaman' } },
+                    y: { title: { display: true, text: 'Değer' } }
+                }
+            }
+        });
+
+        // 3 sn'de bir yeni veri getir
+        setInterval(function() {
+            fetch('/AKaynakParametre/GetLiveData')
+                .then(response => response.json())
+                .then(data => {
+                    let newLabel = new Date().toLocaleTimeString().slice(0,5);
+
+                    kaynakChart.data.labels.push(newLabel);
+                    kaynakChart.data.datasets[0].data.push(data[0].voltaj);
+                    kaynakChart.data.datasets[1].data.push(data[0].amper);
+                    kaynakChart.data.datasets[2].data.push(data[0].telSurmeHizi);
+
+                    kaynakChart.update();
+
+                    // Robot run ve kaynak live simülasyonu (örnek)
+                    if (data[0].voltaj > 0) {
+                        document.getElementById("robotRunStatus").classList.remove("bg-danger");
+                        document.getElementById("robotRunStatus").classList.add("bg-success");
+                    } else {
+                        document.getElementById("robotRunStatus").classList.remove("bg-success");
+                        document.getElementById("robotRunStatus").classList.add("bg-danger");
+                    }
+
+                    if (data[0].amper > 0) {
+                        document.getElementById("kaynakLiveStatus").classList.remove("bg-danger");
+                        document.getElementById("kaynakLiveStatus").classList.add("bg-success");
+                    } else {
+                        document.getElementById("kaynakLiveStatus").classList.remove("bg-success");
+                        document.getElementById("kaynakLiveStatus").classList.add("bg-danger");
+                    }
+                });
+        }, 3000);
+    </script>
+}

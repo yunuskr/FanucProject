@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using FanucRelease.Models;
 using FanucRelease.Data;
 
+using SecClaim = System.Security.Claims.Claim;
+using SCT = System.Security.Claims.ClaimTypes;
 namespace FanucRelease.Controllers;
 
 public class LoginController : Controller
@@ -38,7 +40,7 @@ public class LoginController : Controller
 
         var kullanici = await _context.Operators
             .Where(o => o.KullaniciAdi == username)
-            .Select(o => new { o.Id, o.KullaniciAdi })
+            .Select(o => new { o.Id, o.KullaniciAdi, o.Ad, o.Soyad })
             .FirstOrDefaultAsync();
 
         if (kullanici == null)
@@ -47,12 +49,18 @@ public class LoginController : Controller
             return View();
         }
 
-        // Normal kullanıcı için cookie + claims
+        var fullName = $"{kullanici.Ad} {kullanici.Soyad}".Trim();
+
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.Name, kullanici.KullaniciAdi),
+            // UI'da görünen isim artık Ad Soyad
+            new Claim(ClaimTypes.Name, string.IsNullOrWhiteSpace(fullName) ? kullanici.KullaniciAdi : fullName),
+            // Kullanıcı adını da ayrı claim olarak tut (iş kuralları için)
+            new Claim("Username", kullanici.KullaniciAdi),
             new Claim(ClaimTypes.Role, "User"),
-            new Claim("OperatorId", kullanici.Id.ToString())
+            new Claim("OperatorId", kullanici.Id.ToString()),
+            new Claim(ClaimTypes.GivenName, kullanici.Ad ?? string.Empty),
+            new Claim(ClaimTypes.Surname, kullanici.Soyad ?? string.Empty)
         };
 
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -63,7 +71,7 @@ public class LoginController : Controller
             principal,
             new AuthenticationProperties { IsPersistent = true });
 
-        return RedirectToAction("Index", "Home"); // _Layout ile
+        return RedirectToAction("Index", "Home");
     }
 
     [HttpPost]
@@ -77,7 +85,9 @@ public class LoginController : Controller
         }
 
         var admin = await _context.Admins
-            .FirstOrDefaultAsync(a => a.KullaniciAdi == adminUsername && a.Sifre == adminPassword);
+            .Where(a => a.KullaniciAdi == adminUsername && a.Sifre == adminPassword)
+            .Select(a => new { a.Id, a.KullaniciAdi })
+            .FirstOrDefaultAsync();
 
         if (admin == null)
         {
@@ -85,12 +95,14 @@ public class LoginController : Controller
             return RedirectToAction("Index");
         }
 
-        // Admin için cookie + claims
-        var claims = new List<Claim>
+        var claims = new List<SecClaim>
         {
-            new Claim(ClaimTypes.Name, admin.KullaniciAdi),
-            new Claim(ClaimTypes.Role, "Admin"),
-            new Claim("AdminId", admin.Id.ToString())
+            // HEADER'da görünecek isim: sadece Kullanıcı Adı
+            new SecClaim(SCT.Name, admin.KullaniciAdi),
+
+            new SecClaim("Username", admin.KullaniciAdi),
+            new SecClaim(SCT.Role, "Admin"),
+            new SecClaim("AdminId", admin.Id.ToString())
         };
 
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -101,10 +113,8 @@ public class LoginController : Controller
             principal,
             new AuthenticationProperties { IsPersistent = true });
 
-        // Areas/Admin/Admin/Index.cshtml ve adminlayout_de devreye girer
         return RedirectToAction("Index", "Admin", new { area = "Admin" });
     }
-
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
