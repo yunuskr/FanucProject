@@ -15,11 +15,11 @@ namespace FanucRelease.Models
         [Display(Name = "Trafo Adı")]
         public string TrafoAdi { get; set; } = string.Empty;
 
-        // Foreign Key
-        public int KaynakDongusuId { get; set; }
+    // Foreign Key -> Kaynak tablosuna bağlanır
+    public int KaynakId { get; set; }
 
-        // Navigation Property
-        [ForeignKey("KaynakDongusuId")]
-        public virtual KaynakDongusu KaynakDongusu { get; set; } = null!;
+    // Navigation Property
+    [ForeignKey("KaynakId")]
+    public virtual Kaynak Kaynak { get; set; } = null!;
     }
 }

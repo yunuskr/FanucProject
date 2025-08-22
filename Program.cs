@@ -15,7 +15,7 @@ builder.Services.AddControllersWithViews();
 
 // DI
 builder.Services.AddScoped(typeof(IGenericService<>), typeof(GenericService<>));
-
+builder.Services.AddHostedService<RobotTcpListenerService>();
 // 🔐 AUTH — Build'tan ÖNCE!
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(opt =>
