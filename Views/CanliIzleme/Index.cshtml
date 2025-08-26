@@ -1,0 +1,280 @@
+@{
+    ViewData["Title"] = "Robot Canlı İzleme";
+    Layout = "_Layout";                 // ana şablonun
+    var kaynakId = (int?)ViewBag.KaynakId;
+}
+
+<style>
+  /* sayfaya nefes */
+  .metric-card .card-body{ display:flex; align-items:center; gap:.75rem; }
+  .metric-card .title{ font-weight:600; }
+  .metric-card .value{ font-size:1.25rem; margin:0; }
+  .metric-card .sub{ font-size:.8125rem; color:#6c757d; }
+
+  .status-dot{
+      display:inline-block; width:14px; height:14px; border-radius:999px; background:#6c757d;
+      box-shadow:0 0 0 3px rgba(0,0,0,.04) inset;
+  }
+
+  .chart-card .card-header{ background:transparent; }
+  .chart-card .card-body{ padding-bottom:.5rem; }
+  .chart-card .chart-box{ height:220px; }
+  .chart-card .card-footer{ border-top:1px solid rgba(0,0,0,.06); background:transparent; }
+  .chart-card table.table-sm td, 
+  .chart-card table.table-sm th{ padding:.45rem .6rem; }
+</style>
+
+<div class="container-fluid mt-3">
+    <!-- Başlık -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <h4 class="mb-1">Robot Canlı İzleme</h4>
+                        <small class="text-muted">Gerçek zamanlı kaynak verileri</small>
+                    </div>
+                    <div>
+                        @if (kaynakId.HasValue)
+                        {
+                            <span class="badge bg-primary">Kaynak ID: @kaynakId.Value</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Durum Kartları -->
+    <div class="row g-3 mb-3">
+        <div class="col-md-4">
+            <div class="card metric-card h-100 shadow-sm">
+                <div class="card-body">
+                    <span id="dot-status" class="status-dot"></span>
+                    <div>
+                        <div class="title">Robot Durumu</div>
+                        <div id="txt-status" class="sub">Robot durdu / veri yok</div>
+                    </div>
+                    <div class="ms-auto text-end">
+                        <div class="sub">Son güncelleme:</div>
+                        <div class="sub" id="last-upd">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card metric-card h-100 shadow-sm">
+                <div class="card-body">
+                    <i class="fas fa-tachometer-alt fa-lg text-primary"></i>
+                    <div>
+                        <div class="title">Robot Hızı</div>
+                        <p class="value"><span id="val-speed">0</span> <small class="text-muted">mm/s</small></p>
+                    </div>
+                    <span class="badge bg-light text-dark ms-auto">Anlık</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card metric-card h-100 shadow-sm">
+                <div class="card-body">
+                    <i class="fas fa-exclamation-triangle fa-lg text-danger"></i>
+                    <div>
+                        <div class="title">Alarm</div>
+                        <p id="val-alarm" class="mb-0 text-muted">Yok</p>
+                        <small id="val-alarm-msg" class="sub">-</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grafik Kartları -->
+    <div class="row g-3">
+        <!-- Amper -->
+        <div class="col-lg-4">
+            <div class="card chart-card h-100 shadow-sm">
+                <div class="card-header py-2">
+                    <strong>Amper (A)</strong>
+                </div>
+                <div class="card-body">
+                    <div class="chart-box">
+                        <canvas id="chartAmper"></canvas>
+                    </div>
+                </div>
+                <div class="card-footer p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Zaman</th><th>Amper</th><th>Program</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbl-amper"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Voltaj -->
+        <div class="col-lg-4">
+            <div class="card chart-card h-100 shadow-sm">
+                <div class="card-header py-2">
+                    <strong>Voltaj (V)</strong>
+                </div>
+                <div class="card-body">
+                    <div class="chart-box">
+                        <canvas id="chartVoltaj"></canvas>
+                    </div>
+                </div>
+                <div class="card-footer p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Zaman</th><th>Voltaj</th><th>Program</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbl-voltaj"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tel Sürme Hızı -->
+        <div class="col-lg-4">
+            <div class="card chart-card h-100 shadow-sm">
+                <div class="card-header py-2">
+                    <strong>Tel Sürme Hızı</strong>
+                </div>
+                <div class="card-body">
+                    <div class="chart-box">
+                        <canvas id="chartTel"></canvas>
+                    </div>
+                </div>
+                <div class="card-footer p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Zaman</th><th>Tel Hızı</th><th>Program</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbl-tel"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <script>
+        const kaynakId = '@(ViewBag.KaynakId ?? "")';
+        const endpoint = `/CanliIzleme/api/son?count=120${kaynakId ? ('&kaynakId=' + kaynakId) : ''}`;
+
+        // Chart helpers
+        const makeChart = (canvasId, label) => {
+            const ctx = document.getElementById(canvasId);
+            return new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: label,
+                        data: [],
+                        fill: false,
+                        tension: 0.25,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { ticks: { autoSkip: true, maxTicksLimit: 8 } },
+                        y: { beginAtZero: true }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { mode: 'index', intersect: false }
+                    }
+                }
+            });
+        };
+
+        const chA = makeChart('chartAmper', 'A');
+        const chV = makeChart('chartVoltaj', 'V');
+        const chW = makeChart('chartTel', 'Tel Hızı');
+
+        function fmtTime(iso) {
+            const d = new Date(iso);
+            return d.toLocaleTimeString('tr-TR', { hour12: false });
+        }
+
+        function setStatus(ok, speed, alarm, msg, lastTimeIso) {
+            const dot = document.getElementById('dot-status');
+            const txt = document.getElementById('txt-status');
+            const spd = document.getElementById('val-speed');
+            const alm = document.getElementById('val-alarm');
+            const almMsg = document.getElementById('val-alarm-msg');
+            const upd = document.getElementById('last-upd');
+
+            dot.style.background = ok ? '#28a745' : '#dc3545';
+            txt.textContent = ok ? 'Robot çalışıyor' : 'Robot durdu / veri yok';
+            spd.textContent = speed ?? 0;
+            alm.textContent = alarm ? 'VAR' : 'Yok';
+            alm.className = alarm ? 'mb-0 text-danger' : 'mb-0 text-muted';
+            almMsg.textContent = alarm ? (msg || '') : '-';
+            upd.textContent = lastTimeIso ? fmtTime(lastTimeIso) : '-';
+        }
+
+        function fillTable(tbodyId, rows, valueKey) {
+            const tb = document.getElementById(tbodyId);
+            tb.innerHTML = '';
+            // son 12 satır
+            rows.slice(-12).reverse().forEach(r => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${fmtTime(r.t)}</td><td>${Number(r[valueKey]).toFixed(2)}</td><td>${r.prog}</td>`;
+                tb.appendChild(tr);
+            });
+        }
+
+        async function refresh() {
+            try {
+                const resp = await fetch(endpoint, { cache: 'no-store' });
+                const json = await resp.json();
+                const items = json.items || [];
+
+                const labels = items.map(x => fmtTime(x.t));
+                const amps = items.map(x => x.a);
+                const volts = items.map(x => x.v);
+                const wire  = items.map(x => x.w);
+
+                chA.data.labels = labels; chA.data.datasets[0].data = amps; chA.update();
+                chV.data.labels = labels; chV.data.datasets[0].data = volts; chV.update();
+                chW.data.labels = labels; chW.data.datasets[0].data = wire; chW.update();
+
+                fillTable('tbl-amper', items, 'a');
+                fillTable('tbl-voltaj', items, 'v');
+                fillTable('tbl-tel',    items, 'w');
+
+                const last = items.length ? items[items.length - 1] : null;
+                setStatus(json.status.robotCalisiyor, json.status.robotHizi, json.status.alarmVar, json.status.alarmMesaji, last?.t);
+            } catch (e) {
+                console.error(e);
+                setStatus(false, 0, true, 'Veri alınamadı', null);
+            }
+        }
+
+        refresh();
+        setInterval(refresh, 2000);
+    </script>
+}
