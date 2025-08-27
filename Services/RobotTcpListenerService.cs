@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -23,15 +24,16 @@ namespace FanucRelease.Services
     public class RobotTcpListenerService : BackgroundService
     {
         private readonly ILogger<RobotTcpListenerService> _logger;
-
-    private readonly IServiceProvider _services;
+        private readonly IServiceProvider _services;
+        private readonly IHubContext<RobotStatusHub> _hubContext;
         private TcpListener? _server;
         private readonly int _port = 59002; // Karel ile aynı port
 
-        public RobotTcpListenerService(ILogger<RobotTcpListenerService> logger, IServiceProvider services)
+        public RobotTcpListenerService(ILogger<RobotTcpListenerService> logger, IServiceProvider services, IHubContext<RobotStatusHub> hubContext)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _services = services ?? throw new ArgumentNullException(nameof(services));
+            _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -92,23 +94,24 @@ namespace FanucRelease.Services
                     await stream.WriteAsync(ackBytes, 0, ackBytes.Length, ct);
                     if (veri.ToString().Contains("programverisi"))
                     {
-
-                        string prog_verisi = veri.ToString().Replace("programverisi", string.Empty);
-                        string[] prog_parcalar = prog_verisi.Split('/', StringSplitOptions.RemoveEmptyEntries);
-                        ProgramVerisi yeniProgram = new ProgramVerisi
-                        {
-                            ProgramAdi = prog_parcalar.Length > 0 ? prog_parcalar[0] : "Unknown",
-                            Durum = "Basladi",
-                            HataKodu = "1325",
-                            KaynakSayisi = prog_parcalar.Length > 1 ? int.Parse(prog_parcalar[1]) : 0,
-                        };
-                        using (var scope = _services.CreateScope())
-                        {
-                            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                            db.ProgramVerileri.Add(yeniProgram);
-                            await db.SaveChangesAsync();
-                            veri.Clear();
-                        }
+                        // SignalR ile robot durumu gönder - Sinyal geldiğinde robot çalışıyor
+                        await _hubContext.Clients.All.SendAsync("ReceiveRobotStatus", "Calisiyor", "PRG-2025-08");
+                        // string prog_verisi = veri.ToString().Replace("programverisi", string.Empty);
+                        // string[] prog_parcalar = prog_verisi.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                        // ProgramVerisi yeniProgram = new ProgramVerisi
+                        // {
+                        //     ProgramAdi = prog_parcalar.Length > 0 ? prog_parcalar[0] : "Unknown",
+                        //     Durum = "Basladi",
+                        //     HataKodu = "1325",
+                        //     KaynakSayisi = prog_parcalar.Length > 1 ? int.Parse(prog_parcalar[1]) : 0,
+                        // };
+                        // using (var scope = _services.CreateScope())
+                        // {
+                        //     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                        //     db.ProgramVerileri.Add(yeniProgram);
+                        //     await db.SaveChangesAsync();
+                        //     veri.Clear();
+                        // }
 
                     }
                 }
