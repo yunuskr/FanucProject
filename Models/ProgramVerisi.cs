@@ -8,9 +8,6 @@ public class ProgramVerisi
 
     public string ProgramAdi { get; set; } = string.Empty;
 
-    public string Durum { get; set; } = "Basladi"; // Basladi, Bitti, Hata
-
-    public string? HataKodu { get; set; }
 
     public int KaynakSayisi { get; set; }
 

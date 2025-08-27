@@ -16,7 +16,7 @@ namespace FanucRelease.Models
         [DataType(DataType.Time)]
         public TimeOnly? BitisSaati { get; set; }
 
-        public double? ToplamSureSaniye { get; set; }
+        public double? ToplamSure { get; set; }
 
         public int BaslangicSatiri { get; set; }
 
