@@ -80,7 +80,8 @@ namespace FanucRelease.Services
 
                 // Basit birleştirme için StringBuilder
                 StringBuilder veri = new StringBuilder();
-
+                Kaynak kaynak = new Kaynak();
+                List<Kaynak> kaynaklar = new List<Kaynak>();
                 // Sürekli veri bekle
                 while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, ct)) != 0)
                 {
@@ -92,10 +93,60 @@ namespace FanucRelease.Services
                     string ack = "ACK";
                     byte[] ackBytes = Encoding.ASCII.GetBytes(ack);
                     await stream.WriteAsync(ackBytes, 0, ackBytes.Length, ct);
+
+                    if (veri.ToString().Contains("RobotAktif"))
+                    {
+                        //RobotAktif dediğinde program başladı canlı izle modu aktif etme SignalR
+                        string prog_baslat = veri.ToString().Replace("RobotAktif", string.Empty);
+                        // SignalR ile robot durumu gönder - Sinyal geldiğinde robot çalışıyor
+                        await _hubContext.Clients.All.SendAsync("ReceiveRobotStatus", "Calisiyor", prog_baslat);
+                        veri.Clear();
+                    }
+                    else if (veri.ToString().Contains("KayON"))
+                    {
+                        string kaynak_baslangic = veri.ToString().Replace("KayON", string.Empty);
+                        kaynak = new Kaynak
+                        {
+                            BaslangicSaati = TimeOnly.FromDateTime(DateTime.Now),
+                            BaslangicSatiri = int.Parse(kaynak_baslangic)
+                        };
+                        veri.Clear();
+                    }
+
+                    else if (veri.ToString().Contains("KayOFF"))
+                    {
+                        string kaynak_bitis = veri.ToString().Replace("KayOFF", string.Empty);
+                        kaynak.BitisSaati = TimeOnly.FromDateTime(DateTime.Now);
+                        kaynak.BitisSatiri = int.Parse(kaynak_bitis);
+                        var baslangic = kaynak.BaslangicSaati.ToTimeSpan();
+                        var bitis = kaynak.BitisSaati.ToTimeSpan();
+
+                        TimeSpan fark;
+
+                        if (bitis < baslangic)
+                        {   
+                            // Gece yarısını geçtiyse 1 gün ekliyoruz
+                            fark = (bitis + TimeSpan.FromDays(1)) - baslangic;
+                        }
+                        else
+                        {
+                            fark = bitis - baslangic;
+                        }
+
+                        // TimeSpan'i tekrar TimeOnly'e çevirmek
+                        kaynak.ToplamSure = TimeOnly.FromTimeSpan(fark);
+                        // Toplam süreyi dakika cinsinden double al
+                        kaynaklar.Add(kaynak);
+                        veri.Clear();
+
+
+                    }
+
+
                     if (veri.ToString().Contains("programverisi"))
                     {
-                        // SignalR ile robot durumu gönder - Sinyal geldiğinde robot çalışıyor
-                        await _hubContext.Clients.All.SendAsync("ReceiveRobotStatus", "Calisiyor", "PRG-2025-08");
+                        return;
+
                         // string prog_verisi = veri.ToString().Replace("programverisi", string.Empty);
                         // string[] prog_parcalar = prog_verisi.Split('/', StringSplitOptions.RemoveEmptyEntries);
                         // ProgramVerisi yeniProgram = new ProgramVerisi

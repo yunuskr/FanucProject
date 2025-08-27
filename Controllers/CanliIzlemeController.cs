@@ -39,8 +39,8 @@ namespace FanucRelease.Controllers
                     v = x.Voltaj,
                     a = x.Amper,
                     w = x.TelSurmeHizi,
-                    hiz = x.KaynakHizi,
-                    prog = x.ProgramSatiri
+                    hiz = x.KaynakHizi
+                    
                 })
                 .ToListAsync();
 
