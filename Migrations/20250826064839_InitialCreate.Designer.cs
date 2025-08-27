@@ -65,10 +65,7 @@ namespace FanucRelease.Migrations
 
                     b.Property<DateTime>("OlcumZamani")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("ProgramSatiri")
-                        .HasColumnType("int");
-
+                        
                     b.Property<double>("TelSurmeHizi")
                         .HasColumnType("float");
 

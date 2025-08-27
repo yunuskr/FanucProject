@@ -83,7 +83,6 @@ namespace FanucRelease.Migrations
                     Voltaj = table.Column<double>(type: "float", nullable: false),
                     Amper = table.Column<double>(type: "float", nullable: false),
                     TelSurmeHizi = table.Column<double>(type: "float", nullable: false),
-                    ProgramSatiri = table.Column<int>(type: "int", nullable: false),
                     KaynakHizi = table.Column<int>(type: "int", nullable: false),
                     KaynakId = table.Column<int>(type: "int", nullable: false)
                 },

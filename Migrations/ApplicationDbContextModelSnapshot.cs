@@ -63,9 +63,6 @@ namespace FanucRelease.Migrations
                     b.Property<DateTime>("OlcumZamani")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("ProgramSatiri")
-                        .HasColumnType("int");
-
                     b.Property<double>("TelSurmeHizi")
                         .HasColumnType("float");
 
@@ -93,14 +90,14 @@ namespace FanucRelease.Migrations
                     b.Property<int>("BaslangicSatiri")
                         .HasColumnType("int");
 
-                    b.Property<TimeOnly?>("BitisSaati")
+                    b.Property<TimeOnly>("BitisSaati")
                         .HasColumnType("time");
 
                     b.Property<int>("BitisSatiri")
                         .HasColumnType("int");
 
-                    b.Property<double?>("ToplamSureSaniye")
-                        .HasColumnType("float");
+                    b.Property<TimeOnly>("ToplamSure")
+                        .HasColumnType("time");
 
                     b.HasKey("Id");
 
@@ -216,13 +213,6 @@ namespace FanucRelease.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Durum")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("HataKodu")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("KaynakId")
                         .HasColumnType("int");

@@ -10,6 +10,19 @@
         "${workspaceFolder}/FanucRelease.csproj"
       ],
       "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "rebuild",
+      "type": "shell",
+      "command": "dotnet clean && dotnet build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": "$msCompile",
+      "windows": {
+        "command": "dotnet clean && dotnet build"
+      }
     }
   ]
 }

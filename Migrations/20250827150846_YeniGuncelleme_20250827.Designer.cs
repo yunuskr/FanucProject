@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FanucRelease.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250827084022_MakeProgramVerisiNullable")]
-    partial class MakeProgramVerisiNullable
+    [Migration("20250827150846_YeniGuncelleme_20250827")]
+    partial class YeniGuncelleme_20250827
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -93,14 +93,14 @@ namespace FanucRelease.Migrations
                     b.Property<int>("BaslangicSatiri")
                         .HasColumnType("int");
 
-                    b.Property<TimeOnly?>("BitisSaati")
+                    b.Property<TimeOnly>("BitisSaati")
                         .HasColumnType("time");
 
                     b.Property<int>("BitisSatiri")
                         .HasColumnType("int");
 
-                    b.Property<double?>("ToplamSureSaniye")
-                        .HasColumnType("float");
+                    b.Property<TimeOnly>("ToplamSure")
+                        .HasColumnType("time");
 
                     b.HasKey("Id");
 
@@ -216,13 +216,6 @@ namespace FanucRelease.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Durum")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("HataKodu")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("KaynakId")
                         .HasColumnType("int");

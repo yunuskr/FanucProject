@@ -102,6 +102,7 @@ namespace FanucRelease.Services
                         await _hubContext.Clients.All.SendAsync("ReceiveRobotStatus", "Calisiyor", prog_baslat);
                         veri.Clear();
                     }
+                  
                     else if (veri.ToString().Contains("KayON"))
                     {
                         string kaynak_baslangic = veri.ToString().Replace("KayON", string.Empty);
@@ -118,24 +119,7 @@ namespace FanucRelease.Services
                         string kaynak_bitis = veri.ToString().Replace("KayOFF", string.Empty);
                         kaynak.BitisSaati = TimeOnly.FromDateTime(DateTime.Now);
                         kaynak.BitisSatiri = int.Parse(kaynak_bitis);
-                        var baslangic = kaynak.BaslangicSaati.ToTimeSpan();
-                        var bitis = kaynak.BitisSaati.ToTimeSpan();
-
-                        TimeSpan fark;
-
-                        if (bitis < baslangic)
-                        {   
-                            // Gece yarısını geçtiyse 1 gün ekliyoruz
-                            fark = (bitis + TimeSpan.FromDays(1)) - baslangic;
-                        }
-                        else
-                        {
-                            fark = bitis - baslangic;
-                        }
-
-                        // TimeSpan'i tekrar TimeOnly'e çevirmek
-                        kaynak.ToplamSure = TimeOnly.FromTimeSpan(fark);
-                        // Toplam süreyi dakika cinsinden double al
+                        kaynak.ToplamSure = Hesaplayici.HesaplaSure(kaynak.BaslangicSaati, kaynak.BitisSaati);
                         kaynaklar.Add(kaynak);
                         veri.Clear();
 
@@ -143,7 +127,7 @@ namespace FanucRelease.Services
                     }
 
 
-                    if (veri.ToString().Contains("programverisi"))
+                    if (veri.ToString().Contains("progbitti"))
                     {
                         return;
 
