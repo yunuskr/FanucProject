@@ -4,6 +4,7 @@ using FanucRelease.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FanucRelease.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250826064839_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -224,13 +227,13 @@ namespace FanucRelease.Migrations
                     b.Property<string>("HataKodu")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("KaynakId")
+                    b.Property<int>("KaynakId")
                         .HasColumnType("int");
 
                     b.Property<int>("KaynakSayisi")
                         .HasColumnType("int");
 
-                    b.Property<int?>("OperatorId")
+                    b.Property<int>("OperatorId")
                         .HasColumnType("int");
 
                     b.Property<string>("ProgramAdi")
@@ -243,7 +246,7 @@ namespace FanucRelease.Migrations
 
                     b.HasIndex("OperatorId");
 
-                    b.ToTable("ProgramVerileri");
+                    b.ToTable("RobotVerileri");
                 });
 
             modelBuilder.Entity("FanucRelease.Models.AnlikKaynak", b =>
@@ -294,11 +297,15 @@ namespace FanucRelease.Migrations
                 {
                     b.HasOne("FanucRelease.Models.Kaynak", "Kaynak")
                         .WithMany()
-                        .HasForeignKey("KaynakId");
+                        .HasForeignKey("KaynakId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("FanucRelease.Models.Operator", "Operator")
                         .WithMany()
-                        .HasForeignKey("OperatorId");
+                        .HasForeignKey("OperatorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Kaynak");
 

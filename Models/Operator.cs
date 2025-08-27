@@ -18,5 +18,10 @@ namespace FanucRelease.Models
         [Required]
         [Display(Name = "Soyad")]
         public string Soyad { get; set; } = string.Empty;
+
+        public static implicit operator Operator(string v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

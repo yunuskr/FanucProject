@@ -14,13 +14,14 @@ public class ProgramVerisi
 
     public int KaynakSayisi { get; set; }
 
-    public int OperatorId { get; set; }
+    // Foreign keys made nullable so ProgramVerisi can be recorded without requiring existing Operator/Kaynak rows
+    public int? OperatorId { get; set; }
 
     // Navigation Property
     [ForeignKey("OperatorId")]
-    public virtual Operator Operator { get; set; } = null!;
+    public virtual Operator? Operator { get; set; }
 
 
-    public int KaynakId { get; set; }
-    public virtual Kaynak Kaynak { get; set; } = null!;
+    public int? KaynakId { get; set; }
+    public virtual Kaynak? Kaynak { get; set; }
 }
