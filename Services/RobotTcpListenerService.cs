@@ -24,16 +24,17 @@ namespace FanucRelease.Services
     public class RobotTcpListenerService : BackgroundService
     {
         private readonly ILogger<RobotTcpListenerService> _logger;
-        private readonly IServiceProvider _services;
         private readonly IHubContext<RobotStatusHub> _hubContext;
+
+        private readonly IServiceProvider _services;
         private TcpListener? _server;
         private readonly int _port = 59002; // Karel ile aynı port
 
-        public RobotTcpListenerService(ILogger<RobotTcpListenerService> logger, IServiceProvider services, IHubContext<RobotStatusHub> hubContext)
+        public RobotTcpListenerService(ILogger<RobotTcpListenerService> logger, IHubContext<RobotStatusHub> hubContext, IServiceProvider services)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _services = services ?? throw new ArgumentNullException(nameof(services));
             _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
+            _services = services ?? throw new ArgumentNullException(nameof(services));
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -80,13 +81,14 @@ namespace FanucRelease.Services
 
                 // Basit birleştirme için StringBuilder
                 StringBuilder veri = new StringBuilder();
-                Kaynak kaynak = new Kaynak();
+                Kaynak kaynak;
                 List<Kaynak> kaynaklar = new List<Kaynak>();
                 // Sürekli veri bekle
                 while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, ct)) != 0)
                 {
                     string receivedMsg = Encoding.ASCII.GetString(buffer, 0, bytesRead);
                     veri.Append(receivedMsg.ToString().Replace(" ", string.Empty));
+
 
 
                     // Karel'e ACK gönder
@@ -102,24 +104,30 @@ namespace FanucRelease.Services
                         await _hubContext.Clients.All.SendAsync("ReceiveRobotStatus", "Calisiyor", prog_baslat);
                         veri.Clear();
                     }
-                  
-                    else if (veri.ToString().Contains("KayON"))
-                    {
-                        string kaynak_baslangic = veri.ToString().Replace("KayON", string.Empty);
-                        kaynak = new Kaynak
-                        {
-                            BaslangicSaati = TimeOnly.FromDateTime(DateTime.Now),
-                            BaslangicSatiri = int.Parse(kaynak_baslangic)
-                        };
-                        veri.Clear();
-                    }
+
 
                     else if (veri.ToString().Contains("KayOFF"))
                     {
-                        string kaynak_bitis = veri.ToString().Replace("KayOFF", string.Empty);
-                        kaynak.BitisSaati = TimeOnly.FromDateTime(DateTime.Now);
-                        kaynak.BitisSatiri = int.Parse(kaynak_bitis);
-                        kaynak.ToplamSure = Hesaplayici.HesaplaSure(kaynak.BaslangicSaati, kaynak.BitisSaati);
+                        string kaynak_verileri = veri.ToString().Replace("KayOFF", string.Empty);
+                        string[] kaynak_parcalar = kaynak_verileri.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                        kaynak = new Kaynak
+                        {
+                            BaslangicSaati = kaynak_parcalar.Length > 0 ? Hesaplayici.stringDateParse(kaynak_parcalar[0]) : DateTime.MinValue,
+                            ToplamSure = Hesaplayici.milisaniyeyiTimeOnlyeCevir(kaynak_parcalar.Length > 1 ? int.Parse(kaynak_parcalar[1]) : 0),
+                            KaynakUzunlugu = kaynak_parcalar.Length > 2 ? int.Parse(kaynak_parcalar[2]) : 0,
+                            BaslangicSatiri = kaynak_parcalar.Length > 3 ? int.Parse(kaynak_parcalar[3]) : 0,
+                            BitisSatiri = kaynak_parcalar.Length > 4 ? int.Parse(kaynak_parcalar[4]) : 0,
+                            BitisSaati = Hesaplayici.BaslangicaSureEkle(kaynak_parcalar[0], kaynak_parcalar[1])
+
+                        };
+                        
+                        using (var scope = _services.CreateScope())
+                        {
+                            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                            db.Kaynaklar.Add(kaynak);
+                            await db.SaveChangesAsync();
+                        }
+
                         kaynaklar.Add(kaynak);
                         veri.Clear();
 
@@ -127,7 +135,7 @@ namespace FanucRelease.Services
                     }
 
 
-                    if (veri.ToString().Contains("progbitti"))
+                    else if (veri.ToString().Contains("progbitti"))
                     {
                         return;
 

@@ -1,25 +1,38 @@
 
+using System.Globalization;
+
 namespace FanucRelease.Services
 {
     public class Hesaplayici
     {
-        public static TimeOnly HesaplaSure(TimeOnly baslangic, TimeOnly bitis)
+        public static TimeOnly milisaniyeyiTimeOnlyeCevir(int milisaniye)
         {
-            var baslangicSpan = baslangic.ToTimeSpan();
-            var bitisSpan = bitis.ToTimeSpan();
+            TimeSpan ts = TimeSpan.FromMilliseconds(milisaniye);
+            return TimeOnly.FromTimeSpan(ts);
+        }
 
-            TimeSpan fark;
-            if (bitisSpan < baslangicSpan)
-            {
-                // Gece yarısını geçtiyse 1 gün ekliyoruz
-                fark = (bitisSpan + TimeSpan.FromDays(1)) - baslangicSpan;
-            }
-            else
-            {
-                fark = bitisSpan - baslangicSpan;
-            }
+        public static DateTime BaslangicaSureEkle(string baslangic_, string sure_)
+        {
+            // TimeOnly → TimeSpan
 
-            return TimeOnly.FromTimeSpan(fark);
+            TimeOnly sure = milisaniyeyiTimeOnlyeCevir(int.Parse(sure_));
+            TimeSpan ts = sure.ToTimeSpan();
+            DateTime baslangic = stringDateParse(baslangic_);
+            // DateTime üzerine ekle
+            return baslangic.Add(ts);
+        }
+
+
+        public static DateTime stringDateParse(string input)
+        {
+            // TimeOnly → TimeSpan
+
+            DateTime dt = DateTime.ParseExact(
+            input,
+            "dd-MMM-yyHH:mm:ss",
+            CultureInfo.InvariantCulture
+);
+            return dt;
         }
     }
 }
