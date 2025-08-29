@@ -14,15 +14,12 @@
     {
       "label": "rebuild",
       "type": "shell",
-      "command": "dotnet clean && dotnet build",
+      "command": "dotnet clean; if ($?) { dotnet build }",
       "group": {
         "kind": "build",
         "isDefault": true
       },
-      "problemMatcher": "$msCompile",
-      "windows": {
-        "command": "dotnet clean && dotnet build"
-      }
+      "problemMatcher": "$msCompile"
     }
   ]
 }
