@@ -2,10 +2,10 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": ".NET 9 Launch (BlogWeb)",
+      "name": ".NET 9 Launch (FanucRelease)",
       "type": "coreclr",
       "request": "launch",
-      "preLaunchTask": "build",
+      "preLaunchTask": "rebuild",
       "program": "${workspaceFolder}/bin/Debug/net9.0/FanucRelease.dll",
       "args": [],
       "cwd": "${workspaceFolder}",

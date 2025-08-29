@@ -27,6 +27,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     });
 
 builder.Services.AddAuthorization();
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -45,6 +46,9 @@ app.UseRouting();
 // 🔐 Auth middleware sırası: önce Authentication, sonra Authorization
 app.UseAuthentication();
 app.UseAuthorization();
+
+// SignalR Hub endpoint
+app.MapHub<RobotStatusHub>("/robotStatusHub");
 
 // Routes (önce Areas, sonra Default)
 app.MapControllerRoute(

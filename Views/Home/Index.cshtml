@@ -202,6 +202,7 @@
         margin-bottom: 2rem;
         position: relative;
         overflow: hidden;
+        transition: all 0.3s ease;
     }
 
     .robot-status::before {
@@ -213,6 +214,12 @@
         height: 4px;
         background: var(--gradient-success);
         border-radius: var(--border-radius) var(--border-radius) 0 0;
+        transition: all 0.3s ease;
+    }
+
+    /* Robot Durdu Durumu */
+    .robot-status.stopped::before {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
     }
 
     .robot-info {
@@ -232,6 +239,13 @@
         font-size: 3rem;
         color: white;
         animation: pulse 2s infinite;
+        transition: all 0.3s ease;
+    }
+
+    /* Robot Durdu - Avatar */
+    .robot-status.stopped .robot-avatar {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        animation: none; /* Yanıp sönmeyi durdur */
     }
 
     @@keyframes pulse {
@@ -254,6 +268,12 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    /* Robot Durdu - Başlık */
+    .robot-status.stopped .robot-details h3 {
+        color: #dc3545;
     }
 
     .status-indicator {
@@ -262,6 +282,13 @@
         background: #28a745;
         border-radius: 50%;
         animation: blink 1.5s infinite;
+        transition: all 0.3s ease;
+    }
+
+    /* Robot Durdu - Status Indicator */
+    .robot-status.stopped .status-indicator {
+        background: #dc3545;
+        animation: none; /* Yanıp sönmeyi durdur */
     }
 
     @@keyframes blink {
@@ -320,6 +347,12 @@
     }
 
     .btn-modern.danger {
+        background: var(--gradient-danger);
+        color: white;
+    }
+
+    /* Robot Durdu - Buton rengi */
+    .robot-status.stopped .btn-modern.success {
         background: var(--gradient-danger);
         color: white;
     }
@@ -1417,21 +1450,22 @@
         </div>
 
         <!-- Robot Status -->
-        <div class="robot-status">
+        <div class="robot-status stopped" id="robotStatusCard">
             <div class="robot-info">
-                <div class="robot-avatar">
+                <div class="robot-avatar" id="robotAvatar">
                     <i class="fas fa-robot"></i>
                 </div>
                 <div class="robot-details">
                     <h3>
-                        <span class="status-indicator"></span>
-                        Robot Çalışıyor
+                        <span class="status-indicator" id="robotStatusIndicator"></span>
+                        <span id="robotStatusText">Robot Durdu</span>
                     </h3>
                     <p class="robot-program">
-                        <i class="fas fa-play-circle"></i>
-                        Aktif Program: <strong>PRG-2025-08</strong>
+                        <i class="fas fa-stop-circle" id="robotStatusIcon"></i>
+                        Aktif Program: <strong id="activeProgramText">Bekleniyor...</strong>
                     </p>
                     <div class="robot-actions">
+<<<<<<< HEAD
                         <a asp-controller="CanliIzleme" asp-action="Index" class="btn-modern success">
                         <i class="fas fa-eye"></i> Canlı İzle
                         </a>
@@ -1442,6 +1476,11 @@
                         <a href="#" class="btn-modern danger">
                             <i class="fas fa-stop"></i>
                             Durdur
+=======
+                        <a href="#" class="btn-modern success">
+                            <i class="fas fa-eye"></i>
+                            Canlı İzle
+>>>>>>> 6128d06ebdc17a3a04080b09f8750a339cd8ca2b
                         </a>
                     </div>
                 </div>
@@ -2032,4 +2071,51 @@
     window.viewProgramDetails = viewProgramDetails;
 </script>
 
+<!-- SignalR JavaScript Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
 
+<script>
+    // SignalR Connection for Real-time Robot Status
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/robotStatusHub")
+        .build();
+
+    // Start SignalR connection
+    connection.start().then(function () {
+        console.log("SignalR connected - Robot status updates enabled");
+    }).catch(function (err) {
+        console.error("SignalR connection error:", err.toString());
+    });
+
+    // Robot status update handler
+    connection.on("ReceiveRobotStatus", function (status, activeProgram) {
+        updateRobotStatus(status, activeProgram);
+    });
+
+    // Update robot status UI
+    function updateRobotStatus(status, activeProgram) {
+        const robotStatusCard = document.getElementById('robotStatusCard');
+        const robotStatusText = document.getElementById('robotStatusText');
+        const activeProgramText = document.getElementById('activeProgramText');
+        const robotStatusIcon = document.getElementById('robotStatusIcon');
+        
+        if (status === "Calisiyor") {
+            // Robot Çalışıyor durumu - Yeşil renkler ve yanıp sönme
+            robotStatusCard.classList.remove('stopped');
+            robotStatusText.textContent = 'Robot Çalışıyor';
+            robotStatusIcon.className = 'fas fa-play-circle';
+        } else {
+            // Robot Durdu durumu - Kırmızı renkler ve yanıp sönmeyi durdur (varsayılan)
+            robotStatusCard.classList.add('stopped');
+            robotStatusText.textContent = 'Robot Durdu';
+            robotStatusIcon.className = 'fas fa-stop-circle';
+        }
+        
+        // Aktif program güncelle
+        if (activeProgram) {
+            activeProgramText.textContent = activeProgram;
+        }
+        
+        console.log(`Robot Status Updated: ${status}, Program: ${activeProgram}`);
+    }
+</script>

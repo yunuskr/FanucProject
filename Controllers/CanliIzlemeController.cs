@@ -40,7 +40,7 @@ namespace FanucRelease.Controllers
                     a = x.Amper,
                     w = x.TelSurmeHizi,
                     hiz = x.KaynakHizi,
-                    prog = x.ProgramSatiri
+                    
                 })
                 .ToListAsync();
 

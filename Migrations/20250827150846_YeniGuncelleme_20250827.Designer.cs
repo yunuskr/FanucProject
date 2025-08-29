@@ -4,6 +4,7 @@ using FanucRelease.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FanucRelease.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250827150846_YeniGuncelleme_20250827")]
+    partial class YeniGuncelleme_20250827
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -84,19 +87,16 @@ namespace FanucRelease.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("BaslangicSaati")
-                        .HasColumnType("datetime2");
+                    b.Property<TimeOnly>("BaslangicSaati")
+                        .HasColumnType("time");
 
                     b.Property<int>("BaslangicSatiri")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("BitisSaati")
-                        .HasColumnType("datetime2");
+                    b.Property<TimeOnly>("BitisSaati")
+                        .HasColumnType("time");
 
                     b.Property<int>("BitisSatiri")
-                        .HasColumnType("int");
-
-                    b.Property<int>("KaynakUzunlugu")
                         .HasColumnType("int");
 
                     b.Property<TimeOnly>("ToplamSure")

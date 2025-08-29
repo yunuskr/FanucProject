@@ -11,14 +11,17 @@ namespace FanucRelease.Models
         public int Id { get; set; }
 
         [DataType(DataType.Time)]
-        public TimeOnly BaslangicSaati { get; set; }
+        public DateTime BaslangicSaati { get; set; }
 
         [DataType(DataType.Time)]
-        public TimeOnly? BitisSaati { get; set; }
-
-        public double? ToplamSureSaniye { get; set; }
+        public DateTime BitisSaati { get; set; }
+    
+        [DataType(DataType.Time)]
+        public TimeOnly ToplamSure { get; set; }
 
         public int BaslangicSatiri { get; set; }
+
+        public int KaynakUzunlugu { get; set; }
 
         public int BitisSatiri { get; set; }
 
