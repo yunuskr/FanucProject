@@ -370,17 +370,19 @@
                         </a>
                     </div>
                     <div class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString()=="CanliIzleme" ? "active" : "")"
+                            asp-controller="CanliIzleme" asp-action="Index">
                             <i class="fas fa-robot"></i>
                             <span>Robot Durumu</span>
                             <span class="nav-badge">Aktif</span>
                         </a>
                     </div>
                     <div class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-code"></i>
-                            <span>Programlar</span>
-                            <span class="nav-badge">8</span>
+                        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString()=="GecmisProgram" ? "active" : "")"
+                            asp-controller="GecmisProgram" asp-action="Index">
+                                <i class="fas fa-code"></i>
+                                <span>Programlar</span>
+                                <span class="nav-badge">8</span>
                         </a>
                     </div>
                     <div class="nav-item">
