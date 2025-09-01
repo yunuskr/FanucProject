@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FanucRelease.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250722143043_IlkYapi")]
-    partial class IlkYapi
+    [Migration("20250901092503_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -46,7 +46,7 @@ namespace FanucRelease.Migrations
                     b.ToTable("Admins");
                 });
 
-            modelBuilder.Entity("FanucRelease.Models.KaynakDongusu", b =>
+            modelBuilder.Entity("FanucRelease.Models.AnlikKaynak", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -54,29 +54,71 @@ namespace FanucRelease.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<TimeOnly>("BaslangicSaati")
-                        .HasColumnType("time");
+                    b.Property<double>("Amper")
+                        .HasColumnType("float");
 
-                    b.Property<TimeOnly?>("BitisSaati")
-                        .HasColumnType("time");
-
-                    b.Property<DateTime>("OlusturulmaTarihi")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("OperatorId")
+                    b.Property<int>("KaynakHizi")
                         .HasColumnType("int");
 
-                    b.Property<bool>("Tamamlandi")
-                        .HasColumnType("bit");
+                    b.Property<int>("KaynakId")
+                        .HasColumnType("int");
 
-                    b.Property<double?>("ToplamSureSaniye")
+                    b.Property<DateTime>("OlcumZamani")
+                        .HasColumnType("datetime2");
+
+                    b.Property<double>("TelSurmeHizi")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Voltaj")
                         .HasColumnType("float");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OperatorId");
+                    b.HasIndex("KaynakId");
 
-                    b.ToTable("KaynakDonguleri");
+                    b.ToTable("AnlikKaynaklar");
+                });
+
+            modelBuilder.Entity("FanucRelease.Models.Kaynak", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("BaslangicSaati")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("BaslangicSatiri")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("BitisSaati")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("BitisSatiri")
+                        .HasColumnType("int");
+
+                    b.Property<int>("KaynakUzunlugu")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PrcNo")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProgramVerisiId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SrcNo")
+                        .HasColumnType("int");
+
+                    b.Property<TimeOnly>("ToplamSure")
+                        .HasColumnType("time");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProgramVerisiId");
+
+                    b.ToTable("Kaynaklar");
                 });
 
             modelBuilder.Entity("FanucRelease.Models.KaynakParametre", b =>
@@ -90,7 +132,7 @@ namespace FanucRelease.Migrations
                     b.Property<decimal>("Amper")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("KaynakDongusuId")
+                    b.Property<int>("KaynakId")
                         .HasColumnType("int");
 
                     b.Property<TimeOnly>("OlcumZamani")
@@ -104,7 +146,7 @@ namespace FanucRelease.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("KaynakDongusuId");
+                    b.HasIndex("KaynakId");
 
                     b.ToTable("KaynakParametreleri");
                 });
@@ -120,7 +162,7 @@ namespace FanucRelease.Migrations
                     b.Property<TimeOnly>("BaslangicSaati")
                         .HasColumnType("time");
 
-                    b.Property<int>("KaynakDongusuId")
+                    b.Property<int>("KaynakId")
                         .HasColumnType("int");
 
                     b.Property<string>("Sebep")
@@ -129,7 +171,7 @@ namespace FanucRelease.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("KaynakDongusuId");
+                    b.HasIndex("KaynakId");
 
                     b.ToTable("MakineDuruslari");
                 });
@@ -167,7 +209,7 @@ namespace FanucRelease.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("KaynakDongusuId")
+                    b.Property<int>("KaynakId")
                         .HasColumnType("int");
 
                     b.Property<string>("TrafoAdi")
@@ -176,53 +218,108 @@ namespace FanucRelease.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("KaynakDongusuId");
+                    b.HasIndex("KaynakId");
 
                     b.ToTable("TrafoBilgileri");
                 });
 
-            modelBuilder.Entity("FanucRelease.Models.KaynakDongusu", b =>
+            modelBuilder.Entity("ProgramVerisi", b =>
                 {
-                    b.HasOne("FanucRelease.Models.Operator", "Operator")
-                        .WithMany()
-                        .HasForeignKey("OperatorId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("KaynakSayisi")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("OperatorId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ProgramAdi")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OperatorId");
+
+                    b.ToTable("ProgramVerileri");
+                });
+
+            modelBuilder.Entity("FanucRelease.Models.AnlikKaynak", b =>
+                {
+                    b.HasOne("FanucRelease.Models.Kaynak", "Kaynak")
+                        .WithMany("AnlikKaynaklar")
+                        .HasForeignKey("KaynakId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Operator");
+                    b.Navigation("Kaynak");
+                });
+
+            modelBuilder.Entity("FanucRelease.Models.Kaynak", b =>
+                {
+                    b.HasOne("ProgramVerisi", "ProgramVerisi")
+                        .WithMany("Kaynaklar")
+                        .HasForeignKey("ProgramVerisiId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ProgramVerisi");
                 });
 
             modelBuilder.Entity("FanucRelease.Models.KaynakParametre", b =>
                 {
-                    b.HasOne("FanucRelease.Models.KaynakDongusu", "KaynakDongusu")
+                    b.HasOne("FanucRelease.Models.Kaynak", "Kaynak")
                         .WithMany()
-                        .HasForeignKey("KaynakDongusuId")
+                        .HasForeignKey("KaynakId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("KaynakDongusu");
+                    b.Navigation("Kaynak");
                 });
 
             modelBuilder.Entity("FanucRelease.Models.MakineDurus", b =>
                 {
-                    b.HasOne("FanucRelease.Models.KaynakDongusu", "KaynakDongusu")
+                    b.HasOne("FanucRelease.Models.Kaynak", "Kaynak")
                         .WithMany()
-                        .HasForeignKey("KaynakDongusuId")
+                        .HasForeignKey("KaynakId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("KaynakDongusu");
+                    b.Navigation("Kaynak");
                 });
 
             modelBuilder.Entity("FanucRelease.Models.TrafoBilgisi", b =>
                 {
-                    b.HasOne("FanucRelease.Models.KaynakDongusu", "KaynakDongusu")
+                    b.HasOne("FanucRelease.Models.Kaynak", "Kaynak")
                         .WithMany()
-                        .HasForeignKey("KaynakDongusuId")
+                        .HasForeignKey("KaynakId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("KaynakDongusu");
+                    b.Navigation("Kaynak");
+                });
+
+            modelBuilder.Entity("ProgramVerisi", b =>
+                {
+                    b.HasOne("FanucRelease.Models.Operator", "Operator")
+                        .WithMany()
+                        .HasForeignKey("OperatorId");
+
+                    b.Navigation("Operator");
+                });
+
+            modelBuilder.Entity("FanucRelease.Models.Kaynak", b =>
+                {
+                    b.Navigation("AnlikKaynaklar");
+                });
+
+            modelBuilder.Entity("ProgramVerisi", b =>
+                {
+                    b.Navigation("Kaynaklar");
                 });
 #pragma warning restore 612, 618
         }

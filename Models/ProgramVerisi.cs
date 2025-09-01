@@ -18,7 +18,5 @@ public class ProgramVerisi
     [ForeignKey("OperatorId")]
     public virtual Operator? Operator { get; set; }
 
-
-    public int? KaynakId { get; set; }
-    public virtual Kaynak? Kaynak { get; set; }
+    public virtual ICollection<Kaynak> Kaynaklar { get; set; } = new List<Kaynak>();
 }

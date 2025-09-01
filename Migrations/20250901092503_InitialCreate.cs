@@ -6,17 +6,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FanucRelease.Migrations
 {
     /// <inheritdoc />
-    public partial class IlkYapi : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Admin");
-
-            migrationBuilder.DropTable(
-                name: "Users");
-
             migrationBuilder.CreateTable(
                 name: "Admins",
                 columns: table => new
@@ -47,25 +41,72 @@ namespace FanucRelease.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "KaynakDonguleri",
+                name: "ProgramVerileri",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    BaslangicSaati = table.Column<TimeOnly>(type: "time", nullable: false),
-                    BitisSaati = table.Column<TimeOnly>(type: "time", nullable: true),
-                    ToplamSureSaniye = table.Column<double>(type: "float", nullable: true),
-                    Tamamlandi = table.Column<bool>(type: "bit", nullable: false),
-                    OlusturulmaTarihi = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    OperatorId = table.Column<int>(type: "int", nullable: false)
+                    ProgramAdi = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    KaynakSayisi = table.Column<int>(type: "int", nullable: false),
+                    OperatorId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_KaynakDonguleri", x => x.Id);
+                    table.PrimaryKey("PK_ProgramVerileri", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_KaynakDonguleri_Operators_OperatorId",
+                        name: "FK_ProgramVerileri_Operators_OperatorId",
                         column: x => x.OperatorId,
                         principalTable: "Operators",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Kaynaklar",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    BaslangicSaati = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    BitisSaati = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ToplamSure = table.Column<TimeOnly>(type: "time", nullable: false),
+                    BaslangicSatiri = table.Column<int>(type: "int", nullable: false),
+                    KaynakUzunlugu = table.Column<int>(type: "int", nullable: false),
+                    BitisSatiri = table.Column<int>(type: "int", nullable: false),
+                    PrcNo = table.Column<int>(type: "int", nullable: false),
+                    SrcNo = table.Column<int>(type: "int", nullable: false),
+                    ProgramVerisiId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Kaynaklar", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Kaynaklar_ProgramVerileri_ProgramVerisiId",
+                        column: x => x.ProgramVerisiId,
+                        principalTable: "ProgramVerileri",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AnlikKaynaklar",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OlcumZamani = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Voltaj = table.Column<double>(type: "float", nullable: false),
+                    Amper = table.Column<double>(type: "float", nullable: false),
+                    TelSurmeHizi = table.Column<double>(type: "float", nullable: false),
+                    KaynakHizi = table.Column<int>(type: "int", nullable: false),
+                    KaynakId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AnlikKaynaklar", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AnlikKaynaklar_Kaynaklar_KaynakId",
+                        column: x => x.KaynakId,
+                        principalTable: "Kaynaklar",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -80,15 +121,15 @@ namespace FanucRelease.Migrations
                     Voltaj = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Amper = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     TelSurmeHizi = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    KaynakDongusuId = table.Column<int>(type: "int", nullable: false)
+                    KaynakId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_KaynakParametreleri", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_KaynakParametreleri_KaynakDonguleri_KaynakDongusuId",
-                        column: x => x.KaynakDongusuId,
-                        principalTable: "KaynakDonguleri",
+                        name: "FK_KaynakParametreleri_Kaynaklar_KaynakId",
+                        column: x => x.KaynakId,
+                        principalTable: "Kaynaklar",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -101,15 +142,15 @@ namespace FanucRelease.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     BaslangicSaati = table.Column<TimeOnly>(type: "time", nullable: false),
                     Sebep = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    KaynakDongusuId = table.Column<int>(type: "int", nullable: false)
+                    KaynakId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_MakineDuruslari", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_MakineDuruslari_KaynakDonguleri_KaynakDongusuId",
-                        column: x => x.KaynakDongusuId,
-                        principalTable: "KaynakDonguleri",
+                        name: "FK_MakineDuruslari_Kaynaklar_KaynakId",
+                        column: x => x.KaynakId,
+                        principalTable: "Kaynaklar",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -121,38 +162,48 @@ namespace FanucRelease.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     TrafoAdi = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    KaynakDongusuId = table.Column<int>(type: "int", nullable: false)
+                    KaynakId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_TrafoBilgileri", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_TrafoBilgileri_KaynakDonguleri_KaynakDongusuId",
-                        column: x => x.KaynakDongusuId,
-                        principalTable: "KaynakDonguleri",
+                        name: "FK_TrafoBilgileri_Kaynaklar_KaynakId",
+                        column: x => x.KaynakId,
+                        principalTable: "Kaynaklar",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_KaynakDonguleri_OperatorId",
-                table: "KaynakDonguleri",
+                name: "IX_AnlikKaynaklar_KaynakId",
+                table: "AnlikKaynaklar",
+                column: "KaynakId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Kaynaklar_ProgramVerisiId",
+                table: "Kaynaklar",
+                column: "ProgramVerisiId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_KaynakParametreleri_KaynakId",
+                table: "KaynakParametreleri",
+                column: "KaynakId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MakineDuruslari_KaynakId",
+                table: "MakineDuruslari",
+                column: "KaynakId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProgramVerileri_OperatorId",
+                table: "ProgramVerileri",
                 column: "OperatorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_KaynakParametreleri_KaynakDongusuId",
-                table: "KaynakParametreleri",
-                column: "KaynakDongusuId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_MakineDuruslari_KaynakDongusuId",
-                table: "MakineDuruslari",
-                column: "KaynakDongusuId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TrafoBilgileri_KaynakDongusuId",
+                name: "IX_TrafoBilgileri_KaynakId",
                 table: "TrafoBilgileri",
-                column: "KaynakDongusuId");
+                column: "KaynakId");
         }
 
         /// <inheritdoc />
@@ -160,6 +211,9 @@ namespace FanucRelease.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Admins");
+
+            migrationBuilder.DropTable(
+                name: "AnlikKaynaklar");
 
             migrationBuilder.DropTable(
                 name: "KaynakParametreleri");
@@ -171,39 +225,13 @@ namespace FanucRelease.Migrations
                 name: "TrafoBilgileri");
 
             migrationBuilder.DropTable(
-                name: "KaynakDonguleri");
+                name: "Kaynaklar");
+
+            migrationBuilder.DropTable(
+                name: "ProgramVerileri");
 
             migrationBuilder.DropTable(
                 name: "Operators");
-
-            migrationBuilder.CreateTable(
-                name: "Admin",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    KullaniciAdi = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Sifre = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Admin", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Users",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Ad = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    KullaniciAdi = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Soyad = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Users", x => x.Id);
-                });
         }
     }
 }

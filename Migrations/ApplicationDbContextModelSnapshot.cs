@@ -99,10 +99,21 @@ namespace FanucRelease.Migrations
                     b.Property<int>("KaynakUzunlugu")
                         .HasColumnType("int");
 
+                    b.Property<int>("PrcNo")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProgramVerisiId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SrcNo")
+                        .HasColumnType("int");
+
                     b.Property<TimeOnly>("ToplamSure")
                         .HasColumnType("time");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ProgramVerisiId");
 
                     b.ToTable("Kaynaklar");
                 });
@@ -217,9 +228,6 @@ namespace FanucRelease.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("KaynakId")
-                        .HasColumnType("int");
-
                     b.Property<int>("KaynakSayisi")
                         .HasColumnType("int");
 
@@ -231,8 +239,6 @@ namespace FanucRelease.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("KaynakId");
 
                     b.HasIndex("OperatorId");
 
@@ -248,6 +254,17 @@ namespace FanucRelease.Migrations
                         .IsRequired();
 
                     b.Navigation("Kaynak");
+                });
+
+            modelBuilder.Entity("FanucRelease.Models.Kaynak", b =>
+                {
+                    b.HasOne("ProgramVerisi", "ProgramVerisi")
+                        .WithMany("Kaynaklar")
+                        .HasForeignKey("ProgramVerisiId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ProgramVerisi");
                 });
 
             modelBuilder.Entity("FanucRelease.Models.KaynakParametre", b =>
@@ -285,15 +302,9 @@ namespace FanucRelease.Migrations
 
             modelBuilder.Entity("ProgramVerisi", b =>
                 {
-                    b.HasOne("FanucRelease.Models.Kaynak", "Kaynak")
-                        .WithMany()
-                        .HasForeignKey("KaynakId");
-
                     b.HasOne("FanucRelease.Models.Operator", "Operator")
                         .WithMany()
                         .HasForeignKey("OperatorId");
-
-                    b.Navigation("Kaynak");
 
                     b.Navigation("Operator");
                 });
@@ -301,6 +312,11 @@ namespace FanucRelease.Migrations
             modelBuilder.Entity("FanucRelease.Models.Kaynak", b =>
                 {
                     b.Navigation("AnlikKaynaklar");
+                });
+
+            modelBuilder.Entity("ProgramVerisi", b =>
+                {
+                    b.Navigation("Kaynaklar");
                 });
 #pragma warning restore 612, 618
         }

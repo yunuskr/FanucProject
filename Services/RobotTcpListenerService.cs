@@ -82,14 +82,15 @@ namespace FanucRelease.Services
                 // Basit birleştirme için StringBuilder
                 StringBuilder veri = new StringBuilder();
                 Kaynak kaynak;
+                AnlikKaynak anlikKaynak;
+                ProgramVerisi programVerisi = new ProgramVerisi();
                 List<Kaynak> kaynaklar = new List<Kaynak>();
+                List<AnlikKaynak> anlikKaynaklar = new List<AnlikKaynak>();
                 // Sürekli veri bekle
                 while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, ct)) != 0)
                 {
                     string receivedMsg = Encoding.ASCII.GetString(buffer, 0, bytesRead);
                     veri.Append(receivedMsg.ToString().Replace(" ", string.Empty));
-
-
 
                     // Karel'e ACK gönder
                     string ack = "ACK";
@@ -102,9 +103,27 @@ namespace FanucRelease.Services
                         string prog_baslat = veri.ToString().Replace("RobotAktif", string.Empty);
                         // SignalR ile robot durumu gönder - Sinyal geldiğinde robot çalışıyor
                         await _hubContext.Clients.All.SendAsync("ReceiveRobotStatus", "Calisiyor", prog_baslat);
+                        programVerisi.ProgramAdi = prog_baslat;
                         veri.Clear();
                     }
 
+                    else if (veri.ToString().Contains("anlikveri"))
+                    {
+                        string anlik_veriler = veri.ToString().Replace("anlikveri", string.Empty);
+                        string[] anlik_parcalar = anlik_veriler.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                        anlikKaynak = new AnlikKaynak
+                        {
+                            OlcumZamani = anlik_parcalar.Length > 0 ? DateTime.Now : DateTime.MinValue,
+                            Voltaj = anlik_parcalar.Length > 1 ? double.Parse(anlik_parcalar[0]) : 0,
+                            Amper = anlik_parcalar.Length > 2 ? double.Parse(anlik_parcalar[1]) : 0,
+                            TelSurmeHizi = anlik_parcalar.Length > 3 ? double.Parse(anlik_parcalar[2]) : 0,
+                            KaynakHizi = 10,
+
+                        };
+                        anlikKaynaklar.Add(anlikKaynak);
+                        veri.Clear();
+
+                    }
 
                     else if (veri.ToString().Contains("KayOFF"))
                     {
@@ -117,17 +136,11 @@ namespace FanucRelease.Services
                             KaynakUzunlugu = kaynak_parcalar.Length > 2 ? int.Parse(kaynak_parcalar[2]) : 0,
                             BaslangicSatiri = kaynak_parcalar.Length > 3 ? int.Parse(kaynak_parcalar[3]) : 0,
                             BitisSatiri = kaynak_parcalar.Length > 4 ? int.Parse(kaynak_parcalar[4]) : 0,
-                            BitisSaati = Hesaplayici.BaslangicaSureEkle(kaynak_parcalar[0], kaynak_parcalar[1])
-
+                            BitisSaati = Hesaplayici.BaslangicaSureEkle(kaynak_parcalar[0], kaynak_parcalar[1]),
+                            PrcNo = kaynak_parcalar.Length > 5 ? int.Parse(kaynak_parcalar[5]) : 0,
+                            SrcNo = kaynak_parcalar.Length > 6 ? int.Parse(kaynak_parcalar[6]) : 0,
+                            AnlikKaynaklar = anlikKaynaklar
                         };
-                        
-                        using (var scope = _services.CreateScope())
-                        {
-                            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                            db.Kaynaklar.Add(kaynak);
-                            await db.SaveChangesAsync();
-                        }
-
                         kaynaklar.Add(kaynak);
                         veri.Clear();
 
@@ -137,29 +150,28 @@ namespace FanucRelease.Services
 
                     else if (veri.ToString().Contains("progbitti"))
                     {
-                        return;
+                        {
 
-                        // string prog_verisi = veri.ToString().Replace("programverisi", string.Empty);
-                        // string[] prog_parcalar = prog_verisi.Split('/', StringSplitOptions.RemoveEmptyEntries);
-                        // ProgramVerisi yeniProgram = new ProgramVerisi
-                        // {
-                        //     ProgramAdi = prog_parcalar.Length > 0 ? prog_parcalar[0] : "Unknown",
-                        //     Durum = "Basladi",
-                        //     HataKodu = "1325",
-                        //     KaynakSayisi = prog_parcalar.Length > 1 ? int.Parse(prog_parcalar[1]) : 0,
-                        // };
-                        // using (var scope = _services.CreateScope())
-                        // {
-                        //     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                        //     db.ProgramVerileri.Add(yeniProgram);
-                        //     await db.SaveChangesAsync();
-                        //     veri.Clear();
-                        // }
+                            string prog_verisi = veri.ToString().Replace("progbitti", string.Empty);
+                            string[] prog_parcalar = prog_verisi.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                            programVerisi.KaynakSayisi = prog_parcalar.Length > 1 ? int.Parse(prog_parcalar[0]) : 0;
+                            programVerisi.Operator = new Operator { Ad = "Ahmet", Soyad = "Çakar", KullaniciAdi = "ahmet.cakar" };
+                            programVerisi.Kaynaklar = kaynaklar;
 
+                            using (var scope = _services.CreateScope())
+                            {
+                                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                                db.ProgramVerileri.Add(programVerisi);
+                                // db.Kaynaklar.AddRange(kaynaklar);
+                                // db.AnlikKaynaklar.AddRange(anlikKaynaklar);
+                                await db.SaveChangesAsync();
+                            }
+
+                        }
                     }
-                }
 
-                _logger.LogInformation("Fanuc robot disconnected.");
+                    _logger.LogInformation("Fanuc robot disconnected.");
+                }
             }
             catch (Exception ex) when (!(ex is OperationCanceledException))
             {

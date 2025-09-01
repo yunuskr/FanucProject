@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FanucRelease.Models
 {
@@ -15,7 +16,7 @@ namespace FanucRelease.Models
 
         [DataType(DataType.Time)]
         public DateTime BitisSaati { get; set; }
-    
+
         [DataType(DataType.Time)]
         public TimeOnly ToplamSure { get; set; }
 
@@ -25,7 +26,12 @@ namespace FanucRelease.Models
 
         public int BitisSatiri { get; set; }
 
-         // Bir KaynakDongusu'na ait birden fazla AnlikKaynak kaydı olabilir
+        public int PrcNo { get; set; }
+        public int SrcNo { get; set; }
+
+        [ForeignKey("ProgramVerisiId")]
+        public virtual ProgramVerisi ProgramVerisi { get; set; } = null!;
+        // Bir KaynakDongusu'na ait birden fazla AnlikKaynak kaydı olabilir
         public virtual ICollection<AnlikKaynak> AnlikKaynaklar { get; set; } = new List<AnlikKaynak>();
     }
 }
