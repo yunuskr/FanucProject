@@ -121,6 +121,15 @@ namespace FanucRelease.Services
 
                         };
                         anlikKaynaklar.Add(anlikKaynak);
+                            // SignalR ile canlı veri gönder
+                            _logger.LogInformation($"SignalR veri gönderildi: Amper={anlikKaynak.Amper}, Voltaj={anlikKaynak.Voltaj}, TelSurmeHizi={anlikKaynak.TelSurmeHizi}, Zaman={anlikKaynak.OlcumZamani:O}");
+                            await _hubContext.Clients.All.SendAsync(
+                                "ReceiveLiveData",
+                                anlikKaynak.Amper,
+                                anlikKaynak.Voltaj,
+                                anlikKaynak.TelSurmeHizi,
+                                anlikKaynak.OlcumZamani.ToString("o")
+                            );
                         veri.Clear();
 
                     }
@@ -153,19 +162,24 @@ namespace FanucRelease.Services
                         {
 
                             string prog_verisi = veri.ToString().Replace("progbitti", string.Empty);
-                            string[] prog_parcalar = prog_verisi.Split('/', StringSplitOptions.RemoveEmptyEntries);
-                            programVerisi.KaynakSayisi = prog_parcalar.Length > 1 ? int.Parse(prog_parcalar[0]) : 0;
+                            programVerisi.KaynakSayisi = int.Parse(prog_verisi);
                             programVerisi.Operator = new Operator { Ad = "Ahmet", Soyad = "Çakar", KullaniciAdi = "ahmet.cakar" };
                             programVerisi.Kaynaklar = kaynaklar;
 
                             using (var scope = _services.CreateScope())
                             {
-                                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                                db.ProgramVerileri.Add(programVerisi);
-                                // db.Kaynaklar.AddRange(kaynaklar);
-                                // db.AnlikKaynaklar.AddRange(anlikKaynaklar);
-                                await db.SaveChangesAsync();
+                                // var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                                // db.ProgramVerileri.Add(programVerisi);
+                                // // db.Kaynaklar.AddRange(kaynaklar);
+                                // // db.AnlikKaynaklar.AddRange(anlikKaynaklar);
+                                // await db.SaveChangesAsync();
                             }
+
+                                // Reset all temporary data for next program
+                                veri.Clear();
+                                kaynaklar = new List<Kaynak>();
+                                anlikKaynaklar = new List<AnlikKaynak>();
+                                programVerisi = new ProgramVerisi();
 
                         }
                     }

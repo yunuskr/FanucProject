@@ -173,10 +173,78 @@
 </div>
 
 @section Scripts {
+    <!-- SignalR JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
     <script>
+
+        // SignalR bağlantısı
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/robotStatusHub")
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
+
+        // Her yeni program başladığında grafik ve tablo verilerini sıfırla
+        connection.on("ReceiveRobotStatus", (status, prog_baslat) => {
+            dataPoints.labels = [];
+            dataPoints.amper = [];
+            dataPoints.voltaj = [];
+            dataPoints.telHizi = [];
+
+            chA.data.labels = [];
+            chA.data.datasets[0].data = [];
+            chA.update('active');
+
+            chV.data.labels = [];
+            chV.data.datasets[0].data = [];
+            chV.update('active');
+
+            chW.data.labels = [];
+            chW.data.datasets[0].data = [];
+            chW.update('active');
+
+            document.getElementById('tbl-amper').innerHTML = '';
+            document.getElementById('tbl-voltaj').innerHTML = '';
+            document.getElementById('tbl-tel').innerHTML = '';
+        });
+
+        // Canlı veri geldiğinde grafik ve tabloya ekle
+        connection.on("ReceiveLiveData", (amper, voltaj, telSurmeHizi, zamanIso) => {
+            console.log("SignalR veri alındı:", amper, voltaj, telSurmeHizi, zamanIso);
+            // Grafiklere ve tablolara ekle
+            const timeLabel = fmtTime(zamanIso);
+            dataPoints.labels.push(timeLabel);
+            dataPoints.amper.push(parseFloat(amper));
+            dataPoints.voltaj.push(parseFloat(voltaj));
+            dataPoints.telHizi.push(parseFloat(telSurmeHizi));
+
+            if (dataPoints.labels.length > MAX_DATA_POINTS) {
+                dataPoints.labels.shift();
+                dataPoints.amper.shift();
+                dataPoints.voltaj.shift();
+                dataPoints.telHizi.shift();
+            }
+
+            chA.data.labels = [...dataPoints.labels];
+            chA.data.datasets[0].data = [...dataPoints.amper];
+            chA.update('active');
+
+            chV.data.labels = [...dataPoints.labels];
+            chV.data.datasets[0].data = [...dataPoints.voltaj];
+            chV.update('active');
+
+            chW.data.labels = [...dataPoints.labels];
+            chW.data.datasets[0].data = [...dataPoints.telHizi];
+            chW.update('active');
+
+            updateTable('tbl-amper', amper, timeLabel, 'a');
+            updateTable('tbl-voltaj', voltaj, timeLabel, 'v');
+            updateTable('tbl-tel', telSurmeHizi, timeLabel, 'w');
+        });
+
+        connection.start().catch(err => console.error(err.toString()));
         const kaynakId = '@(ViewBag.KaynakId ?? "")';
         const endpoint = `/CanliIzleme/api/son?count=120${kaynakId ? ('&kaynakId=' + kaynakId) : ''}`;
 
@@ -311,136 +379,22 @@
             });
         }
 
-        // Yeni tek veri noktası üretme fonksiyonu
-        function generateNewDataPoint() {
-            const now = new Date();
-            const timeLabel = now.toLocaleTimeString('tr-TR', { 
-                hour12: false, 
-                hour: '2-digit', 
-                minute: '2-digit', 
-                second: '2-digit' 
-            });
-            
-            return {
-                time: timeLabel,
-                amper: (Math.random() * 50 + 100).toFixed(1), // Amper: 100-150 arası
-                voltaj: (Math.random() * 10 + 25).toFixed(1),  // Voltaj: 25-35 arası
-                telHizi: (Math.random() * 20 + 80).toFixed(1),  // Tel Hızı: 80-100 arası
-                robotCalisiyor: Math.random() > 0.2, // %80 çalışıyor
-                robotHizi: (Math.random() * 500 + 1000).toFixed(0), // 1000-1500 mm/s
-                alarmVar: Math.random() > 0.9, // %10 alarm
-                alarmMesaji: Math.random() > 0.9 ? 'Yüksek Akım Tespit Edildi!' : ''
-            };
-        }
-
-        // Grafiklere yeni veri ekleme fonksiyonu
-        function addDataToCharts(newData) {
-            // Veri noktalarını ekle
-            dataPoints.labels.push(newData.time);
-            dataPoints.amper.push(parseFloat(newData.amper));
-            dataPoints.voltaj.push(parseFloat(newData.voltaj));
-            dataPoints.telHizi.push(parseFloat(newData.telHizi));
-            
-            // Maksimum veri noktası sayısını aş, eskiyi sil
-            if (dataPoints.labels.length > MAX_DATA_POINTS) {
-                dataPoints.labels.shift();
-                dataPoints.amper.shift();
-                dataPoints.voltaj.shift();
-                dataPoints.telHizi.shift();
-            }
-            
-            // Grafikleri güncelle
-            chA.data.labels = [...dataPoints.labels];
-            chA.data.datasets[0].data = [...dataPoints.amper];
-            chA.update('active');
-            
-            chV.data.labels = [...dataPoints.labels];
-            chV.data.datasets[0].data = [...dataPoints.voltaj];
-            chV.update('active');
-            
-            chW.data.labels = [...dataPoints.labels];
-            chW.data.datasets[0].data = [...dataPoints.telHizi];
-            chW.update('active');
-        }
-
         // Tabloları güncelleme fonksiyonu
         function updateTable(tbodyId, value, time, valueKey) {
             const tb = document.getElementById(tbodyId);
-            
             // Yeni satır ekle
             const tr = document.createElement('tr');
             tr.innerHTML = `<td>${time}</td><td>${value}</td>`;
-            
             // En üste ekle
             if (tb.firstChild) {
                 tb.insertBefore(tr, tb.firstChild);
             } else {
                 tb.appendChild(tr);
             }
-            
             // Maksimum 12 satır tut
             while (tb.children.length > 12) {
                 tb.removeChild(tb.lastChild);
             }
         }
-
-        async function refresh() {
-            try {
-                // Yeni veri noktası üret
-                const newData = generateNewDataPoint();
-                
-                // Grafiklere ekle
-                addDataToCharts(newData);
-                
-                // Tabloları güncelle
-                updateTable('tbl-amper', newData.amper, newData.time, 'a');
-                updateTable('tbl-voltaj', newData.voltaj, newData.time, 'v');
-                updateTable('tbl-tel', newData.telHizi, newData.time, 'w');
-                
-                // Durum kartlarını güncelle
-                setStatus(
-                    newData.robotCalisiyor, 
-                    newData.robotHizi, 
-                    newData.alarmVar, 
-                    newData.alarmMesaji, 
-                    new Date().toISOString()
-                );
-                
-                console.log(`📊 Yeni veri eklendi: Amper=${newData.amper}A, Voltaj=${newData.voltaj}V, Tel=${newData.telHizi}`);
-                
-            } catch (e) {
-                console.error('❌ Veri güncelleme hatası:', e);
-                setStatus(false, 0, true, 'Veri alınamadı', null);
-            }
-        }
-
-        // İlk başlangıçta birkaç veri noktası ekle
-        function initializeCharts() {
-            for (let i = 0; i < 10; i++) {
-                const newData = generateNewDataPoint();
-                dataPoints.labels.push(newData.time);
-                dataPoints.amper.push(parseFloat(newData.amper));
-                dataPoints.voltaj.push(parseFloat(newData.voltaj));
-                dataPoints.telHizi.push(parseFloat(newData.telHizi));
-            }
-            
-            // İlk grafikleri çiz
-            chA.data.labels = [...dataPoints.labels];
-            chA.data.datasets[0].data = [...dataPoints.amper];
-            chA.update();
-            
-            chV.data.labels = [...dataPoints.labels];
-            chV.data.datasets[0].data = [...dataPoints.voltaj];
-            chV.update();
-            
-            chW.data.labels = [...dataPoints.labels];
-            chW.data.datasets[0].data = [...dataPoints.telHizi];
-            chW.update();
-        }
-
-        // Sayfa yüklendiğinde başlat
-        initializeCharts();
-        refresh();
-        setInterval(refresh, 2000); // 2 saniyede bir güncelle
     </script>
 }
