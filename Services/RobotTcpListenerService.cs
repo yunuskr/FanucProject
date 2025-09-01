@@ -159,29 +159,28 @@ namespace FanucRelease.Services
 
                     else if (veri.ToString().Contains("progbitti"))
                     {
+                        string prog_verisi = veri.ToString().Replace("progbitti", string.Empty);
+                        programVerisi.KaynakSayisi = int.Parse(prog_verisi);
+                        programVerisi.Operator = new Operator { Ad = "Ahmet", Soyad = "Çakar", KullaniciAdi = "ahmet.cakar" };
+                        programVerisi.Kaynaklar = kaynaklar;
+
+                        using (var scope = _services.CreateScope())
                         {
-
-                            string prog_verisi = veri.ToString().Replace("progbitti", string.Empty);
-                            programVerisi.KaynakSayisi = int.Parse(prog_verisi);
-                            programVerisi.Operator = new Operator { Ad = "Ahmet", Soyad = "Çakar", KullaniciAdi = "ahmet.cakar" };
-                            programVerisi.Kaynaklar = kaynaklar;
-
-                            using (var scope = _services.CreateScope())
-                            {
-                                // var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                                // db.ProgramVerileri.Add(programVerisi);
-                                // // db.Kaynaklar.AddRange(kaynaklar);
-                                // // db.AnlikKaynaklar.AddRange(anlikKaynaklar);
-                                // await db.SaveChangesAsync();
-                            }
-
-                                // Reset all temporary data for next program
-                                veri.Clear();
-                                kaynaklar = new List<Kaynak>();
-                                anlikKaynaklar = new List<AnlikKaynak>();
-                                programVerisi = new ProgramVerisi();
-
+                            // var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                            // db.ProgramVerileri.Add(programVerisi);
+                            // // db.Kaynaklar.AddRange(kaynaklar);
+                            // // db.AnlikKaynaklar.AddRange(anlikKaynaklar);
+                            // await db.SaveChangesAsync();
                         }
+
+                        // Program bittiğinde robot durdu bilgisini gönder
+                        await _hubContext.Clients.All.SendAsync("ReceiveRobotStatus", "Durdu", "");
+
+                        // Reset all temporary data for next program
+                        veri.Clear();
+                        kaynaklar = new List<Kaynak>();
+                        anlikKaynaklar = new List<AnlikKaynak>();
+                        programVerisi = new ProgramVerisi();
                     }
 
                     _logger.LogInformation("Fanuc robot disconnected.");

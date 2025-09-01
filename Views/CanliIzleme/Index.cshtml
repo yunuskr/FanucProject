@@ -188,26 +188,36 @@
 
         // Her yeni program başladığında grafik ve tablo verilerini sıfırla
         connection.on("ReceiveRobotStatus", (status, prog_baslat) => {
-            dataPoints.labels = [];
-            dataPoints.amper = [];
-            dataPoints.voltaj = [];
-            dataPoints.telHizi = [];
+            // Robot durumu alanını güncelle
+            const txtStatus = document.getElementById('txt-status');
+            if (status === "Calisiyor") {
+                // Yeni program başladığında grafik ve tablo verilerini sıfırla
+                dataPoints.labels = [];
+                dataPoints.amper = [];
+                dataPoints.voltaj = [];
+                dataPoints.telHizi = [];
 
-            chA.data.labels = [];
-            chA.data.datasets[0].data = [];
-            chA.update('active');
+                chA.data.labels = [];
+                chA.data.datasets[0].data = [];
+                chA.update('active');
 
-            chV.data.labels = [];
-            chV.data.datasets[0].data = [];
-            chV.update('active');
+                chV.data.labels = [];
+                chV.data.datasets[0].data = [];
+                chV.update('active');
 
-            chW.data.labels = [];
-            chW.data.datasets[0].data = [];
-            chW.update('active');
+                chW.data.labels = [];
+                chW.data.datasets[0].data = [];
+                chW.update('active');
 
-            document.getElementById('tbl-amper').innerHTML = '';
-            document.getElementById('tbl-voltaj').innerHTML = '';
-            document.getElementById('tbl-tel').innerHTML = '';
+                document.getElementById('tbl-amper').innerHTML = '';
+                document.getElementById('tbl-voltaj').innerHTML = '';
+                document.getElementById('tbl-tel').innerHTML = '';
+
+                txtStatus.textContent = "Robot çalışıyor";
+            } else {
+                // Robot durduğunda sadece durum metni güncellensin, veriler korunacak
+                txtStatus.textContent = "Robot durdu / veri yok";
+            }
         });
 
         // Canlı veri geldiğinde grafik ve tabloya ekle
