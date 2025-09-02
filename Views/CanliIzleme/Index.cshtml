@@ -179,6 +179,21 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
     <script>
+        // Sayfa açıldığında robotun son durumunu API'den çek
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await fetch('/api/robot/status');
+                if (res.ok) {
+                    const data = await res.json();
+                    const txtStatus = document.getElementById('txt-status');
+                    if (data.status === "Calisiyor") {
+                        txtStatus.textContent = "Robot çalışıyor";
+                    } else {
+                        txtStatus.textContent = "Robot durdu / veri yok";
+                    }
+                }
+            } catch {}
+        });
 
         // SignalR bağlantısı
         const connection = new signalR.HubConnectionBuilder()

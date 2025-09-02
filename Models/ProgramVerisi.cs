@@ -9,6 +9,7 @@ public class ProgramVerisi
     public string ProgramAdi { get; set; } = string.Empty;
 
 
+    
     public int KaynakSayisi { get; set; }
 
     // Foreign keys made nullable so ProgramVerisi can be recorded without requiring existing Operator/Kaynak rows

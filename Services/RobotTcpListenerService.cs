@@ -23,18 +23,80 @@ namespace FanucRelease.Services
     /// </summary>
     public class RobotTcpListenerService : BackgroundService
     {
-        private readonly ILogger<RobotTcpListenerService> _logger;
-        private readonly IHubContext<RobotStatusHub> _hubContext;
+    private readonly string _statusFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "robot_status.json");
 
-        private readonly IServiceProvider _services;
-        private TcpListener? _server;
-        private readonly int _port = 59002; // Karel ile aynı port
+    private string _robotStatus = "Durdu";
+    private string _aktifProgram = "";
+
+    public string RobotStatus => _robotStatus;
+    public string AktifProgram => _aktifProgram;
+    private readonly ILogger<RobotTcpListenerService> _logger;
+    private readonly IHubContext<RobotStatusHub> _hubContext;
+    private readonly IServiceProvider _services;
+    private TcpListener? _server;
+    private readonly int _port = 59002; // Karel ile aynı port
+
+        private void SaveRobotStatusToFile()
+        {
+            try
+            {
+                var statusObj = new { status = _robotStatus, aktifProgram = _aktifProgram };
+                var json = JsonSerializer.Serialize(statusObj);
+                _logger.LogInformation($"robot_status.json tam yol: {_statusFilePath}");
+
+                // Atomic write: write to temp file then replace
+                var tmpPath = _statusFilePath + ".tmp";
+                File.WriteAllText(tmpPath, json);
+                File.Copy(tmpPath, _statusFilePath, true);
+                try { File.Delete(tmpPath); } catch { }
+
+                _logger.LogInformation($"robot_status.json güncellendi: status={_robotStatus}, aktifProgram={_aktifProgram}");
+                try
+                {
+                    var read = File.ReadAllText(_statusFilePath);
+                    _logger.LogInformation($"robot_status.json içerik okunuyor: {read}");
+                }
+                catch (Exception rex)
+                {
+                    _logger.LogError(rex, "robot_status.json yazıldı ama okunamadı");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"robot_status.json dosyası güncellenemedi! Yol: {_statusFilePath}");
+            }
+        }
+
+        private void LoadRobotStatusFromFile()
+        {
+            if (File.Exists(_statusFilePath))
+            {
+                var json = File.ReadAllText(_statusFilePath);
+                try
+                {
+                    var statusObj = JsonSerializer.Deserialize<RobotStatusDto>(json);
+                    if (statusObj != null)
+                    {
+                        _robotStatus = statusObj.status ?? "Durdu";
+                        _aktifProgram = statusObj.aktifProgram ?? "";
+                    }
+                }
+                catch { _robotStatus = "Durdu"; _aktifProgram = ""; }
+            }
+        }
+
+        private class RobotStatusDto
+        {
+            public string? status { get; set; }
+            public string? aktifProgram { get; set; }
+        }
 
         public RobotTcpListenerService(ILogger<RobotTcpListenerService> logger, IHubContext<RobotStatusHub> hubContext, IServiceProvider services)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
             _services = services ?? throw new ArgumentNullException(nameof(services));
+            LoadRobotStatusFromFile();
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -99,11 +161,19 @@ namespace FanucRelease.Services
 
                     if (veri.ToString().Contains("RobotAktif"))
                     {
-                        //RobotAktif dediğinde program başladı canlı izle modu aktif etme SignalR
-                        string prog_baslat = veri.ToString().Replace("RobotAktif", string.Empty);
+                        // RobotAktif dediğinde program başladı canlı izle modu aktif etme SignalR
+                        string prog_baslat = veri.ToString().Replace("RobotAktif", string.Empty) ?? string.Empty;
+                        // Trim kontrolü
+                        prog_baslat = prog_baslat.Trim();
+                        _logger.LogInformation($"RobotAktif sinyali alındı, ham veri: {veri.ToString()}, prog_baslat: '{prog_baslat}'");
+                        // Robotun son durumunu güncelle
+                        _robotStatus = "Calisiyor";
+                        _aktifProgram = prog_baslat ?? string.Empty;
+                        _logger.LogInformation($"_robotStatus set to {_robotStatus}, _aktifProgram set to '{_aktifProgram}'");
+                        SaveRobotStatusToFile();
                         // SignalR ile robot durumu gönder - Sinyal geldiğinde robot çalışıyor
-                        await _hubContext.Clients.All.SendAsync("ReceiveRobotStatus", "Calisiyor", prog_baslat);
-                        programVerisi.ProgramAdi = prog_baslat;
+                        await _hubContext.Clients.All.SendAsync("ReceiveRobotStatus", _robotStatus, _aktifProgram);
+                        programVerisi.ProgramAdi = prog_baslat ?? string.Empty;
                         veri.Clear();
                     }
 
@@ -173,8 +243,11 @@ namespace FanucRelease.Services
                             // await db.SaveChangesAsync();
                         }
 
-                        // Program bittiğinde robot durdu bilgisini gönder
-                        await _hubContext.Clients.All.SendAsync("ReceiveRobotStatus", "Durdu", "");
+                        // Program bittiğinde robot durdu bilgisini ve aktif programı temizle
+                        _robotStatus = "Durdu";
+                        _aktifProgram = "";
+                        SaveRobotStatusToFile();
+                        await _hubContext.Clients.All.SendAsync("ReceiveRobotStatus", _robotStatus, _aktifProgram);
 
                         // Reset all temporary data for next program
                         veri.Clear();
