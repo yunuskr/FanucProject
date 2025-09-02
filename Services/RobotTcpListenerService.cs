@@ -44,21 +44,36 @@ namespace FanucRelease.Services
                 var json = JsonSerializer.Serialize(statusObj);
                 _logger.LogInformation($"robot_status.json tam yol: {_statusFilePath}");
 
-                // Atomic write: write to temp file then replace
+                // Atomic write to app base dir
                 var tmpPath = _statusFilePath + ".tmp";
                 File.WriteAllText(tmpPath, json);
                 File.Copy(tmpPath, _statusFilePath, true);
                 try { File.Delete(tmpPath); } catch { }
 
-                _logger.LogInformation($"robot_status.json güncellendi: status={_robotStatus}, aktifProgram={_aktifProgram}");
+                _logger.LogInformation($"robot_status.json güncellendi (app dir): status={_robotStatus}, aktifProgram={_aktifProgram}");
                 try
                 {
                     var read = File.ReadAllText(_statusFilePath);
-                    _logger.LogInformation($"robot_status.json içerik okunuyor: {read}");
+                    _logger.LogInformation($"robot_status.json (app dir) içerik okunuyor: {read}");
                 }
                 catch (Exception rex)
                 {
-                    _logger.LogError(rex, "robot_status.json yazıldı ama okunamadı");
+                    _logger.LogError(rex, "robot_status.json (app dir) yazıldı ama okunamadı");
+                }
+
+                // Ayrıca proje kök dizinine de yaz (IDE içinde görebilmeniz için)
+                try
+                {
+                    var projectPath = Path.Combine(Directory.GetCurrentDirectory(), "robot_status.json");
+                    var tmpProj = projectPath + ".tmp";
+                    File.WriteAllText(tmpProj, json);
+                    File.Copy(tmpProj, projectPath, true);
+                    try { File.Delete(tmpProj); } catch { }
+                    _logger.LogInformation($"robot_status.json güncellendi (project root): {projectPath}");
+                }
+                catch (Exception pex)
+                {
+                    _logger.LogWarning(pex, "Proje köküne robot_status.json yazılamadı (bu normal olabilir)");
                 }
             }
             catch (Exception ex)
