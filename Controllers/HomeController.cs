@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using FanucRelease.Models;
 using FanucRelease.Data;
+using Microsoft.Data.SqlClient;
 namespace FanucRelease.Controllers;
 
 public class HomeController : Controller
@@ -64,6 +65,61 @@ public class HomeController : Controller
         
         return View();
     }
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult SaveSettings(Setting model)
+    {
+        if (ModelState.IsValid)
+        {
+            // Eğer her zaman tek bir kayıt tutacaksan (Id = 1 gibi)
+            var setting = _context.Settings.FirstOrDefault();
+            if (setting == null)
+            {
+                _context.Settings.Add(model);
+            }
+            else
+            {
+                setting.RobotIp = model.RobotIp;
+                setting.RobotUser = model.RobotUser;
+                setting.RobotPassword = model.RobotPassword;
+                setting.SqlIp = model.SqlIp;
+                setting.Database = model.Database;
+                setting.SqlUser = model.SqlUser;
+                setting.SqlPassword = model.SqlPassword;
+                setting.TrustServerCertificate = model.TrustServerCertificate;
+
+                _context.Settings.Update(setting);
+            }
+
+            _context.SaveChanges();
+            TempData["Success"] = "Ayarlar başarıyla kaydedildi.";
+        }
+        else
+        {
+            TempData["Error"] = "Eksik alanlar var!";
+        }
+
+        return RedirectToAction("Index", "Home");
+    }
+    public IActionResult TestDynamicDb()
+{
+    var dynamicConn = ConnectionHelper.GetDynamicConnection(_context);
+
+    if (string.IsNullOrEmpty(dynamicConn))
+    {
+        return Content("Ayarlar bulunamadı!");
+    }
+
+    using (var conn = new SqlConnection(dynamicConn))
+    {
+        conn.Open();
+        using (var cmd = new SqlCommand("SELECT TOP 1 name FROM sys.tables", conn))
+        {
+            var result = cmd.ExecuteScalar();
+            return Content($"Bağlantı başarılı ✅, İlk tablo: {result}");
+        }
+    }
+}
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()

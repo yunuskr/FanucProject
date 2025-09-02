@@ -483,6 +483,12 @@
                 </div>
 
                 <div class="topbar-actions">
+                    <!-- Settings -->
+                    <div class="dropdown">
+                        <button class="btn btn-link text-decoration-none p-2" data-bs-toggle="modal" data-bs-target="#settingsModal">
+                            <i class="fas fa-cog" style="font-size: 1.1rem; color: #2c3e50;"></i>
+                        </button>
+                    </div>
                     <!-- Notifications -->
                     <div class="dropdown">
                         <button class="btn btn-link text-decoration-none p-2" data-bs-toggle="dropdown">
@@ -541,7 +547,77 @@
             </main>
         </div>
     </div>
+    <!-- Settings Modal -->
+    <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+        <form method="post" action="@Url.Action("SaveSettings", "Home")">
+            @Html.AntiForgeryToken()
+            <div class="modal-header">
+                <h5 class="modal-title" id="settingsModalLabel">
+                    <i class="fas fa-cog me-2"></i> Sistem Ayarları
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
 
+            <div class="modal-body">
+                <div class="row g-3">
+                    <!-- Robot Ayarları -->
+                    <div class="col-md-6">
+                        <label class="form-label">Robot IP</label>
+                        <input type="text" name="RobotIp" class="form-control" 
+                            value="@ViewBag.Settings?.RobotIp" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Robot Kullanıcı</label>
+                        <input type="text" name="RobotUser" class="form-control" 
+                            value="@ViewBag.Settings?.RobotUser" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Robot Şifre</label>
+                        <input type="password" name="RobotPassword" class="form-control" 
+                            value="@ViewBag.Settings?.RobotPassword" required />
+                    </div>
+
+                    <!-- SQL Ayarları -->
+                    <div class="col-md-6">
+                        <label class="form-label">SQL IP</label>
+                        <input type="text" name="SqlIp" class="form-control" 
+                            value="@ViewBag.Settings?.SqlIp" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Veritabanı</label>
+                        <input type="text" name="Database" class="form-control" 
+                            value="@ViewBag.Settings?.Database" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">SQL Kullanıcı</label>
+                        <input type="text" name="SqlUser" class="form-control" 
+                            value="@ViewBag.Settings?.SqlUser" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">SQL Şifre</label>
+                        <input type="password" name="SqlPassword" class="form-control" 
+                            value="@ViewBag.Settings?.SqlPassword" required />
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check mt-4">
+                            <input type="checkbox" name="TrustServerCertificate" class="form-check-input" id="trustCert"
+                                @(ViewBag.Settings?.TrustServerCertificate == true ? "checked" : "") />
+                            <label class="form-check-label" for="trustCert">TrustServerCertificate</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                <button type="submit" class="btn btn-primary">Kaydet</button>
+            </div>
+        </form>
+        </div>
+    </div>
+    </div>
     <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
