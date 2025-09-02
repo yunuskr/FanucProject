@@ -42,43 +42,22 @@ namespace FanucRelease.Services
             {
                 var statusObj = new { status = _robotStatus, aktifProgram = _aktifProgram };
                 var json = JsonSerializer.Serialize(statusObj);
-                _logger.LogInformation($"robot_status.json tam yol: {_statusFilePath}");
-
                 // Atomic write to app base dir
                 var tmpPath = _statusFilePath + ".tmp";
                 File.WriteAllText(tmpPath, json);
                 File.Copy(tmpPath, _statusFilePath, true);
                 try { File.Delete(tmpPath); } catch { }
-
-                _logger.LogInformation($"robot_status.json güncellendi (app dir): status={_robotStatus}, aktifProgram={_aktifProgram}");
-                try
-                {
-                    var read = File.ReadAllText(_statusFilePath);
-                    _logger.LogInformation($"robot_status.json (app dir) içerik okunuyor: {read}");
-                }
-                catch (Exception rex)
-                {
-                    _logger.LogError(rex, "robot_status.json (app dir) yazıldı ama okunamadı");
-                }
-
-                // Ayrıca proje kök dizinine de yaz (IDE içinde görebilmeniz için)
-                try
-                {
-                    var projectPath = Path.Combine(Directory.GetCurrentDirectory(), "robot_status.json");
-                    var tmpProj = projectPath + ".tmp";
-                    File.WriteAllText(tmpProj, json);
-                    File.Copy(tmpProj, projectPath, true);
-                    try { File.Delete(tmpProj); } catch { }
-                    _logger.LogInformation($"robot_status.json güncellendi (project root): {projectPath}");
-                }
-                catch (Exception pex)
-                {
-                    _logger.LogWarning(pex, "Proje köküne robot_status.json yazılamadı (bu normal olabilir)");
-                }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"robot_status.json dosyası güncellenemedi! Yol: {_statusFilePath}");
+                // Sadece hata olursa log.txt'ye yaz
+                try
+                {
+                    var logPath = Path.Combine(Directory.GetCurrentDirectory(), "log.txt");
+                    var logMsg = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] robot_status.json dosyası güncellenemedi! Yol: {_statusFilePath}\n{ex}\n";
+                    File.AppendAllText(logPath, logMsg);
+                }
+                catch { }
             }
         }
 
