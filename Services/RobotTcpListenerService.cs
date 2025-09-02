@@ -230,11 +230,11 @@ namespace FanucRelease.Services
 
                         using (var scope = _services.CreateScope())
                         {
-                            // var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                            // db.ProgramVerileri.Add(programVerisi);
-                            // // db.Kaynaklar.AddRange(kaynaklar);
-                            // // db.AnlikKaynaklar.AddRange(anlikKaynaklar);
-                            // await db.SaveChangesAsync();
+                            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                            db.ProgramVerileri.Add(programVerisi);
+                            // db.Kaynaklar.AddRange(kaynaklar);
+                            // db.AnlikKaynaklar.AddRange(anlikKaynaklar);
+                            await db.SaveChangesAsync();
                         }
 
                         // Program bittiğinde robot durdu bilgisini ve aktif programı temizle
