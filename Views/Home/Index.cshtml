@@ -2062,47 +2062,63 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
 
 <script>
-    // SignalR Connection for Real-time Robot Status
-    const connection = new signalR.HubConnectionBuilder()
-        .withUrl("/robotStatusHub")
-        .build();
-
-    // Start SignalR connection
-    connection.start().then(function () {
-        console.log("SignalR connected - Robot status updates enabled");
-    }).catch(function (err) {
-        console.error("SignalR connection error:", err.toString());
-    });
-
-    // Robot status update handler
-    connection.on("ReceiveRobotStatus", function (status, activeProgram) {
-        updateRobotStatus(status, activeProgram);
-    });
-
     // Update robot status UI
     function updateRobotStatus(status, activeProgram) {
         const robotStatusCard = document.getElementById('robotStatusCard');
         const robotStatusText = document.getElementById('robotStatusText');
         const activeProgramText = document.getElementById('activeProgramText');
         const robotStatusIcon = document.getElementById('robotStatusIcon');
-        
         if (status === "Calisiyor") {
-            // Robot Çalışıyor durumu - Yeşil renkler ve yanıp sönme
             robotStatusCard.classList.remove('stopped');
             robotStatusText.textContent = 'Robot Çalışıyor';
             robotStatusIcon.className = 'fas fa-play-circle';
         } else {
-            // Robot Durdu durumu - Kırmızı renkler ve yanıp sönmeyi durdur (varsayılan)
             robotStatusCard.classList.add('stopped');
             robotStatusText.textContent = 'Robot Durdu';
             robotStatusIcon.className = 'fas fa-stop-circle';
         }
-        
-        // Aktif program güncelle
         if (activeProgram) {
             activeProgramText.textContent = activeProgram;
         }
-        
         console.log(`Robot Status Updated: ${status}, Program: ${activeProgram}`);
     }
+
+    // SignalR Connection for Real-time Robot Status
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/robotStatusHub")
+        .build();
+
+    // Robot status update handler
+    connection.on("ReceiveRobotStatus", function (status, activeProgram) {
+        updateRobotStatus(status, activeProgram);
+    });
+
+    // Start SignalR connection and fetch initial status from API
+    connection.start().then(function () {
+        console.log("SignalR connected - Robot status updates enabled");
+        // Sayfa ilk açıldığında API'den robot durumu çek
+        fetch('/api/robot/status')
+            .then(response => response.json())
+            .then(data => {
+                updateRobotStatus(data.status, data.aktifProgram);
+            })
+            .catch(error => {
+                console.error('Robot status API fetch error:', error);
+            });
+    }).catch(function (err) {
+        console.error("SignalR connection error:", err.toString());
+    });
+
+        // Fetch robot status from API on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('/api/robot/status')
+                .then(response => response.json())
+                .then(data => {
+                    // API returns { status: "Calisiyor" | "Durdu", activeProgram: "..." }
+                    updateRobotStatus(data.status, data.activeProgram);
+                })
+                .catch(error => {
+                    console.error('Robot status API fetch error:', error);
+                });
+        });
 </script>
