@@ -1,0 +1,8 @@
+[2025-09-08 13:43:26] RobotAktif sinyali alındı, ham veri: KAANRobotAktif, prog_baslat: 'KAAN'
+[2025-09-08 13:43:26] _robotStatus set to Calisiyor, _aktifProgram set to 'KAAN'
+[2025-09-08 13:43:26] SignalR veri gönderildi: Amper=500, Voltaj=50, TelSurmeHizi=0, Zaman=2025-09-08T13:43:26.5962322+03:00
+[2025-09-08 13:43:28] SignalR veri gönderildi: Amper=500, Voltaj=50, TelSurmeHizi=0, Zaman=2025-09-08T13:43:28.2470709+03:00
+[2025-09-08 13:43:29] SignalR veri gönderildi: Amper=500, Voltaj=50, TelSurmeHizi=0, Zaman=2025-09-08T13:43:29.9076816+03:00
+[2025-09-08 13:43:31] SignalR veri gönderildi: Amper=500, Voltaj=50, TelSurmeHizi=0, Zaman=2025-09-08T13:43:31.5844830+03:00
+[2025-09-08 13:43:33] SignalR veri gönderildi: Amper=500, Voltaj=50, TelSurmeHizi=0, Zaman=2025-09-08T13:43:33.2863887+03:00
+[2025-09-08 13:43:34] SignalR veri gönderildi: Amper=500, Voltaj=50, TelSurmeHizi=0, Zaman=2025-09-08T13:43:34.9678756+03:00

@@ -23,19 +23,46 @@ namespace FanucRelease.Services
     /// </summary>
     public class RobotTcpListenerService : BackgroundService
     {
+        // Dosya yolları
         private readonly string _statusFilePath;
+        private readonly string? _errorFilePath;
 
+        // Robot durumları
         private string _robotStatus = "Durdu";
         private string _aktifProgram = "";
 
-        List<string> tempData = new List<string>();
-        public string RobotStatus => _robotStatus;
-        public string AktifProgram => _aktifProgram;
-        private readonly ILogger<RobotTcpListenerService> _logger;
+        // Sabitler
+        private const int RobotPort = 59002; // Karel ile aynı port
+
+        // Servisler
         private readonly IHubContext<RobotStatusHub> _hubContext;
         private readonly IServiceProvider _services;
         private TcpListener? _server;
-        private readonly int _port = 59002; // Karel ile aynı port
+
+        // Geçici veri
+        private readonly List<string> tempData = new List<string>();
+        public string RobotStatus => _robotStatus;
+        public string AktifProgram => _aktifProgram;
+
+        private void LogToFile(string message, Exception? ex = null)
+        {
+            if (string.IsNullOrEmpty(_errorFilePath)) return;
+            try
+            {
+                var logMsg = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {message}";
+                if (ex != null)
+                {
+                    logMsg += $"\nException: {ex}";
+                }
+                logMsg += "\n";
+                File.AppendAllText(_errorFilePath, logMsg);
+            }
+            catch (Exception logEx)
+            {
+                // İsteğe bağlı: log hatasını konsola yazdır
+                Console.Error.WriteLine($"Log dosyasına yazılamadı: {logEx.Message}");
+            }
+        }
 
         private void SaveRobotStatusToFile()
         {
@@ -86,14 +113,11 @@ namespace FanucRelease.Services
             public string? aktifProgram { get; set; }
         }
 
-        public RobotTcpListenerService(ILogger<RobotTcpListenerService> logger, IHubContext<RobotStatusHub> hubContext, IServiceProvider services)
+        public RobotTcpListenerService(IHubContext<RobotStatusHub> hubContext, IServiceProvider services)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
             _services = services ?? throw new ArgumentNullException(nameof(services));
 
-            // Resolve project root from build output (bin/.../netX) by climbing up three levels
-            // This ensures robot_status.json is located at the project folder, e.g. C:\...\FanucProject\robot_status.json
             try
             {
                 var projectRoot = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", ".."));
@@ -107,6 +131,19 @@ namespace FanucRelease.Services
                         _statusFilePath = basePath;
                     }
                 }
+
+                _errorFilePath = Path.Combine(projectRoot, "Logs.txt");
+                // Eğer dosya yoksa base directory'den kontrol et
+                if (!File.Exists(_errorFilePath))
+                {
+                    var baseErrorPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs.txt");
+                    if (File.Exists(baseErrorPath))
+                    {
+                        _errorFilePath = baseErrorPath;
+                    }
+                }
+
+
             }
             catch
             {
@@ -120,9 +157,9 @@ namespace FanucRelease.Services
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             IPAddress localAddr = IPAddress.Any;
-            _server = new TcpListener(localAddr, _port);
+            _server = new TcpListener(localAddr, RobotPort);
             _server.Start();
-            _logger.LogInformation("Server started on port {Port}, waiting for Fanuc robot connection...", _port);
+            LogToFile($"Server started on port {RobotPort}, waiting for Fanuc robot connection...");
 
             try
             {
@@ -130,24 +167,24 @@ namespace FanucRelease.Services
                 {
                     // Robot bağlantısını kabul et
                     var client = await _server.AcceptTcpClientAsync(stoppingToken);
-                    _logger.LogInformation("Fanuc robot connected from: {Remote}", client.Client.RemoteEndPoint);
+                    LogToFile($"Fanuc robot connected from: {client.Client.RemoteEndPoint}");
 
                     // Her robot bağlantısını ayrı task'te işle
                     _ = Task.Run(() => RobotBaglantisiniIsle(client, stoppingToken), stoppingToken);
                 }
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ex)
             {
-                _logger.LogInformation("Service cancellation requested");
+                LogToFile("Service cancellation requested", ex);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in TCP listener");
+                LogToFile("Error in TCP listener", ex);
             }
             finally
             {
-                try { _server?.Stop(); } catch { }
-                _logger.LogInformation("Robot TCP server stopped.");
+                try { _server?.Stop(); } catch (Exception ex) { LogToFile("TCP server stop error", ex); }
+                LogToFile("Robot TCP server stopped.");
             }
         }
 
@@ -179,15 +216,21 @@ namespace FanucRelease.Services
 
                     if (veri.ToString().Contains("RobotAktif"))
                     {
-                        // RobotAktif dediğinde program başladı canlı izle modu aktif etme SignalR
+                        // RobotAktif dediğinde program başladı, Errors.txt dosyasını temizle
+                        try
+                        {
+                            if (!string.IsNullOrEmpty(_errorFilePath))
+                                File.WriteAllText(_errorFilePath, string.Empty);
+                        }
+                        catch { }
                         string prog_baslat = veri.ToString().Replace("RobotAktif", string.Empty) ?? string.Empty;
                         // Trim kontrolü
                         prog_baslat = prog_baslat.Trim();
-                        _logger.LogInformation($"RobotAktif sinyali alındı, ham veri: {veri.ToString()}, prog_baslat: '{prog_baslat}'");
+                        LogToFile($"RobotAktif sinyali alındı, ham veri: {veri.ToString()}, prog_baslat: '{prog_baslat}'");
                         // Robotun son durumunu güncelle
                         _robotStatus = "Calisiyor";
                         _aktifProgram = prog_baslat ?? string.Empty;
-                        _logger.LogInformation($"_robotStatus set to {_robotStatus}, _aktifProgram set to '{_aktifProgram}'");
+                        LogToFile($"_robotStatus set to {_robotStatus}, _aktifProgram set to '{_aktifProgram}'");
                         SaveRobotStatusToFile();
                         // SignalR ile robot durumu gönder - Sinyal geldiğinde robot çalışıyor
                         await _hubContext.Clients.All.SendAsync("ReceiveRobotStatus", _robotStatus, _aktifProgram);
@@ -210,7 +253,7 @@ namespace FanucRelease.Services
                         };
                         anlikKaynaklar.Add(anlikKaynak);
                         // SignalR ile canlı veri gönder
-                        _logger.LogInformation($"SignalR veri gönderildi: Amper={anlikKaynak.Amper}, Voltaj={anlikKaynak.Voltaj}, TelSurmeHizi={anlikKaynak.TelSurmeHizi}, Zaman={anlikKaynak.OlcumZamani:O}");
+                        LogToFile($"SignalR veri gönderildi: Amper={anlikKaynak.Amper}, Voltaj={anlikKaynak.Voltaj}, TelSurmeHizi={anlikKaynak.TelSurmeHizi}, Zaman={anlikKaynak.OlcumZamani:O}");
                         await _hubContext.Clients.All.SendAsync(
                             "ReceiveLiveData",
                             anlikKaynak.Amper,
@@ -264,7 +307,7 @@ namespace FanucRelease.Services
                         }
                         catch (Exception ex)
                         {
-                            _logger.LogError(ex, "ProgramVerisi kaydedilirken hata oluştu.");
+                            LogToFile("ProgramVerisi kaydedilirken hata oluştu.", ex);
                         }
 
                         // Program bittiğinde robot durdu bilgisini ve aktif programı kesin olarak temizle
@@ -287,19 +330,24 @@ namespace FanucRelease.Services
 
                 }
             }
-            catch (Exception ex) when (!(ex is OperationCanceledException))
+            catch (OperationCanceledException ex)
             {
-                _logger.LogError(ex, "Error handling robot connection");
+                LogToFile("Robot bağlantısı iptal edildi.", ex);
+            }
+            catch (Exception ex)
+            {
+                LogToFile("Error handling robot connection", ex);
             }
             finally
             {
-                try { client.Close(); } catch { }
-                _logger.LogInformation("Robot connection closed.");
+                try { client.Close(); } catch (Exception ex) { LogToFile("Client close error", ex); }
+                LogToFile("Robot connection closed.");
             }
         }
         public override Task StopAsync(CancellationToken cancellationToken)
         {
             try { _server?.Stop(); } catch { }
+            LogToFile("RobotTcpListenerService stopped.");
             return base.StopAsync(cancellationToken);
         }
     }
