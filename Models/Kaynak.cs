@@ -19,13 +19,9 @@ namespace FanucRelease.Models
 
         [DataType(DataType.Time)]
         public TimeOnly ToplamSure { get; set; }
-
         public int BaslangicSatiri { get; set; }
-
         public int KaynakUzunlugu { get; set; }
-
         public int BitisSatiri { get; set; }
-
         public int PrcNo { get; set; }
         public int SrcNo { get; set; }
 

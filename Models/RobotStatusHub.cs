@@ -7,9 +7,24 @@ public class RobotStatusHub : Hub
 {
     public override async Task OnConnectedAsync()
     {
-        try
-        {
-            var filePath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "robot_status.json");
+            try
+            {
+                // Resolve project root like the service so both read/write the same file
+                string filePath;
+                try
+                {
+                    var projectRoot = Path.GetFullPath(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "..", "..", ".."));
+                    filePath = Path.Combine(projectRoot, "robot_status.json");
+                    if (!File.Exists(filePath))
+                    {
+                        var basePath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "robot_status.json");
+                        if (File.Exists(basePath)) filePath = basePath;
+                    }
+                }
+                catch
+                {
+                    filePath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "robot_status.json");
+                }
             string status = "Durdu";
             string aktifProgram = string.Empty;
             if (File.Exists(filePath))

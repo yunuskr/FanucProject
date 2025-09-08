@@ -245,7 +245,8 @@
     /* Robot Durdu - Avatar */
     .robot-status.stopped .robot-avatar {
         background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-        animation: none; /* Yanıp sönmeyi durdur */
+        animation: none;
+        /* Yanıp sönmeyi durdur */
     }
 
     @@keyframes pulse {
@@ -288,7 +289,8 @@
     /* Robot Durdu - Status Indicator */
     .robot-status.stopped .status-indicator {
         background: #dc3545;
-        animation: none; /* Yanıp sönmeyi durdur */
+        animation: none;
+        /* Yanıp sönmeyi durdur */
     }
 
     @@keyframes blink {
@@ -663,16 +665,16 @@
             height: auto;
             gap: 1.5rem;
         }
-        
+
         .success-circle {
             width: 100px;
             height: 100px;
         }
-        
+
         .success-percentage {
             font-size: 1.6rem;
         }
-        
+
         .success-stats {
             width: 100%;
         }
@@ -791,9 +793,12 @@
     }
 
     @@keyframes pulse-alarm {
-        0%, 100% {
+
+        0%,
+        100% {
             box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4);
         }
+
         50% {
             box-shadow: 0 0 0 8px rgba(220, 53, 69, 0);
         }
@@ -825,7 +830,7 @@
             align-items: flex-start;
             gap: 0.5rem;
         }
-        
+
         .alarm-status {
             align-self: flex-end;
         }
@@ -868,8 +873,10 @@
         border-radius: 12px;
         overflow: hidden;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        max-height: 500px; /* Sabit maksimum yükseklik */
-        overflow-y: auto; /* Dikey kaydırma */
+        max-height: 500px;
+        /* Sabit maksimum yükseklik */
+        overflow-y: auto;
+        /* Dikey kaydırma */
     }
 
     /* Geçmiş programlar tablosu için custom scrollbar */
@@ -895,13 +902,15 @@
         margin: 0;
         background: white;
         border: none;
-        min-width: 800px; /* Minimum genişlik responsive için */
+        min-width: 800px;
+        /* Minimum genişlik responsive için */
     }
 
     .history-table thead {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        position: sticky; /* Header sabit kalacak */
+        position: sticky;
+        /* Header sabit kalacak */
         top: 0;
         z-index: 10;
     }
@@ -1050,6 +1059,7 @@
 
     /* Mobile responsive for history table */
     @@media (max-width: 1024px) {
+
         .history-table thead th:nth-child(5),
         .history-table tbody td:nth-child(5) {
             display: none;
@@ -1057,23 +1067,25 @@
     }
 
     @@media (max-width: 768px) {
+
         .history-table thead th:nth-child(3),
         .history-table tbody td:nth-child(3),
         .history-table thead th:nth-child(4),
         .history-table tbody td:nth-child(4) {
             display: none;
         }
-        
+
         .section-title {
             font-size: 1.4rem;
         }
-        
+
         .history-section {
             padding: 1rem;
         }
     }
 
     @@media (max-width: 480px) {
+
         .history-table thead th:nth-child(2),
         .history-table tbody td:nth-child(2) {
             display: none;
@@ -1089,7 +1101,8 @@
         box-shadow: var(--shadow-glass);
         overflow: hidden;
         transition: var(--transition);
-        max-height: 600px; /* Sabit yükseklik */
+        max-height: 600px;
+        /* Sabit yükseklik */
     }
 
     .program-card:hover {
@@ -1102,7 +1115,8 @@
         color: white;
         padding: 1.5rem;
         position: relative;
-        flex-shrink: 0; /* Header sabit kalacak */
+        flex-shrink: 0;
+        /* Header sabit kalacak */
     }
 
     .program-header::before {
@@ -1203,8 +1217,10 @@
     .kaynak-list {
         padding: 1.5rem;
         flex: 1;
-        overflow-y: auto; /* Kaydırma çubuğu */
-        max-height: 350px; /* Maksimum yükseklik */
+        overflow-y: auto;
+        /* Kaydırma çubuğu */
+        max-height: 350px;
+        /* Maksimum yükseklik */
     }
 
     /* Kaynak listesi için custom scrollbar */
@@ -1321,9 +1337,12 @@
     }
 
     @@keyframes pulse-success {
-        0%, 100% {
+
+        0%,
+        100% {
             box-shadow: 0 0 0 0 rgba(17, 153, 142, 0.4);
         }
+
         50% {
             box-shadow: 0 0 0 10px rgba(17, 153, 142, 0);
         }
@@ -1333,17 +1352,17 @@
         .program-info-grid {
             grid-template-columns: repeat(2, 1fr);
         }
-        
+
         .kaynak-item {
             flex-direction: column;
             text-align: center;
         }
-        
+
         .kaynak-time {
             justify-content: center;
         }
     }
-    
+
     @@media (max-width: 480px) {
         .program-info-grid {
             grid-template-columns: 1fr;
@@ -1361,7 +1380,7 @@
         <!-- Dashboard Header -->
         <div class="dashboard-header">
             <h1 class="dashboard-title">
-                <i class="fas fa-robot"></i> RoboEye 
+                <i class="fas fa-robot"></i> RoboEye
             </h1>
             <p class="dashboard-subtitle">Gerçek zamanlı robot takip ve yönetim sistemi</p>
         </div>
@@ -1530,7 +1549,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="kaynak-list">
                 <h5 class="kaynak-list-title">
                     <i class="fas fa-list"></i>
@@ -1553,7 +1572,7 @@
                             <i class="fas fa-check"></i>
                         </div>
                     </div>
-                    
+
                     <div class="kaynak-item">
                         <div class="kaynak-icon">
                             <i class="fas fa-bolt"></i>
@@ -1570,7 +1589,7 @@
                             <i class="fas fa-check"></i>
                         </div>
                     </div>
-                    
+
                     <div class="kaynak-item">
                         <div class="kaynak-icon">
                             <i class="fas fa-bolt"></i>
@@ -1627,6 +1646,10 @@
                             </div>
                         </div>
                     </div>
+                    <!-- todayPie canvas eklendi: Chart.js context hatasını önlemek için varlık kontrolü yapılacak -->
+                    <div style="width:120px; height:120px; display:flex; align-items:center; justify-content:center;">
+                        <canvas id="todayPie" width="100" height="100" aria-label="Başarı Oranı Grafiği"></canvas>
+                    </div>
                 </div>
             </div>
 
@@ -1649,7 +1672,7 @@
                     <h5 class="chart-title">
                         <i class="fas fa-exclamation-triangle"></i> Program Alarm Kayıtları
                     </h5>
-                    
+
                 </div>
                 <div class="alarm-container">
                     <div class="alarm-list">
@@ -1666,7 +1689,7 @@
                                 <i class="fas fa-check"></i>
                             </div>
                         </div>
-                        
+
                         <div class="alarm-item medium">
                             <div class="alarm-icon">
                                 <i class="fas fa-exclamation-circle"></i>
@@ -1680,7 +1703,7 @@
                                 <i class="fas fa-check"></i>
                             </div>
                         </div>
-                        
+
                         <div class="alarm-item low">
                             <div class="alarm-icon">
                                 <i class="fas fa-info-circle"></i>
@@ -1694,7 +1717,7 @@
                                 <i class="fas fa-check"></i>
                             </div>
                         </div>
-                        
+
                         <div class="alarm-item high">
                             <div class="alarm-icon">
                                 <i class="fas fa-exclamation-triangle"></i>
@@ -1885,76 +1908,85 @@
         }
     };
 
-    // Today Success Rate Pie Chart
-    new Chart(document.getElementById('todayPie'), {
-        type: 'doughnut',
-        data: {
-            labels: ['Başarılı', 'Hatalı'],
-            datasets: [{
-                data: [92, 8],
-                backgroundColor: ['#11998e', '#ff416c'],
-                borderWidth: 0,
-                cutout: '70%'
-            }]
-        },
-        options: {
-            ...chartDefaults,
-            plugins: {
-                ...chartDefaults.plugins,
-                legend: { position: 'bottom' }
-            }
+    // Chart initialization will run after DOM is ready to ensure canvases exist
+    document.addEventListener('DOMContentLoaded', function () {
+        // Today Success Rate Pie Chart
+        const todayPieCanvas = document.getElementById('todayPie');
+        if (todayPieCanvas) {
+            new Chart(todayPieCanvas, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Başarılı', 'Hatalı'],
+                    datasets: [{
+                        data: [92, 8],
+                        backgroundColor: ['#11998e', '#ff416c'],
+                        borderWidth: 0,
+                        cutout: '70%'
+                    }]
+                },
+                options: {
+                    ...chartDefaults,
+                    plugins: {
+                        ...chartDefaults.plugins,
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
         }
-    });
 
-    // Parameters Bar Chart
-    new Chart(document.getElementById('parametersBar'), {
-        type: 'bar',
-        data: {
-            labels: ['Akım (A)', 'Voltaj (V)', 'Tel Hızı (m/dk)', 'Robot Hızı (%)'],
-            datasets: [{
-                label: 'Ortalama Değer',
-                data: [185, 24.5, 8.2, 75],
-                backgroundColor: [
-                    '#ff416c',
-                    '#4facfe', 
-                    '#f093fb',
-                    '#11998e'
-                ],
-                borderRadius: 8,
-                borderWidth: 0
-            }]
-        },
-        options: {
-            ...chartDefaults,
-            plugins: {
-                ...chartDefaults.plugins,
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            const labels = ['185 A', '24.5 V', '8.2 m/dk', '75%'];
-                            return labels[context.dataIndex];
+        // Parameters Bar Chart
+        const parametersBarCanvas = document.getElementById('parametersBar');
+        if (parametersBarCanvas) {
+            new Chart(parametersBarCanvas, {
+                type: 'bar',
+                data: {
+                    labels: ['Akım (A)', 'Voltaj (V)', 'Tel Hızı (m/dk)', 'Robot Hızı (%)'],
+                    datasets: [{
+                        label: 'Ortalama Değer',
+                        data: [185, 24.5, 8.2, 75],
+                        backgroundColor: [
+                            '#ff416c',
+                            '#4facfe',
+                            '#f093fb',
+                            '#11998e'
+                        ],
+                        borderRadius: 8,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    ...chartDefaults,
+                    plugins: {
+                        ...chartDefaults.plugins,
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    const labels = ['185 A', '24.5 V', '8.2 m/dk', '75%'];
+                                    return labels[context.dataIndex];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                font: { family: 'Poppins', size: 10, weight: '600' },
+                                color: '#2c3e50',
+                                maxRotation: 0
+                            }
+                        },
+                        y: {
+                            grid: { color: 'rgba(0,0,0,0.05)' },
+                            ticks: {
+                                font: { family: 'Poppins', size: 11 },
+                                color: '#6c757d'
+                            }
                         }
                     }
                 }
-            },
-            scales: {
-                x: {
-                    grid: { display: false },
-                    ticks: { 
-                        font: { family: 'Poppins', size: 10, weight: '600' }, 
-                        color: '#2c3e50',
-                        maxRotation: 0
-                    }
-                },
-                y: {
-                    grid: { color: 'rgba(0,0,0,0.05)' },
-                    ticks: { 
-                        font: { family: 'Poppins', size: 11 }, 
-                        color: '#6c757d'
-                    }
-                }
-            }
+            });
         }
     });
 
@@ -2044,9 +2076,7 @@
 `;
     document.head.appendChild(style);
 
-    // Console welcome message
-    console.log('%c🤖 RoboEye Dashboard Yüklendi!', 'color: #667eea; font-size: 16px; font-weight: bold;');
-    console.log('%cModern tasarım ve performans optimizasyonları aktif.', 'color: #11998e; font-size: 12px;');
+  
 
     // Program Details Function
     function viewProgramDetails(programId) {
@@ -2093,32 +2123,10 @@
         updateRobotStatus(status, activeProgram);
     });
 
-    // Start SignalR connection and fetch initial status from API
+    // Start SignalR connection
     connection.start().then(function () {
         console.log("SignalR connected - Robot status updates enabled");
-        // Sayfa ilk açıldığında API'den robot durumu çek
-        fetch('/api/robot/status')
-            .then(response => response.json())
-            .then(data => {
-                updateRobotStatus(data.status, data.aktifProgram);
-            })
-            .catch(error => {
-                console.error('Robot status API fetch error:', error);
-            });
     }).catch(function (err) {
         console.error("SignalR connection error:", err.toString());
     });
-
-        // Fetch robot status from API on page load
-        document.addEventListener('DOMContentLoaded', function () {
-            fetch('/api/robot/status')
-                .then(response => response.json())
-                .then(data => {
-                    // API returns { status: "Calisiyor" | "Durdu", activeProgram: "..." }
-                    updateRobotStatus(data.status, data.activeProgram);
-                })
-                .catch(error => {
-                    console.error('Robot status API fetch error:', error);
-                });
-        });
 </script>

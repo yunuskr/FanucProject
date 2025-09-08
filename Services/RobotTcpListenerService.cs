@@ -23,18 +23,19 @@ namespace FanucRelease.Services
     /// </summary>
     public class RobotTcpListenerService : BackgroundService
     {
-    private readonly string _statusFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "robot_status.json");
+        private readonly string _statusFilePath;
 
-    private string _robotStatus = "Durdu";
-    private string _aktifProgram = "";
+        private string _robotStatus = "Durdu";
+        private string _aktifProgram = "";
 
-    public string RobotStatus => _robotStatus;
-    public string AktifProgram => _aktifProgram;
-    private readonly ILogger<RobotTcpListenerService> _logger;
-    private readonly IHubContext<RobotStatusHub> _hubContext;
-    private readonly IServiceProvider _services;
-    private TcpListener? _server;
-    private readonly int _port = 59002; // Karel ile aynı port
+        List<string> tempData = new List<string>();
+        public string RobotStatus => _robotStatus;
+        public string AktifProgram => _aktifProgram;
+        private readonly ILogger<RobotTcpListenerService> _logger;
+        private readonly IHubContext<RobotStatusHub> _hubContext;
+        private readonly IServiceProvider _services;
+        private TcpListener? _server;
+        private readonly int _port = 59002; // Karel ile aynı port
 
         private void SaveRobotStatusToFile()
         {
@@ -90,6 +91,29 @@ namespace FanucRelease.Services
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
             _services = services ?? throw new ArgumentNullException(nameof(services));
+
+            // Resolve project root from build output (bin/.../netX) by climbing up three levels
+            // This ensures robot_status.json is located at the project folder, e.g. C:\...\FanucProject\robot_status.json
+            try
+            {
+                var projectRoot = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", ".."));
+                _statusFilePath = Path.Combine(projectRoot, "robot_status.json");
+                // If the file is not present in project root but exists in base dir, fallback to that to avoid losing data
+                if (!File.Exists(_statusFilePath))
+                {
+                    var basePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "robot_status.json");
+                    if (File.Exists(basePath))
+                    {
+                        _statusFilePath = basePath;
+                    }
+                }
+            }
+            catch
+            {
+                // Fallback to base directory if path calculation fails
+                _statusFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "robot_status.json");
+            }
+
             LoadRobotStatusFromFile();
         }
 
@@ -185,15 +209,15 @@ namespace FanucRelease.Services
 
                         };
                         anlikKaynaklar.Add(anlikKaynak);
-                            // SignalR ile canlı veri gönder
-                            _logger.LogInformation($"SignalR veri gönderildi: Amper={anlikKaynak.Amper}, Voltaj={anlikKaynak.Voltaj}, TelSurmeHizi={anlikKaynak.TelSurmeHizi}, Zaman={anlikKaynak.OlcumZamani:O}");
-                            await _hubContext.Clients.All.SendAsync(
-                                "ReceiveLiveData",
-                                anlikKaynak.Amper,
-                                anlikKaynak.Voltaj,
-                                anlikKaynak.TelSurmeHizi,
-                                anlikKaynak.OlcumZamani.ToString("o")
-                            );
+                        // SignalR ile canlı veri gönder
+                        _logger.LogInformation($"SignalR veri gönderildi: Amper={anlikKaynak.Amper}, Voltaj={anlikKaynak.Voltaj}, TelSurmeHizi={anlikKaynak.TelSurmeHizi}, Zaman={anlikKaynak.OlcumZamani:O}");
+                        await _hubContext.Clients.All.SendAsync(
+                            "ReceiveLiveData",
+                            anlikKaynak.Amper,
+                            anlikKaynak.Voltaj,
+                            anlikKaynak.TelSurmeHizi,
+                            anlikKaynak.OlcumZamani.ToString("o")
+                        );
                         veri.Clear();
 
                     }
@@ -220,7 +244,6 @@ namespace FanucRelease.Services
 
                     }
 
-
                     else if (veri.ToString().Contains("progbitti"))
                     {
                         string prog_verisi = veri.ToString().Replace("progbitti", string.Empty);
@@ -228,16 +251,23 @@ namespace FanucRelease.Services
                         programVerisi.Operator = new Operator { Ad = "Ahmet", Soyad = "Çakar", KullaniciAdi = "ahmet.cakar" };
                         programVerisi.Kaynaklar = kaynaklar;
 
-                        using (var scope = _services.CreateScope())
+                        try
                         {
-                            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                            db.ProgramVerileri.Add(programVerisi);
-                            // db.Kaynaklar.AddRange(kaynaklar);
-                            // db.AnlikKaynaklar.AddRange(anlikKaynaklar);
-                            await db.SaveChangesAsync();
+                            using (var scope = _services.CreateScope())
+                            {
+                                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                                db.ProgramVerileri.Add(programVerisi);
+                                // db.Kaynaklar.AddRange(kaynaklar);
+                                // db.AnlikKaynaklar.AddRange(anlikKaynaklar);
+                                await db.SaveChangesAsync();
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "ProgramVerisi kaydedilirken hata oluştu.");
                         }
 
-                        // Program bittiğinde robot durdu bilgisini ve aktif programı temizle
+                        // Program bittiğinde robot durdu bilgisini ve aktif programı kesin olarak temizle
                         _robotStatus = "Durdu";
                         _aktifProgram = "";
                         SaveRobotStatusToFile();
@@ -250,7 +280,11 @@ namespace FanucRelease.Services
                         programVerisi = new ProgramVerisi();
                     }
 
-                    _logger.LogInformation("Fanuc robot disconnected.");
+                    else
+                    {
+                        tempData.Add(veri.ToString());
+                    }
+
                 }
             }
             catch (Exception ex) when (!(ex is OperationCanceledException))
