@@ -17,5 +17,6 @@ namespace FanucRelease.Data
         public DbSet<TrafoBilgisi> TrafoBilgileri { get; set; }
         public DbSet<KaynakParametre> KaynakParametreleri { get; set; }
         public DbSet<ProgramVerisi> ProgramVerileri { get; set; }
+        public DbSet<Setting> Settings { get; set; }
     }
 }
