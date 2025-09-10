@@ -245,9 +245,9 @@ namespace FanucRelease.Services
                         anlikKaynak = new AnlikKaynak
                         {
                             OlcumZamani = anlik_parcalar.Length > 0 ? DateTime.Now : DateTime.MinValue,
-                            Voltaj = anlik_parcalar.Length > 1 ? double.Parse(anlik_parcalar[0]) : 0,
-                            Amper = anlik_parcalar.Length > 2 ? double.Parse(anlik_parcalar[1]) : 0,
-                            TelSurmeHizi = anlik_parcalar.Length > 3 ? double.Parse(anlik_parcalar[2]) : 0,
+                            Voltaj = anlik_parcalar.Length > 0 ? double.Parse(anlik_parcalar[0]) : 0,
+                            Amper = anlik_parcalar.Length > 1 ? double.Parse(anlik_parcalar[1]) : 0,
+                            TelSurmeHizi = anlik_parcalar.Length > 2 ? double.Parse(anlik_parcalar[2]) : 0,
                             KaynakHizi = 10,
                             
 
