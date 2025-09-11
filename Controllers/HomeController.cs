@@ -141,6 +141,29 @@ public class HomeController : Controller
 
         return RedirectToAction("Index", "Home");
     }
+    [HttpPost]
+    public IActionResult AdminLogin(string adminUsername, string adminPassword)
+    {
+        if (string.IsNullOrEmpty(adminUsername) || string.IsNullOrEmpty(adminPassword))
+        {
+            TempData["AdminError"] = "Kullanıcı adı veya şifre boş olamaz.";
+            return RedirectToAction("Index");
+        }
+
+        var admin = _context.Admins.FirstOrDefault(a => a.KullaniciAdi == adminUsername && a.Sifre == adminPassword);
+
+        if (admin != null)
+        {
+            // Giriş başarılı → Admin paneline yönlendir
+            return RedirectToAction("Index", "Admin", new { area = "Admin" });
+        }
+        else
+        {
+            TempData["AdminError"] = "Kullanıcı adı veya şifre yanlış.";
+            return RedirectToAction("Index");
+        }
+    }
+  
 
     public IActionResult TestDynamicDb()
     {
