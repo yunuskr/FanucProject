@@ -378,11 +378,10 @@
                         </a>
                     </div>
                     <div class="nav-item">
-                        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString()=="GecmisProgram" ? "active" : "")"
-                            asp-controller="GecmisProgram" asp-action="Index">
-                                <i class="fas fa-code"></i>
-                                <span>Programlar</span>
-                                <span class="nav-badge">8</span>
+                        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString()=="ProgramDetay" ? "active" : "")"
+                            asp-controller="ProgramDetay"
+                            asp-action="Index">
+                                Program Detayı
                         </a>
                     </div>
                     <div class="nav-item">

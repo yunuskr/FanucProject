@@ -1,0 +1,253 @@
+@model FanucRelease.ViewModels.KaynakDetayVM
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "Kaynak Detayı";
+
+    // Toplam süre: ToplamSure 00:00:00 ise fallback => Bitis - Başlangıç
+    string toplamSureText = Model.Kaynak.ToplamSure != default
+        ? Model.Kaynak.ToplamSure.ToString("HH:mm:ss")
+        : (Model.Kaynak.BitisSaati - Model.Kaynak.BaslangicSaati).ToString(@"hh\:mm\:ss");
+
+    // Program bilgileri (nav null olsa bile ID güvenli)
+    var programId  = Model.Kaynak.ProgramVerisi.Id;
+    var programAdi = Model.Kaynak.ProgramVerisi?.ProgramAdi ?? $"Program #{programId}";
+
+    // Chart verileri
+    var labels = Model.Ornekler.Select(x => x.OlcumZamani.ToString("HH:mm:ss")).ToList();
+    var voltaj = Model.Ornekler.Select(x => x.Voltaj).ToList();
+    var amper  = Model.Ornekler.Select(x => x.Amper).ToList();
+    var tel    = Model.Ornekler.Select(x => x.TelSurmeHizi).ToList();
+    var hiz    = Model.Ornekler.Select(x => (double)x.KaynakHizi).ToList();
+
+    var labelsJson = JsonSerializer.Serialize(labels);
+    var voltajJson = JsonSerializer.Serialize(voltaj);
+    var amperJson  = JsonSerializer.Serialize(amper);
+    var telJson    = JsonSerializer.Serialize(tel);
+    var hizJson    = JsonSerializer.Serialize(hiz);
+}
+
+<div class="container-fluid">
+
+    <!-- Üst başlık -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h2 class="mb-0"><i class="fas fa-bolt me-2"></i>Kaynak Detayı</h2>
+            <div class="text-muted">
+                Program: <strong>@programAdi</strong> • Kaynak ID: <strong>@Model.Kaynak.Id</strong>
+            </div>
+        </div>
+        <a asp-action="Index" asp-route-id="@programId" class="btn btn-secondary">Programa Dön</a>
+    </div>
+
+    <!-- Zaman & Parametre kartları -->
+    <div class="row g-3 mb-3">
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header">Zaman Bilgileri</div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">Başlangıç</dt>
+                        <dd class="col-sm-7">@Model.Kaynak.BaslangicSaati.ToString("yyyy-MM-dd HH:mm:ss")</dd>
+
+                        <dt class="col-sm-5">Bitiş</dt>
+                        <dd class="col-sm-7">@Model.Kaynak.BitisSaati.ToString("yyyy-MM-dd HH:mm:ss")</dd>
+
+                        <dt class="col-sm-5">Toplam Süre</dt>
+                        <dd class="col-sm-7">@toplamSureText</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header">Parametreler</div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">PRC No</dt>
+                        <dd class="col-sm-7">@Model.Kaynak.PrcNo</dd>
+
+                        <dt class="col-sm-5">SRC No</dt>
+                        <dd class="col-sm-7">@Model.Kaynak.SrcNo</dd>
+
+                        <dt class="col-sm-5">Başlangıç Satırı</dt>
+                        <dd class="col-sm-7">@Model.Kaynak.BaslangicSatiri</dd>
+
+                        <dt class="col-sm-5">Bitiş Satırı</dt>
+                        <dd class="col-sm-7">@Model.Kaynak.BitisSatiri</dd>
+
+                        <dt class="col-sm-5">Kaynak Uzunluğu</dt>
+                        <dd class="col-sm-7">@Model.Kaynak.KaynakUzunlugu</dd>
+
+                        <dt class="col-sm-5">Program Id</dt>
+                        <dd class="col-sm-7">@Model.Kaynak.ProgramVerisi.Id</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ortalama kartları -->
+    <div class="row g-3 mb-3">
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100"><div class="card-body">
+                <div class="text-muted">Ø Voltaj (V)</div>
+                <div class="h4 mb-0">@Model.OrtalamaVoltaj</div>
+            </div></div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100"><div class="card-body">
+                <div class="text-muted">Ø Amper (A)</div>
+                <div class="h4 mb-0">@Model.OrtalamaAmper</div>
+            </div></div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100"><div class="card-body">
+                <div class="text-muted">Ø Tel Sürme (m/dk)</div>
+                <div class="h4 mb-0">@Model.OrtalamaTelSurme</div>
+            </div></div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100"><div class="card-body">
+                <div class="text-muted">Ø Kaynak Hızı (mm/s)</div>
+                <div class="h4 mb-0">@Model.OrtalamaKaynakHizi</div>
+            </div></div>
+        </div>
+    </div>
+
+    @if (!Model.Ornekler.Any())
+    {
+        <div class="alert alert-warning">Bu kaynak için anlık ölçüm kaydı bulunamadı.</div>
+    }
+    else
+    {
+        <!-- Zaman serisi (Voltaj, Amper, Tel Sürme) -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">Zaman Serisi — Voltaj / Amper / Tel Sürme</div>
+            <div class="card-body">
+                <div style="height:320px">
+                    <canvas id="tsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Zaman serisi (Kaynak Hızı) -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">Zaman Serisi — Kaynak Hızı</div>
+            <div class="card-body">
+                <div style="height:260px">
+                    <canvas id="speedChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ortalama değerler bar chart + tablo -->
+        <div class="card shadow-sm">
+            <div class="card-header">Ortalama Değerler</div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <div style="height:280px">
+                            <canvas id="avgChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <table class="table table-sm mb-0">
+                            <thead><tr><th>Metre</th><th>Ø</th></tr></thead>
+                            <tbody>
+                                <tr><td>Voltaj (V)</td><td>@Model.OrtalamaVoltaj</td></tr>
+                                <tr><td>Amper (A)</td><td>@Model.OrtalamaAmper</td></tr>
+                                <tr><td>Tel Sürme (m/dk)</td><td>@Model.OrtalamaTelSurme</td></tr>
+                                <tr><td>Kaynak Hızı (mm/s)</td><td>@Model.OrtalamaKaynakHizi</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+
+@section Scripts{
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const labels = @Html.Raw(labelsJson);
+        const voltaj = @Html.Raw(voltajJson);
+        const amper  = @Html.Raw(amperJson);
+        const tel    = @Html.Raw(telJson);
+        const hiz    = @Html.Raw(hizJson);
+
+        // Zaman serisi: Voltaj / Amper / Tel Sürme
+        if (labels.length > 0) {
+            const ctx = document.getElementById('tsChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [
+                        { label: 'Voltaj (V)',      data: voltaj, borderWidth: 2, pointRadius: 0, tension: 0.2 },
+                        { label: 'Amper (A)',       data: amper,  borderWidth: 2, pointRadius: 0, tension: 0.2 },
+                        { label: 'Tel Sürme (m/dk)', data: tel,    borderWidth: 2, pointRadius: 0, tension: 0.2 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        x: { title: { display: true, text: 'Zaman' } },
+                        y: { title: { display: true, text: 'Değer' }, beginAtZero: false }
+                    },
+                    plugins: {
+                        legend: { position: 'top' }
+                    }
+                }
+            });
+
+            // Zaman serisi: Kaynak Hızı
+            const speedCtx = document.getElementById('speedChart').getContext('2d');
+            new Chart(speedCtx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [
+                        { label: 'Kaynak Hızı (mm/s)', data: hiz, borderWidth: 2, pointRadius: 0, tension: 0.2 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        x: { title: { display: true, text: 'Zaman' } },
+                        y: { title: { display: true, text: 'mm/s' }, beginAtZero: true }
+                    },
+                    plugins: {
+                        legend: { position: 'top' }
+                    }
+                }
+            });
+        }
+
+        // Ortalama bar chart
+        const avgCtx = document.getElementById('avgChart').getContext('2d');
+        new Chart(avgCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Voltaj (V)', 'Amper (A)', 'Tel Sürme (m/dk)', 'Kaynak Hızı (mm/s)'],
+                datasets: [{
+                    label: 'Ortalama',
+                    data: [@Model.OrtalamaVoltaj, @Model.OrtalamaAmper, @Model.OrtalamaTelSurme, @Model.OrtalamaKaynakHizi]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { y: { beginAtZero: true } },
+                plugins: { legend: { display: false } }
+            }
+        });
+    </script>
+}

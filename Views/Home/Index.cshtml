@@ -1,5 +1,6 @@
 @{
     Layout = "_Layout";
+    var items = ViewBag.GecmisProgramlar as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
 }
 
 @section Head {
@@ -1736,150 +1737,83 @@
             </div>
         </div>
 
-        <!-- Geçmiş Programlar Tablosu -->
-        <div class="history-section">
-            <div class="section-header">
-                <h4 class="section-title">
-                    <i class="fas fa-history"></i>
-                    Geçmiş Programlar
-                </h4>
-                <p class="section-subtitle">Son çalıştırılan programların geçmiş kayıtları</p>
-            </div>
-            <div class="history-table-container">
-                <div class="table-responsive">
-                    <table class="table history-table">
-                        <thead>
-                            <tr>
-                                <th><i class="fas fa-code"></i> Program Adı</th>
-                                <th><i class="fas fa-bolt"></i> Kaynak Sayısı</th>
-                                <th><i class="fas fa-user"></i> Operatör</th>
-                                <th><i class="fas fa-clock"></i> Toplam Süre</th>
-                                <th><i class="fas fa-calendar"></i> Tarih</th>
-                                <th><i class="fas fa-chart-line"></i> Başarı</th>
-                                <th><i class="fas fa-eye"></i> Detaylar</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <div class="program-name">
-                                        <span class="program-code">PRG-2025-08</span>
-                                        <small class="program-version">v1.2</small>
-                                    </div>
-                                </td>
-                                <td><span class="badge badge-success">30</span></td>
-                                <td>
-                                    <div class="operator-info">
-                                        <i class="fas fa-user-circle"></i>
-                                        <span>Ahmet Çakar</span>
-                                    </div>
-                                </td>
-                                <td><span class="duration">1h 17m</span></td>
-                                <td><span class="date">25.08.2025</span></td>
-                                <td><span class="success-rate high">97%</span></td>
-                                <td>
-                                    <button class="btn-detail" onclick="viewProgramDetails('PRG-2025-08')">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="program-name">
-                                        <span class="program-code">PRG-2025-07</span>
-                                        <small class="program-version">v1.1</small>
-                                    </div>
-                                </td>
-                                <td><span class="badge badge-success">25</span></td>
-                                <td>
-                                    <div class="operator-info">
-                                        <i class="fas fa-user-circle"></i>
-                                        <span>Mehmet Yılmaz</span>
-                                    </div>
-                                </td>
-                                <td><span class="duration">58m</span></td>
-                                <td><span class="date">24.08.2025</span></td>
-                                <td><span class="success-rate high">95%</span></td>
-                                <td>
-                                    <button class="btn-detail" onclick="viewProgramDetails('PRG-2025-07')">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="program-name">
-                                        <span class="program-code">PRG-2025-06</span>
-                                        <small class="program-version">v1.0</small>
-                                    </div>
-                                </td>
-                                <td><span class="badge badge-warning">18</span></td>
-                                <td>
-                                    <div class="operator-info">
-                                        <i class="fas fa-user-circle"></i>
-                                        <span>Ali Demir</span>
-                                    </div>
-                                </td>
-                                <td><span class="duration">45m</span></td>
-                                <td><span class="date">23.08.2025</span></td>
-                                <td><span class="success-rate medium">89%</span></td>
-                                <td>
-                                    <button class="btn-detail" onclick="viewProgramDetails('PRG-2025-06')">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="program-name">
-                                        <span class="program-code">PRG-2025-05</span>
-                                        <small class="program-version">v2.0</small>
-                                    </div>
-                                </td>
-                                <td><span class="badge badge-danger">12</span></td>
-                                <td>
-                                    <div class="operator-info">
-                                        <i class="fas fa-user-circle"></i>
-                                        <span>Fatma Kaya</span>
-                                    </div>
-                                </td>
-                                <td><span class="duration">32m</span></td>
-                                <td><span class="date">22.08.2025</span></td>
-                                <td><span class="success-rate low">76%</span></td>
-                                <td>
-                                    <button class="btn-detail" onclick="viewProgramDetails('PRG-2025-05')">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="program-name">
-                                        <span class="program-code">PRG-2025-04</span>
-                                        <small class="program-version">v1.3</small>
-                                    </div>
-                                </td>
-                                <td><span class="badge badge-success">28</span></td>
-                                <td>
-                                    <div class="operator-info">
-                                        <i class="fas fa-user-circle"></i>
-                                        <span>Ahmet Çakar</span>
-                                    </div>
-                                </td>
-                                <td><span class="duration">1h 5m</span></td>
-                                <td><span class="date">21.08.2025</span></td>
-                                <td><span class="success-rate high">92%</span></td>
-                                <td>
-                                    <button class="btn-detail" onclick="viewProgramDetails('PRG-2025-04')">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+       <!-- Geçmiş Programlar Tablosu -->
+<div class="history-section">
+    <div class="section-header">
+        <h4 class="section-title">
+            <i class="fas fa-history"></i>
+            Geçmiş Programlar
+        </h4>
+        <p class="section-subtitle">Son çalıştırılan programların geçmiş kayıtları</p>
+    </div>
+
+    <div class="history-table-container">
+        <div class="table-responsive">
+            <table class="table history-table">
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-code"></i> Program Adı</th>
+                        <th><i class="fas fa-bolt"></i> Kaynak Sayısı</th>
+                        <th><i class="fas fa-user"></i> Operatör</th>
+                        <th><i class="fas fa-clock"></i> Toplam Süre</th>
+                        <th><i class="fas fa-calendar"></i> Tarih</th>
+                        <th><i class="fas fa-chart-line"></i> Başarı</th>
+                        <th><i class="fas fa-eye"></i> Detaylar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!items.Any())
+                {
+                    <tr>
+                        <td colspan="7" class="text-muted">Kayıt bulunamadı.</td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var item in items)
+                    {
+                        <tr>
+                            <td>
+                                <div class="program-name">
+                                    <span class="program-code">@item.ProgramAdi</span>
+                                    <small class="program-version">#@item.Id</small>
+                                </div>
+                            </td>
+
+                            <td>
+                                <span class="@item.BadgeClass">@item.KaynakSayisi</span>
+                            </td>
+
+                            <td>
+                                <div class="operator-info">
+                                    <i class="fas fa-user-circle"></i>
+                                    <span>@item.OperatorAdSoyad</span>
+                                </div>
+                            </td>
+
+                            <td><span class="duration">@item.ToplamSureText</span></td>
+                            <td><span class="date">@item.TarihText</span></td>
+
+                            <!-- Başarı: şimdilik sabit 100% -->
+                            <td><span class="success-rate high">@item.BasariYuzde%</span></td>
+
+                            <td>
+                                <a class="btn-detail"
+                                   asp-controller="ProgramDetay"
+                                   asp-action="Index"
+                                   asp-route-id="@item.Id"
+                                   title="Detayları Gör">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
         </div>
+    </div>
+</div>
     </div>
 </div>
 
