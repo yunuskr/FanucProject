@@ -1,0 +1,67 @@
+@model FanucRelease.ViewModels.ProgramHatalarVM
+
+@{
+    ViewData["Title"] = "Hata Detayları";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h2 class="mb-0">
+                <i class="fas fa-exclamation-triangle text-danger me-2"></i>Hata Detayları
+            </h2>
+            <div class="text-muted">
+                Program: <strong>@Model.ProgramAdi</strong>
+                @if (!string.IsNullOrWhiteSpace(Model.OperatorAdSoyad))
+                {
+                    <span> • Operatör: <strong>@Model.OperatorAdSoyad</strong></span>
+                }
+            </div>
+        </div>
+
+        <a asp-controller="ProgramDetay" asp-action="Index" asp-route-id="@Model.ProgramId" class="btn btn-secondary">
+            Programa Dön
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width:70px">#</th>
+                            <th>Tip</th>
+                            <th>Açıklama</th>
+                            <th style="width:220px">Zaman</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Hatalar == null || !Model.Hatalar.Any())
+                        {
+                            <tr>
+                                <td colspan="4" class="text-muted">Bu programa ait hata kaydı bulunamadı.</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            var i = 1;
+                            foreach (var h in Model.Hatalar)
+                            {
+                                <tr>
+                                    <td>@i</td>
+                                    <td>@h.Tip</td>
+                                    <td>@h.Aciklama</td>
+                                    <td>@h.Zaman.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                </tr>
+                                i++;
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>

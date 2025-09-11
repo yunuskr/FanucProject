@@ -378,10 +378,11 @@
                         </a>
                     </div>
                     <div class="nav-item">
-                        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString()=="ProgramDetay" ? "active" : "")"
+                        <a class="nav-link d-flex align-items-center @(ViewContext.RouteData.Values["controller"]?.ToString()=="ProgramDetay" ? "active" : "")"
                             asp-controller="ProgramDetay"
                             asp-action="Index">
-                                Program Detayı
+                                <i class="fas fa-file-code me-2"></i>
+                                <span>Program Detayı</span>
                         </a>
                     </div>
                     <div class="nav-item">

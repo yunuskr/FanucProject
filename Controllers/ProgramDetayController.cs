@@ -58,10 +58,10 @@ public class ProgramDetayController : Controller
             .OrderBy(x => x.OlcumZamani)
             .ToList();
 
-        double avgV  = ornekler.Any() ? ornekler.Average(x => x.Voltaj)        : 0;
-        double avgA  = ornekler.Any() ? ornekler.Average(x => x.Amper)         : 0;
-        double avgTS = ornekler.Any() ? ornekler.Average(x => x.TelSurmeHizi)  : 0;
-        double avgKH = ornekler.Any() ? ornekler.Average(x => x.KaynakHizi)    : 0;
+        double avgV = ornekler.Any() ? ornekler.Average(x => x.Voltaj) : 0;
+        double avgA = ornekler.Any() ? ornekler.Average(x => x.Amper) : 0;
+        double avgTS = ornekler.Any() ? ornekler.Average(x => x.TelSurmeHizi) : 0;
+        double avgKH = ornekler.Any() ? ornekler.Average(x => x.KaynakHizi) : 0;
 
         var vm = new KaynakDetayVM
         {
@@ -75,4 +75,40 @@ public class ProgramDetayController : Controller
 
         return View(vm); // Views/ProgramDetay/KaynakDetay.cshtml
     }
+    [HttpGet]
+public async Task<IActionResult> Hatalar(int id)
+{
+    if (id <= 0) return BadRequest();
+
+    // Program bilgisi (başlık/geri dönüş için)
+    var program = await _db.ProgramVerileri
+        .AsNoTracking()
+        .Include(p => p.Operator)
+        .FirstOrDefaultAsync(p => p.Id == id);
+
+    if (program is null) return NotFound();
+
+    // Bu programa ait tüm hatalar
+    var hatalar = await _db.Hata
+        .AsNoTracking()
+        .Where(h => h.ProgramVerisiId == id)
+        .OrderByDescending(h => h.Zaman)
+        .ToListAsync();
+
+    var vm = new ProgramHatalarVM
+    {
+        ProgramId = program.Id,
+        ProgramAdi = program.ProgramAdi,
+        OperatorAdSoyad = program.Operator is null ? null : $"{program.Operator.Ad} {program.Operator.Soyad}",
+        Hatalar = hatalar.Select(h => new ProgramHatalarVM.HataRow
+        {
+            Id = h.Id,
+            Tip = h.Tip.ToString(),
+            Aciklama = h.Aciklama,
+            Zaman = h.Zaman
+        }).ToList()
+    };
+
+    return View(vm); // Views/ProgramDetay/Hatalar.cshtml
+}
 }
