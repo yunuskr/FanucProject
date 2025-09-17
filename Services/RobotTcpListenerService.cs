@@ -336,7 +336,7 @@ namespace FanucRelease.Services
                         string hata_verisi = veri.ToString().Replace("hataalindi", string.Empty);
                         string[] hata_parcalar = hata_verisi.Split('/', StringSplitOptions.RemoveEmptyEntries);
                         DateTime hata_zamani = Hesaplayici.stringDateParse(hata_parcalar[3]);
-                        HataTipi tip = hata_parcalar[1] == "1" ? HataTipi.Kirmizi : HataTipi.Sari;
+                        int tip = hata_parcalar[1] == "1" ? 1 : 2;
                         Hata hata = new Hata
                         {
                             Kod = hata_parcalar[0],
