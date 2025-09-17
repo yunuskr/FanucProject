@@ -16,7 +16,8 @@ builder.Services.AddControllersWithViews();
 // DI
 builder.Services.AddScoped(typeof(IGenericService<>), typeof(GenericService<>));
 builder.Services.AddHostedService<RobotTcpListenerService>();
-// 🔐 AUTH — Build'tan ÖNCE!
+
+// 🔐 AUTH
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(opt =>
     {
@@ -34,7 +35,8 @@ var app = builder.Build();
 // Pipeline
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Login/Error");
+    // Burayı /Home/Error yapıyoruz, çünkü Error action genelde HomeController’da.
+    app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
@@ -43,7 +45,6 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// 🔐 Auth middleware sırası: önce Authentication, sonra Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -57,6 +58,6 @@ app.MapControllerRoute(
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Login}/{action=Index}/{id?}"); // ⬅️ Root = Login
 
 app.Run();

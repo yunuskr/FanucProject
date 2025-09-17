@@ -344,6 +344,83 @@
         .sidebar::-webkit-scrollbar-thumb:hover {
             background: rgba(102, 126, 234, 0.5);
         }
+        /* === ALTIN TEMA (hover/active) === */
+        :root{
+        --gold-start:#f09701;
+        --gold-end:#face00;
+        --gold-grad:linear-gradient(90deg,var(--gold-start),var(--gold-end));
+        --gold-shadow:0 6px 16px rgba(240,151,1,.35);
+        --gold-text:#15120a;
+        }
+
+        /* Sidebar: hover + aktif linkler artık altın */
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active{
+        background:var(--gold-grad) !important;
+        color:var(--gold-text) !important;
+        box-shadow:var(--gold-shadow) !important;
+        transform:translateX(5px);
+        }
+        .sidebar .nav-link:hover i,
+        .sidebar .nav-link.active i{
+        color:var(--gold-text) !important;
+        }
+        .sidebar .nav-link:hover .nav-badge,
+        .sidebar .nav-link.active .nav-badge{
+        background:rgba(0,0,0,.12) !important;
+        color:var(--gold-text) !important;
+        }
+
+        /* Topbar kullanıcı kapsülü: hover’da altın */
+        .topbar-user{ background:rgba(250,206,0,.12); }
+        .topbar-user:hover{
+        background:var(--gold-grad) !important;
+        color:var(--gold-text) !important;
+        box-shadow:var(--gold-shadow);
+        }
+        .topbar-user:hover .topbar-avatar{
+        background:var(--gold-grad) !important;
+        color:var(--gold-text) !important;
+        }
+
+        /* Dropdown item hover’u da altın olsun */
+        .dropdown-item:hover{
+        background:var(--gold-grad) !important;
+        color:var(--gold-text) !important;
+        }
+
+        /* (İsteğe bağlı) Primary butonları altın yap */
+        .btn-primary{
+        border:none;
+        background:var(--gold-grad) !important;
+        color:var(--gold-text) !important;
+        box-shadow:var(--gold-shadow);
+        }
+        .btn-primary:hover,
+        .btn-primary:focus{
+        filter:brightness(1.05);
+        box-shadow:0 8px 20px rgba(240,151,1,.45);
+        }
+
+        /* (İsteğe bağlı) Outline primary: hover’da dolsun */
+        .btn-outline-primary{
+        border-color:var(--gold-start) !important;
+        color:var(--gold-start) !important;
+        }
+        .btn-outline-primary:hover,
+        .btn-outline-primary:focus{
+        background:var(--gold-grad) !important;
+        color:var(--gold-text) !important;
+        border-color:transparent !important;
+        }
+
+        /* Erişilebilirlik için altın odak halkası */
+        .nav-link:focus-visible,
+        .btn:focus-visible,
+        .dropdown-item:focus-visible{
+        outline:3px solid rgba(240,151,1,.35);
+        outline-offset:2px;
+        }
     </style>
 </head>
 

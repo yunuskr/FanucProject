@@ -1369,6 +1369,95 @@
             grid-template-columns: 1fr;
         }
     }
+    /* === SAYFAYA ÖZEL ALTIN ARKAPLAN (login ile aynı) === */
+:root{
+  --gold:#face00;      /* parlak sarı */
+  --amber:#f09701;     /* sıcak turuncu */
+  --dark:#15120a;      /* çok koyu kahve/siyah */
+}
+
+/* Layout'taki body arkaplanını ez */
+body{
+  background-color:var(--dark) !important;
+  background-image:
+    /* merkez ışık */
+    radial-gradient(1200px 800px at 38% 35%,
+      rgba(250,206,0,.95) 0%,
+      rgba(240,151,1,.65) 34%,
+      rgba(240,151,1,.25) 50%,
+      rgba(21,18,10,0) 68%),
+    /* sağ üst sıcaklık */
+    radial-gradient(900px 600px at 88% 8%,
+      rgba(240,151,1,.35) 0%,
+      rgba(21,18,10,0) 60%),
+    /* sol alt karartma */
+    radial-gradient(1000px 700px at 0% 100%,
+      rgba(0,0,0,.55) 10%,
+      rgba(0,0,0,0) 60%),
+    /* zemin */
+    linear-gradient(180deg,#1c150a 0%, var(--dark) 100%);
+  background-attachment:fixed;
+  background-size:cover;
+}
+
+/* yumuşak vignette + hafif dither (banding azaltır) */
+body::after{
+  content:""; position:fixed; inset:0; pointer-events:none;
+  background: radial-gradient(150% 130% at 50% 50%,
+    rgba(0,0,0,0) 60%, rgba(0,0,0,.45) 100%);
+  mix-blend-mode:multiply;
+}
+body::before{
+  content:""; position:fixed; inset:-2px; pointer-events:none;
+  background: repeating-linear-gradient(0deg,
+    rgba(255,255,255,.015) 0 2px,
+    rgba(0,0,0,.02) 2px 4px);
+  opacity:.25; mix-blend-mode:overlay;
+}
+
+/* Layout'taki içerik katmanının beyaz film efektini kaldır */
+.content-area{ background: transparent !important; }
+
+/* === MOR -> ALTIN OVERRIDE'LAR === */
+:root{
+  --gold-start:#f09701;
+  --gold-end:#face00;
+  --gold-grad:linear-gradient(90deg, var(--gold-start), var(--gold-end));
+  /* sayfadaki tüm "primary" temayı altına çek */
+  --gradient-primary: var(--gold-grad);
+}
+
+/* RoboEye başlık kartı ve başlık yazısı */
+.dashboard-header::before{ background: var(--gold-grad) !important; }
+.dashboard-title{
+  background: none !important;
+  -webkit-text-fill-color: initial !important;
+  color:#fff !important;
+  text-shadow: 0 2px 8px rgba(0,0,0,.35);
+}
+
+/* "En son Program" kartının mor başlığını altın yap */
+.program-header{ background: var(--gold-grad) !important; }
+.program-header::before{
+  background: rgba(255,255,255,.12) !important; /* cam efekti kalsın */
+}
+
+/* Geçmiş Programlar tablosu başlığı */
+.history-table thead{ background: var(--gold-grad) !important; }
+
+/* Küçük altın vurgular */
+.operator-info i{ color: var(--gold-start) !important; }
+.program-version{
+  background: rgba(240,151,1,.12) !important;
+  color:#2c3e50;
+}
+
+/* Scrollbarları da altınla uyumlu yap */
+.history-table-container::-webkit-scrollbar-thumb,
+.kaynak-list::-webkit-scrollbar-thumb{
+  background: var(--gold-grad) !important;
+}
+.kaynak-list-title{ border-bottom:2px solid rgba(240,151,1,.25) !important; }
 </style>
 
 <div class="dashboard-container">

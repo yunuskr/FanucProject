@@ -1,14 +1,12 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace YourProjectName.Areas.Admin.Controllers
+namespace FanucRelease.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Route("Admin/Admin/[action]")]
+    [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
-        public IActionResult Index()
-        {
-            return View(); // --> Views/AdminHome/Index.cshtml çağrılır
-        }
+        public IActionResult Index() => View(); // Areas/Admin/Views/Admin/Index.cshtml
     }
 }

@@ -103,40 +103,61 @@
                     </div>
 
                     <!-- User -->
-                    <!-- Admin: kullanıcı dropdown -->
                         <div class="dropdown d-inline-block">
                             <button type="button" class="btn header-item waves-effect" data-bs-toggle="dropdown" aria-expanded="false">
                                 <img class="rounded-circle header-profile-user" src="~/assets/images/users/avatar-4.jpg" alt="">
                                 <span class="ms-2">
-                                    @(User?.Identity?.IsAuthenticated == true ? User.Identity!.Name : "Misafir")
+                                    @(User?.Identity?.IsAuthenticated == true ? User.FindFirst("Username")?.Value : "Misafir")
                                 </span>
                                 <i class="uil-angle-down ms-1"></i>
                             </button>
 
                             <div class="dropdown-menu dropdown-menu-end">
                                 <div class="dropdown-header noti-title">
-                                    <h6 class="text-overflow m-0">Hoş geldin, @User?.Identity!.Name!</h6>
+                                    @if (User?.Identity?.IsAuthenticated == true)
+                                    {
+                                        <h6 class="text-overflow m-0">Hoş geldin, @User.Identity!.Name!</h6>
+                                        <small class="text-muted">
+                                            Rol: @User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value
+                                        </small>
+                                    }
+                                    else
+                                    {
+                                        <h6 class="text-overflow m-0">Giriş yapılmadı</h6>
+                                    }
                                 </div>
 
-                                <a class="dropdown-item" href="#">
-                                    <i class="uil uil-user-circle me-1 text-muted"></i> Profilim
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="uil uil-cog me-1 text-muted"></i> Ayarlar
-                                </a>
+                                @if (User?.Identity?.IsAuthenticated == true)
+                                {
+                                    <a class="dropdown-item" href="#">
+                                        <i class="uil uil-user-circle me-1 text-muted"></i> Profilim
+                                    </a>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="uil uil-cog me-1 text-muted"></i> Ayarlar
+                                    </a>
 
-                                <a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="Index">
-                                    <i class="uil uil-home me-1 text-muted"></i> Kullanıcı Paneline Dön
-                                </a>
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="Index">
+                                            <i class="uil uil-home me-1 text-muted"></i> Kullanıcı Paneline Dön
+                                        </a>
+                                    }
 
-                                <hr class="dropdown-divider my-1" />
+                                    <hr class="dropdown-divider my-1" />
 
-                                <form asp-controller="Login" asp-action="Logout" method="post" class="px-2">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="dropdown-item text-danger">
-                                        <i class="uil uil-sign-out-alt me-1 text-muted"></i> Çıkış Yap
-                                    </button>
-                                </form>
+                                    <form asp-controller="Login" asp-action="Logout" method="post" class="px-2">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="dropdown-item text-danger">
+                                            <i class="uil uil-sign-out-alt me-1 text-muted"></i> Çıkış Yap
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <a class="dropdown-item text-primary" asp-area="" asp-controller="Login" asp-action="Index">
+                                        <i class="uil uil-sign-in-alt me-1 text-muted"></i> Giriş Yap
+                                    </a>
+                                }
                             </div>
                         </div>
 

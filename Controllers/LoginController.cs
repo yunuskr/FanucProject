@@ -1,133 +1,106 @@
-using System.Diagnostics;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using FanucRelease.Models;
 using FanucRelease.Data;
 
-using SecClaim = System.Security.Claims.Claim;
-using SCT = System.Security.Claims.ClaimTypes;
-namespace FanucRelease.Controllers;
-
-public class LoginController : Controller
+namespace FanucRelease.Controllers
 {
-    private readonly ILogger<LoginController> _logger;
-    private readonly ApplicationDbContext _context;
-
-    public LoginController(ILogger<LoginController> logger, ApplicationDbContext context)
+    public class LoginController : Controller
     {
-        _logger = logger;
-        _context = context;
-    }
+        private readonly ApplicationDbContext _context;
+        public LoginController(ApplicationDbContext context) => _context = context;
 
-    [HttpGet]
-    public IActionResult Index()
-    {
-        return View(); // Login/Index.cshtml (Layout = null)
-    }
+        [HttpGet]
+        public IActionResult Index() => View();  // Views/Login/Index.cshtml
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Index(string username)
-    {
-        if (string.IsNullOrWhiteSpace(username))
+        // --- Kullanıcı girişi (sadece username) ---
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Index(string username)
         {
-            TempData["Error"] = "Kullanıcı adı boş olamaz.";
-            return View();
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                TempData["UserError"] = "Kullanıcı adı boş olamaz.";
+                return View();
+            }
+
+            // Not: Normal kullanıcılar tablo adı sende çoğunlukla Operators.
+            var user = await _context.Operators
+                .AsNoTracking()
+                .Where(o => o.KullaniciAdi == username)
+                .Select(o => new { o.Id, o.Ad, o.Soyad, o.KullaniciAdi })
+                .FirstOrDefaultAsync();
+
+            if (user is null)
+            {
+                TempData["UserError"] = "Kullanıcı bulunamadı.";
+                return View();
+            }
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, $"{user.Ad} {user.Soyad}".Trim()),
+                new Claim("Username", user.KullaniciAdi),
+                new Claim(ClaimTypes.Role, "User"),
+                new Claim("UserId", user.Id.ToString())
+            };
+
+            await SignInAsync(claims);
+            return RedirectToAction("Index", "Home");
         }
 
-        var kullanici = await _context.Operators
-            .Where(o => o.KullaniciAdi == username)
-            .Select(o => new { o.Id, o.KullaniciAdi, o.Ad, o.Soyad })
-            .FirstOrDefaultAsync();
-
-        if (kullanici == null)
+        // --- Admin girişi (modal) ---
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AdminLogin(string adminUsername, string adminPassword)
         {
-            TempData["Error"] = "Kullanıcı bulunamadı.";
-            return View();
+            if (string.IsNullOrWhiteSpace(adminUsername) || string.IsNullOrWhiteSpace(adminPassword))
+            {
+                TempData["AdminError"] = "Kullanıcı adı veya şifre boş olamaz.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var admin = await _context.Admins
+                .AsNoTracking()
+                .Where(a => a.KullaniciAdi == adminUsername && a.Sifre == adminPassword)
+                .Select(a => new { a.Id, a.KullaniciAdi })
+                .FirstOrDefaultAsync();
+
+            if (admin is null)
+            {
+                TempData["AdminError"] = "Kullanıcı adı veya şifre yanlış.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, admin.KullaniciAdi),
+                new Claim("Username", admin.KullaniciAdi),
+                new Claim(ClaimTypes.Role, "Admin"),
+                new Claim("AdminId", admin.Id.ToString())
+            };
+
+            await SignInAsync(claims);
+            return RedirectToAction("Index", "Admin", new { area = "Admin" });
         }
 
-        var fullName = $"{kullanici.Ad} {kullanici.Soyad}".Trim();
-
-        var claims = new List<Claim>
+        [HttpPost]
+        public async Task<IActionResult> Logout()
         {
-            // UI'da görünen isim artık Ad Soyad
-            new Claim(ClaimTypes.Name, string.IsNullOrWhiteSpace(fullName) ? kullanici.KullaniciAdi : fullName),
-            // Kullanıcı adını da ayrı claim olarak tut (iş kuralları için)
-            new Claim("Username", kullanici.KullaniciAdi),
-            new Claim(ClaimTypes.Role, "User"),
-            new Claim("OperatorId", kullanici.Id.ToString()),
-            new Claim(ClaimTypes.GivenName, kullanici.Ad ?? string.Empty),
-            new Claim(ClaimTypes.Surname, kullanici.Soyad ?? string.Empty)
-        };
-
-        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-        var principal = new ClaimsPrincipal(identity);
-
-        await HttpContext.SignInAsync(
-            CookieAuthenticationDefaults.AuthenticationScheme,
-            principal,
-            new AuthenticationProperties { IsPersistent = true });
-
-        return RedirectToAction("Index", "Home");
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AdminLogin(string adminUsername, string adminPassword)
-    {
-        if (string.IsNullOrWhiteSpace(adminUsername) || string.IsNullOrWhiteSpace(adminPassword))
-        {
-            TempData["AdminError"] = "Kullanıcı adı veya şifre boş olamaz.";
-            return RedirectToAction("Index");
+            await HttpContext.SignOutAsync();
+            return RedirectToAction(nameof(Index));
         }
 
-        var admin = await _context.Admins
-            .Where(a => a.KullaniciAdi == adminUsername && a.Sifre == adminPassword)
-            .Select(a => new { a.Id, a.KullaniciAdi })
-            .FirstOrDefaultAsync();
-
-        if (admin == null)
+        private async Task SignInAsync(IEnumerable<Claim> claims)
         {
-            TempData["AdminError"] = "Kullanıcı adı veya şifre yanlış.";
-            return RedirectToAction("Index");
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                principal,
+                new AuthenticationProperties { IsPersistent = true });
         }
-
-        var claims = new List<SecClaim>
-        {
-            // HEADER'da görünecek isim: sadece Kullanıcı Adı
-            new SecClaim(SCT.Name, admin.KullaniciAdi),
-
-            new SecClaim("Username", admin.KullaniciAdi),
-            new SecClaim(SCT.Role, "Admin"),
-            new SecClaim("AdminId", admin.Id.ToString())
-        };
-
-        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-        var principal = new ClaimsPrincipal(identity);
-
-        await HttpContext.SignInAsync(
-            CookieAuthenticationDefaults.AuthenticationScheme,
-            principal,
-            new AuthenticationProperties { IsPersistent = true });
-
-        return RedirectToAction("Index", "Admin", new { area = "Admin" });
-    }
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Logout()
-    {
-        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        return RedirectToAction("Index"); // Login sayfası
-    }
-
-    public IActionResult Privacy() => View();
-
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 }

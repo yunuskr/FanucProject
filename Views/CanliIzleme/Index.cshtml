@@ -22,6 +22,54 @@
   .chart-card .card-footer{ border-top:1px solid rgba(0,0,0,.06); background:transparent; }
   .chart-card table.table-sm td, 
   .chart-card table.table-sm th{ padding:.45rem .6rem; }
+  /* === SAYFAYA ÖZEL ALTIN ARKAPLAN (login ile aynı) === */
+:root{
+  --gold:#face00;      /* parlak sarı */
+  --amber:#f09701;     /* sıcak turuncu */
+  --dark:#15120a;      /* çok koyu kahve/siyah */
+}
+
+/* Layout'taki body arkaplanını ez */
+body{
+  background-color:var(--dark) !important;
+  background-image:
+    /* merkez ışık */
+    radial-gradient(1200px 800px at 38% 35%,
+      rgba(250,206,0,.95) 0%,
+      rgba(240,151,1,.65) 34%,
+      rgba(240,151,1,.25) 50%,
+      rgba(21,18,10,0) 68%),
+    /* sağ üst sıcaklık */
+    radial-gradient(900px 600px at 88% 8%,
+      rgba(240,151,1,.35) 0%,
+      rgba(21,18,10,0) 60%),
+    /* sol alt karartma */
+    radial-gradient(1000px 700px at 0% 100%,
+      rgba(0,0,0,.55) 10%,
+      rgba(0,0,0,0) 60%),
+    /* zemin */
+    linear-gradient(180deg,#1c150a 0%, var(--dark) 100%);
+  background-attachment:fixed;
+  background-size:cover;
+}
+
+/* yumuşak vignette + hafif dither (banding azaltır) */
+body::after{
+  content:""; position:fixed; inset:0; pointer-events:none;
+  background: radial-gradient(150% 130% at 50% 50%,
+    rgba(0,0,0,0) 60%, rgba(0,0,0,.45) 100%);
+  mix-blend-mode:multiply;
+}
+body::before{
+  content:""; position:fixed; inset:-2px; pointer-events:none;
+  background: repeating-linear-gradient(0deg,
+    rgba(255,255,255,.015) 0 2px,
+    rgba(0,0,0,.02) 2px 4px);
+  opacity:.25; mix-blend-mode:overlay;
+}
+
+/* Layout'taki içerik katmanının beyaz film efektini kaldır */
+.content-area{ background: transparent !important; }
 </style>
 
 <div class="container-fluid mt-3">

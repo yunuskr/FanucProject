@@ -13,8 +13,13 @@
     },
     {
       "label": "rebuild",
-      "type": "shell",
-      "command": "dotnet clean; if ($?) { dotnet build }",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "${workspaceFolder}/FanucRelease.csproj",
+        "/t:Rebuild"
+      ],
       "group": {
         "kind": "build",
         "isDefault": true
