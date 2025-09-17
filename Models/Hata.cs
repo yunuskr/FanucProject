@@ -5,14 +5,15 @@ namespace FanucRelease.Models
 	public enum HataTipi
 	{
 		Kirmizi, // Kritik hata
-		Sari,    // Uyarı
-		Mavi     // Bilgilendirme
+		Sari     // Uyarı
 	}
 
 	public class Hata
 	{
 		public int Id { get; set; }
 		public HataTipi Tip { get; set; }
+
+		public string Kod { get; set; }
 		public string Aciklama { get; set; } = string.Empty;
 		public DateTime Zaman { get; set; } = DateTime.Now;
 		// İlgili program ile ilişkilendirmek için ProgramVerisiId eklenebilir
