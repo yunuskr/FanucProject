@@ -1426,6 +1426,9 @@ body::before{
   /* sayfadaki tüm "primary" temayı altına çek */
   --gradient-primary: var(--gold-grad);
 }
+.brand-gold {
+    color: #f5c518; /* altın sarısı */
+}
 
 /* RoboEye başlık kartı ve başlık yazısı */
 .dashboard-header::before{ background: var(--gold-grad) !important; }
@@ -1470,7 +1473,7 @@ body::before{
         <!-- Dashboard Header -->
         <div class="dashboard-header">
             <h1 class="dashboard-title">
-                <i class="fas fa-robot"></i> RoboEye
+                 <i class="fas fa-robot brand-gold"></i> <span class="brand-gold">RoboEye</span>
             </h1>
             <p class="dashboard-subtitle">Gerçek zamanlı robot takip ve yönetim sistemi</p>
         </div>
