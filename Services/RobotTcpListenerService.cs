@@ -285,6 +285,7 @@ namespace FanucRelease.Services
                             BitisSaati = Hesaplayici.BaslangicaSureEkle(kaynak_parcalar[0], kaynak_parcalar[1]),
                             PrcNo = kaynak_parcalar.Length > 5 ? int.Parse(kaynak_parcalar[5]) : 0,
                             SrcNo = kaynak_parcalar.Length > 6 ? int.Parse(kaynak_parcalar[6]) : 0,
+                            basarili_mi = kaynak_parcalar.Length > 6 ? bool.Parse(kaynak_parcalar[7]) : false,
                             AnlikKaynaklar = anlikKaynaklar
                         };
                         kaynaklar.Add(kaynak);
@@ -303,12 +304,12 @@ namespace FanucRelease.Services
                         {
                             using (var scope = _services.CreateScope())
                             {
-                                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                                db.ProgramVerileri.Add(programVerisi);
-                                db.Hatalar.AddRange(hatalar);
-                                db.Kaynaklar.AddRange(kaynaklar);
-                                db.AnlikKaynaklar.AddRange(anlikKaynaklar);
-                                await db.SaveChangesAsync();
+                                // var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                                // db.ProgramVerileri.Add(programVerisi);
+                                // db.Hatalar.AddRange(hatalar);
+                                // db.Kaynaklar.AddRange(kaynaklar);
+                                // db.AnlikKaynaklar.AddRange(anlikKaynaklar);
+                                // await db.SaveChangesAsync();
                             }
                         }
                         catch (Exception ex)
