@@ -89,7 +89,7 @@ public async Task<IActionResult> Hatalar(int id)
     if (program is null) return NotFound();
 
     // Bu programa ait tüm hatalar
-    var hatalar = await _db.Hata
+    var hatalar = await _db.Hatalar
         .AsNoTracking()
         .Where(h => h.ProgramVerisiId == id)
         .OrderByDescending(h => h.Zaman)

@@ -34,6 +34,7 @@ namespace FanucRelease.Services
         // Sabitler
         private const int RobotPort = 59002; // Karel ile aynı port
 
+
         // Servisler
         private readonly IHubContext<RobotStatusHub> _hubContext;
         private readonly IServiceProvider _services;
@@ -203,6 +204,8 @@ namespace FanucRelease.Services
                 ProgramVerisi programVerisi = new ProgramVerisi();
                 List<Kaynak> kaynaklar = new List<Kaynak>();
                 List<AnlikKaynak> anlikKaynaklar = new List<AnlikKaynak>();
+                List<Hata> hatalar = new List<Hata>();
+
                 // Sürekli veri bekle
                 while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, ct)) != 0)
                 {
@@ -224,8 +227,10 @@ namespace FanucRelease.Services
                         }
                         catch { }
                         string prog_baslat = veri.ToString().Replace("RobotAktif", string.Empty) ?? string.Empty;
+
+                        string[] veri_parca = prog_baslat.Split('/', StringSplitOptions.RemoveEmptyEntries);
                         // Trim kontrolü
-                        prog_baslat = prog_baslat.Trim();
+                        prog_baslat = veri_parca[0].Trim();
                         LogToFile($"RobotAktif sinyali alındı, ham veri: {veri.ToString()}, prog_baslat: '{prog_baslat}'");
                         // Robotun son durumunu güncelle
                         _robotStatus = "Calisiyor";
@@ -249,12 +254,12 @@ namespace FanucRelease.Services
                             Amper = anlik_parcalar.Length > 1 ? double.Parse(anlik_parcalar[1]) : 0,
                             TelSurmeHizi = anlik_parcalar.Length > 2 ? double.Parse(anlik_parcalar[2]) : 0,
                             KaynakHizi = 10,
-                            
+
 
                         };
                         anlikKaynaklar.Add(anlikKaynak);
                         // SignalR ile canlı veri gönder
-                        LogToFile($"SignalR veri gönderildi: Amper={anlikKaynak.Amper}, Voltaj={anlikKaynak.Voltaj}, TelSurmeHizi={anlikKaynak.TelSurmeHizi}, Zaman={anlikKaynak.OlcumZamani:O}");
+                        LogToFile($"SignalR veri gönderildi: Amper={anlikKaynak.Amper}, Voltaj={anlikKaynak.Voltaj}, TelSurmeHizi={anlikKaynak.TelSurmeHizi}, Zaman={anlikKaynak.OlcumZamani:yyyy-MM-dd HH:mm:ss}");
                         await _hubContext.Clients.All.SendAsync(
                             "ReceiveLiveData",
                             anlikKaynak.Amper,
@@ -285,7 +290,6 @@ namespace FanucRelease.Services
                         kaynaklar.Add(kaynak);
                         veri.Clear();
 
-
                     }
 
                     else if (veri.ToString().Contains("progbitti"))
@@ -294,15 +298,16 @@ namespace FanucRelease.Services
                         programVerisi.KaynakSayisi = int.Parse(prog_verisi);
                         programVerisi.Operator = new Operator { Ad = "Ahmet", Soyad = "Çakar", KullaniciAdi = "ahmet.cakar" };
                         programVerisi.Kaynaklar = kaynaklar;
-
+                        programVerisi.Hatalar = hatalar;
                         try
                         {
                             using (var scope = _services.CreateScope())
                             {
                                 var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                                 db.ProgramVerileri.Add(programVerisi);
-                                // db.Kaynaklar.AddRange(kaynaklar);
-                                // db.AnlikKaynaklar.AddRange(anlikKaynaklar);
+                                db.Hatalar.AddRange(hatalar);
+                                db.Kaynaklar.AddRange(kaynaklar);
+                                db.AnlikKaynaklar.AddRange(anlikKaynaklar);
                                 await db.SaveChangesAsync();
                             }
                         }
@@ -322,6 +327,28 @@ namespace FanucRelease.Services
                         kaynaklar = new List<Kaynak>();
                         anlikKaynaklar = new List<AnlikKaynak>();
                         programVerisi = new ProgramVerisi();
+                    }
+
+
+                    else if (veri.ToString().Contains("hataalindi"))
+                    {
+
+                        string hata_verisi = veri.ToString().Replace("hataalindi", string.Empty);
+                        string[] hata_parcalar = hata_verisi.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                        DateTime hata_zamani = Hesaplayici.stringDateParse(hata_parcalar[3]);
+                        int tip = hata_parcalar[1] == "1" ? 1 : 2;
+                        Hata hata = new Hata
+                        {
+                            Kod = hata_parcalar[0],
+                            Tip = tip,
+                            Aciklama = hata_parcalar[2],
+                            Zaman = hata_zamani,
+                            ProgramVerisiId = programVerisi.Id
+                        };
+                        hatalar.Add(hata);
+                        LogToFile($"Hata Log kaydedildi: Kod={hata.Kod}, Aciklama={hata.Aciklama}, Zaman={hata.Zaman:yyyy-MM-dd HH:mm:ss}");
+                        veri.Clear();
+                      
                     }
 
                     else

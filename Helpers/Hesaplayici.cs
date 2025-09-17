@@ -26,13 +26,27 @@ namespace FanucRelease.Services
         public static DateTime stringDateParse(string input)
         {
             // TimeOnly → TimeSpan
+            string[] formats = { "dd-MMM-yyHH:mm:ss", "dd-MMM-yyHH:mm" };
 
-            DateTime dt = DateTime.ParseExact(
-            input,
-            "dd-MMM-yyHH:mm:ss",
-            CultureInfo.InvariantCulture
-);
-            return dt;
+            return DateTime.ParseExact(
+                input,
+                formats,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None
+            );
         }
+
+
+        // public static DateTime DateParse(string input)
+        // {
+        //     // TimeOnly → TimeSpan
+
+        //     DateTime dt = DateTime.ParseExact(
+        //     input,
+        //     "dd-MMM-yyHH:mm",
+        //     CultureInfo.InvariantCulture
+        //         );
+        //     return dt;
+        // }
     }
 }
