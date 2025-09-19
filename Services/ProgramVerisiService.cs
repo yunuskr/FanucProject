@@ -83,6 +83,7 @@ namespace FanucRelease.Services
 
             // 2) İlişkileriyle birlikte o Id'li programı getir
             var program_verisi = await _context.ProgramVerileri
+                .AsNoTracking()
                 .Include(p => p.Operator)
                 .Include(p => p.Kaynaklar)
                 .Include(p => p.Hatalar)

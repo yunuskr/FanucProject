@@ -3,7 +3,7 @@
     ViewData["Title"] = "Operatör Kullanıcıları";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
-@Html.Partial("_DeleteConfirmModal")
+<partial name="_DeleteConfirmModal" />
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h4 class="mb-0">Operatör Kullanıcıları</h4>
     <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addOperatorModal">

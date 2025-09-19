@@ -1,17 +1,14 @@
 public class Setting
 {
     public int Id { get; set; }
+    public string RobotIp { get; set; } = string.Empty;
+    public string RobotUser { get; set; } = string.Empty;
+    public string RobotPassword { get; set; } = string.Empty;
 
-    // Robot ayarları
-    public string RobotIp { get; set; }
-    public string RobotUser { get; set; }
-    public string RobotPassword { get; set; }
-
-    // SQL ayarları
-    public string SqlIp { get; set; }
-    public string Database { get; set; }
-    public string SqlUser { get; set; }
-    public string SqlPassword { get; set; }
+    public string SqlIp { get; set; } = string.Empty;
+    public string Database { get; set; } = string.Empty;
+    public string SqlUser { get; set; } = string.Empty;
+    public string SqlPassword { get; set; } = string.Empty;
 
     public bool TrustServerCertificate { get; set; }
 }

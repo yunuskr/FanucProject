@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using FanucRelease.Models;
 using FanucRelease.Services.Interfaces;
@@ -8,15 +7,13 @@ namespace FanucRelease.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
     private readonly IProgramVerisiService _programService;
     private readonly ISettingsService _settingsService;
     private readonly IKaynakService _kaynakService;
     private readonly IHataService _hataService;
 
-    public HomeController(ILogger<HomeController> logger, IProgramVerisiService programService, ISettingsService settingsService, IKaynakService kaynakService, IHataService hataService)
+    public HomeController(IProgramVerisiService programService, ISettingsService settingsService, IKaynakService kaynakService, IHataService hataService)
     {
-        _logger = logger;
         _programService = programService;
         _settingsService = settingsService;
         _kaynakService = kaynakService;
@@ -92,13 +89,6 @@ public class HomeController : Controller
 
     public IActionResult Privacy() => View();
 
-    public IActionResult ProgramDetails(string id)
-    {
-        if (string.IsNullOrEmpty(id)) return NotFound();
-        ViewBag.ProgramId = id;
-        return View();
-    }
-
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SaveSettings(Setting model)
@@ -117,11 +107,7 @@ public class HomeController : Controller
     }
     
 
-    public async Task<IActionResult> TestDynamicDb()
-    {
-        var result = await _settingsService.TestDynamicDbAsync();
-        return Content(result);
-    }
+    // TestDynamicDb kaldırıldı (geçici yardımcıydı)
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()

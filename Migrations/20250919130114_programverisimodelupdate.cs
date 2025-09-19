@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Suppress lowercase identifier warning for migration class name
+#pragma warning disable CS8981
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
