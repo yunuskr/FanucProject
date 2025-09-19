@@ -18,6 +18,13 @@ public class ProgramVerisi
 
     [ForeignKey("OperatorId")]
     public virtual Operator? Operator { get; set; }
+
+
+    public DateTime BaslangicZamani { get; set; }
+
+    [Display(Name = "Bitiş Zamanı")]
+    public DateTime BitisZamani { get; set; }
+
     public virtual ICollection<Kaynak> Kaynaklar { get; set; } = new List<Kaynak>();
     public virtual ICollection<Hata> Hatalar { get; set; } = new List<Hata>();
 

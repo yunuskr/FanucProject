@@ -240,6 +240,7 @@ namespace FanucRelease.Services
                         // SignalR ile robot durumu gönder - Sinyal geldiğinde robot çalışıyor
                         await _hubContext.Clients.All.SendAsync("ReceiveRobotStatus", _robotStatus, _aktifProgram);
                         programVerisi.ProgramAdi = prog_baslat ?? string.Empty;
+                        programVerisi.BaslangicZamani = DateTime.Now;
                         veri.Clear();
                     }
 
@@ -310,6 +311,28 @@ namespace FanucRelease.Services
                         string prog_verisi = veri.ToString().Replace("progbitti", string.Empty);
                         programVerisi.KaynakSayisi = int.Parse(prog_verisi);
                         programVerisi.Operator = new Operator { Ad = "Ahmet", Soyad = "Çakar", KullaniciAdi = "ahmet.cakar" };
+                        programVerisi.BitisZamani = programVerisi.BitisZamani == default ? DateTime.Now : programVerisi.BitisZamani;
+                        // Eğer başlangıç/bitiş zamanları ayarlanmamışsa, kaynaklardan türet
+                        if (programVerisi.BaslangicZamani == default)
+                        {
+                            var firstStart = kaynaklar
+                                .Where(k => k.BaslangicSaati != default && k.BaslangicSaati > DateTime.MinValue)
+                                .OrderBy(k => k.BaslangicSaati)
+                                .Select(k => k.BaslangicSaati)
+                                .FirstOrDefault();
+                            if (firstStart != default && firstStart > DateTime.MinValue)
+                                programVerisi.BaslangicZamani = firstStart;
+                        }
+                        if (programVerisi.BitisZamani == default)
+                        {
+                            var lastEnd = kaynaklar
+                                .Where(k => k.BitisSaati != default && k.BitisSaati > DateTime.MinValue)
+                                .OrderByDescending(k => k.BitisSaati)
+                                .Select(k => k.BitisSaati)
+                                .FirstOrDefault();
+                            if (lastEnd != default && lastEnd > DateTime.MinValue)
+                                programVerisi.BitisZamani = lastEnd;
+                        }
                         programVerisi.Kaynaklar = kaynaklar;
                         programVerisi.Hatalar = hatalar;
                         try

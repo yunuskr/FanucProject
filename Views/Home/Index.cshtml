@@ -1,6 +1,10 @@
 @{
     Layout = "_Layout";
     var items = ViewBag.GecmisProgramlar as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var program = Model as FanucRelease.Models.ProgramVerisi;
+    int toplamKaynak = ViewBag.KaynakToplam ?? 0;
+    int basariliKaynak = ViewBag.KaynakBasarili ?? 0;
+    int basariOrani = toplamKaynak > 0 ? (int)System.Math.Round(basariliKaynak * 100.0 / toplamKaynak) : 0;
 }
 
 @section Head {
@@ -1337,6 +1341,13 @@
         animation: pulse-success 2s infinite;
     }
 
+    /* Başarısız kaynak durumu (kırmızı X) */
+    .kaynak-status.danger {
+        background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+        color: #fff;
+        box-shadow: 0 8px 16px rgba(255, 75, 43, 0.35);
+    }
+
     @@keyframes pulse-success {
 
         0%,
@@ -1461,6 +1472,21 @@ body::before{
   background: var(--gold-grad) !important;
 }
 .kaynak-list-title{ border-bottom:2px solid rgba(240,151,1,.25) !important; }
+/* === Success Rate Badge (Green Pill) === */
+.success-rate-badge{
+    display:inline-flex; align-items:center; gap:.5rem;
+    padding:.4rem .75rem; border-radius:999px;
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color:#fff; font-weight:700; font-size:.95rem;
+    box-shadow: 0 6px 16px rgba(17,153,142,.35), inset 0 1px 0 rgba(255,255,255,.2);
+    letter-spacing:.2px;
+}
+.success-rate-badge i{ font-size:1rem; filter: drop-shadow(0 1px 1px rgba(0,0,0,.2)); }
+.success-rate-badge .value{ font-variant-numeric: tabular-nums; }
+.success-rate-badge .label{ opacity:.95; font-weight:600; }
+@@media (max-width: 480px){
+    .success-rate-badge{ font-size:.9rem; padding:.35rem .65rem; }
+}
 </style>
 
 <div class="dashboard-container">
@@ -1483,7 +1509,7 @@ body::before{
             <div class="stat-card primary">
                 <div class="stat-header">
                     <div>
-                        <h3 class="stat-value" id="programCount">8</h3>
+                        <h3 class="stat-value" id="programCount">@ViewBag.ProgramCount</h3>
                         <p class="stat-label">Toplam Program</p>
                         <div class="stat-trend trend-up">
                             <i class="fas fa-arrow-up"></i>
@@ -1499,11 +1525,12 @@ body::before{
             <div class="stat-card success">
                 <div class="stat-header">
                     <div>
-                        <h3 class="stat-value" id="kaynakCount">42</h3>
-                        <p class="stat-label">Başarılı Kaynak</p>
-                        <div class="stat-trend trend-up">
+                        <h3 class="stat-value" id="kaynakCount">@toplamKaynak</h3>
+                        <p class="stat-label">Toplam Kaynak</p>
+
+                         <div class="stat-trend trend-up">
                             <i class="fas fa-arrow-up"></i>
-                            <span>+8% bugün</span>
+                            <span>@basariOrani% başarılı</span>
                         </div>
                     </div>
                     <div class="stat-icon success">
@@ -1515,7 +1542,7 @@ body::before{
             <div class="stat-card danger">
                 <div class="stat-header">
                     <div>
-                        <h3 class="stat-value" id="hataCount">3</h3>
+                        <h3 class="stat-value" id="hataCount">@ViewBag.HataToplam</h3>
                         <p class="stat-label">Toplam Hata</p>
                         <div class="stat-trend trend-down">
                             <i class="fas fa-arrow-down"></i>
@@ -1531,8 +1558,8 @@ body::before{
             <div class="stat-card info">
                 <div class="stat-header">
                     <div>
-                        <h3 class="stat-value" id="totalTime">2.5h</h3>
-                        <p class="stat-label">Aktif Süre</p>
+                        <h3 class="stat-value" id="totalTime">@ViewBag.AktifSureStr</h3>
+                        <p class="stat-label">Bugün Toplam Kaynak Süresi</p>
                         <div class="stat-trend trend-up">
                             <i class="fas fa-arrow-up"></i>
                             <span>+15% bugün</span>
@@ -1586,13 +1613,25 @@ body::before{
             </div>
         </div>
 
-        <!-- Son Çalıştırılan Program Kartı -->
+        <!-- Son Çalıştırılan Program Kartı (Dinamik) -->
         <div class="program-card" style="margin-bottom:2rem;">
+            @{
+                // Kaynakları bir kez sırala ve baş/bitiş için fallback hazırla
+                var kaynaklar = program?.Kaynaklar?.OrderBy(k => k.BaslangicSaati).ToList()
+                               ?? new List<FanucRelease.Models.Kaynak>();
+                DateTime? headerBas = (program != null && program.BaslangicZamani > DateTime.MinValue)
+                                        ? program.BaslangicZamani
+                                        : (kaynaklar.Count > 0 ? kaynaklar.First().BaslangicSaati : (DateTime?)null);
+                DateTime? headerBit = (program != null && program.BitisZamani > DateTime.MinValue)
+                                        ? program.BitisZamani
+                                        : (kaynaklar.Count > 0 ? kaynaklar.Max(x => x.BitisSaati) : (DateTime?)null);
+                string basText = headerBas.HasValue ? headerBas.Value.ToString( "yyyy-MM-dd HH:mm:ss") : "—";
+                string bitText = headerBit.HasValue ? headerBit.Value.ToString("yyyy-MM-dd HH:mm:ss") : "—";
+            }
             <div class="program-header">
                 <h4 class="program-title">
                     <i class="fa-solid fa-file"></i>
-
-                    En son Program: PRG-2025-08
+                    En son Program: @(program?.ProgramAdi ?? "—")
                 </h4>
                 <div class="program-info-grid">
                     <div class="info-item">
@@ -1601,7 +1640,7 @@ body::before{
                         </div>
                         <div class="info-content">
                             <span class="info-label">Başlangıç</span>
-                            <span class="info-value">14:05</span>
+                            <span class="info-value">@basText</span>
                         </div>
                     </div>
                     <div class="info-item">
@@ -1610,7 +1649,7 @@ body::before{
                         </div>
                         <div class="info-content">
                             <span class="info-label">Bitiş</span>
-                            <span class="info-value">15:22</span>
+                            <span class="info-value">@bitText</span>
                         </div>
                     </div>
                     <div class="info-item">
@@ -1619,7 +1658,7 @@ body::before{
                         </div>
                         <div class="info-content">
                             <span class="info-label">Operatör</span>
-                            <span class="info-value">Ahmet Çakar</span>
+                            <span class="info-value">@(program?.Operator is null ? "—" : ($"{program.Operator.Ad} {program.Operator.Soyad}"))</span>
                         </div>
                     </div>
                     <div class="info-item">
@@ -1627,8 +1666,8 @@ body::before{
                             <i class="fas fa-bolt"></i>
                         </div>
                         <div class="info-content">
-                            <span class="info-label">Kaynak Sayısı</span>
-                            <span class="info-value">3</span>
+                            <span class="info-label">Başarılı Kaynak</span>
+                            <span class="info-value">@(program is null ? 0 : (program.KaynakSayisi > 0 ? program.KaynakSayisi : (program.Kaynaklar?.Count ?? 0)))</span>
                         </div>
                     </div>
                     <div class="info-item">
@@ -1636,8 +1675,8 @@ body::before{
                             <i class="fas fa-exclamation-triangle"></i>
                         </div>
                         <div class="info-content">
-                            <span class="info-label">Hata Sayısı</span>
-                            <span class="info-value">0</span>
+                            <span class="info-label">Başarısız Kaynak</span>
+                            <span class="info-value">@(program?.Hatalar?.Count ?? 0)</span>
                         </div>
                     </div>
                 </div>
@@ -1649,56 +1688,36 @@ body::before{
                     Kaynak Detayları
                 </h5>
                 <div class="kaynak-grid">
+                    @for (int i = 0; i < kaynaklar.Count; i++)
+                    {
+                        var k = kaynaklar[i];
+                        var ad = $"Kaynak-{(i+1).ToString("D2")}";
+                        var bas = k.BaslangicSaati == default ? "—" : k.BaslangicSaati.ToString("HH:mm");
+                        var bit = k.BitisSaati == default ? "—" : k.BitisSaati.ToString("HH:mm");
+                        var ts = k.ToplamSure != default ? k.ToplamSure.ToTimeSpan() : (k.BitisSaati - k.BaslangicSaati);
+                        if (ts < TimeSpan.Zero) { ts = TimeSpan.Zero; }
+                        var totalMinutes = (int)Math.Round(ts.TotalMinutes);
+                        var sureText = ts.TotalHours >= 1 ? $"{(int)ts.TotalHours} sa {ts.Minutes} dk" : $"{totalMinutes} dk";
+                        var statusClass = k.basarili_mi ? "success" : "danger";
+                        // 'fa-times' geniş destekli (FA5/FA6 alias), görünmemeyi önler
+                        var statusIcon = k.basarili_mi ? "fas fa-check" : "fas fa-times";
                     <div class="kaynak-item">
                         <div class="kaynak-icon">
                             <i class="fas fa-bolt"></i>
                         </div>
                         <div class="kaynak-details">
-                            <h6>Kaynak-01</h6>
+                            <h6>@ad</h6>
                             <div class="kaynak-time">
-                                <span><i class="fas fa-play-circle"></i> 14:05</span>
-                                <span><i class="fas fa-stop-circle"></i> 14:25</span>
-                                <span class="duration"><i class="fas fa-clock"></i> 20 dk</span>
+                                <span><i class="fas fa-play-circle"></i> @bas</span>
+                                <span><i class="fas fa-stop-circle"></i> @bit</span>
+                                <span class="duration"><i class="fas fa-clock"></i> @sureText</span>
                             </div>
                         </div>
-                        <div class="kaynak-status success">
-                            <i class="fas fa-check"></i>
+                        <div class="kaynak-status @statusClass">
+                            <i class="@statusIcon"></i>
                         </div>
                     </div>
-
-                    <div class="kaynak-item">
-                        <div class="kaynak-icon">
-                            <i class="fas fa-bolt"></i>
-                        </div>
-                        <div class="kaynak-details">
-                            <h6>Kaynak-02</h6>
-                            <div class="kaynak-time">
-                                <span><i class="fas fa-play-circle"></i> 14:26</span>
-                                <span><i class="fas fa-stop-circle"></i> 14:55</span>
-                                <span class="duration"><i class="fas fa-clock"></i> 29 dk</span>
-                            </div>
-                        </div>
-                        <div class="kaynak-status success">
-                            <i class="fas fa-check"></i>
-                        </div>
-                    </div>
-
-                    <div class="kaynak-item">
-                        <div class="kaynak-icon">
-                            <i class="fas fa-bolt"></i>
-                        </div>
-                        <div class="kaynak-details">
-                            <h6>Kaynak-03</h6>
-                            <div class="kaynak-time">
-                                <span><i class="fas fa-play-circle"></i> 14:56</span>
-                                <span><i class="fas fa-stop-circle"></i> 15:22</span>
-                                <span class="duration"><i class="fas fa-clock"></i> 26 dk</span>
-                            </div>
-                        </div>
-                        <div class="kaynak-status success">
-                            <i class="fas fa-check"></i>
-                        </div>
-                    </div>
+                    }
                 </div>
             </div>
         </div>
@@ -2040,23 +2059,7 @@ body::before{
             });
         }, 1500);
 
-        // Simulate real-time data updates
-        setInterval(() => {
-            // Update stats with slight variations
-            const programCount = document.getElementById('programCount');
-            const kaynakCount = document.getElementById('kaynakCount');
-            const hataCount = document.getElementById('hataCount');
-
-            // Add subtle number animations
-            const currentPrograms = parseInt(programCount.textContent);
-            const currentKaynak = parseInt(kaynakCount.textContent);
-            const currentHata = parseInt(hataCount.textContent);
-
-            // Simulate small changes
-            if (Math.random() > 0.7) {
-                kaynakCount.textContent = currentKaynak + Math.floor(Math.random() * 3);
-            }
-        }, 5000);
+        // Otomatik artış kapatıldı: gerçek zamanlı güncelleme istenirse SignalR/gerçek veri ile bağlanılacak
     });
 
     // Add click effects to cards

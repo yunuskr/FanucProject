@@ -15,6 +15,10 @@ builder.Services.AddControllersWithViews();
 
 // DI
 builder.Services.AddScoped(typeof(IGenericService<>), typeof(GenericService<>));
+builder.Services.AddScoped<IProgramVerisiService, ProgramVerisiService>();
+builder.Services.AddScoped<ISettingsService, SettingsService>();
+builder.Services.AddScoped<IKaynakService, KaynakService>();
+builder.Services.AddScoped<IHataService, HataService>();
 builder.Services.AddHostedService<RobotTcpListenerService>();
 
 // 🔐 AUTH

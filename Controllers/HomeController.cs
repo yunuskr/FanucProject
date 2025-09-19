@@ -1,89 +1,52 @@
 using System.Diagnostics;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using FanucRelease.Models;
-using FanucRelease.Data;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Data.SqlClient;
+using FanucRelease.Services.Interfaces;
 
 namespace FanucRelease.Controllers;
 
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    private readonly ApplicationDbContext _context;
+    private readonly IProgramVerisiService _programService;
+    private readonly ISettingsService _settingsService;
+    private readonly IKaynakService _kaynakService;
+    private readonly IHataService _hataService;
 
-    public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
+    public HomeController(ILogger<HomeController> logger, IProgramVerisiService programService, ISettingsService settingsService, IKaynakService kaynakService, IHataService hataService)
     {
         _logger = logger;
-        _context = context;
+        _programService = programService;
+        _settingsService = settingsService;
+        _kaynakService = kaynakService;
+        _hataService = hataService;
     }
 
-    // ----------------- Ortak yükleyici -----------------
-    private async Task<List<object>> LoadGecmisProgramlarAsync(int take = 100)
-    {
-        // DbSet adın sende ProgramVerileri ise aynen kalsın; Programlar ise değiştir.
-        var programlar = await _context.ProgramVerileri
-            .AsNoTracking()
-            .Include(p => p.Operator)
-            .Include(p => p.Kaynaklar)
-            .OrderByDescending(p => p.Id)
-            .Take(take)
-            .ToListAsync();
-
-        var rows = programlar.Select(p =>
-        {
-            // Toplam süreyi Kaynaklar'dan topla
-            TimeSpan toplam = TimeSpan.Zero;
-            DateTime? maxBitis = null;
-
-            foreach (var k in p.Kaynaklar)
-            {
-                var d = k.ToplamSure != default
-                        ? k.ToplamSure.ToTimeSpan()
-                        : (k.BitisSaati - k.BaslangicSaati);
-
-                if (d > TimeSpan.Zero) toplam += d;
-                if (maxBitis is null || k.BitisSaati > maxBitis.Value)
-                    maxBitis = k.BitisSaati;
-            }
-
-            string SureToText(TimeSpan ts)
-                => ts.TotalHours >= 1 ? $"{(int)ts.TotalHours}h {ts.Minutes}m"
-                 : ts.TotalMinutes >= 1 ? $"{ts.Minutes}m"
-                 : $"{ts.Seconds}s";
-
-            int kaynakSayisi = p.KaynakSayisi > 0 ? p.KaynakSayisi : p.Kaynaklar.Count;
-            string badgeClass = kaynakSayisi >= 25 ? "badge badge-success"
-                              : kaynakSayisi >= 15 ? "badge badge-warning"
-                              :                       "badge badge-danger";
-
-            return (object)new
-            {
-                p.Id,
-                p.ProgramAdi,
-                KaynakSayisi = kaynakSayisi,
-                OperatorAdSoyad = p.Operator is null ? "—" : $"{p.Operator.Ad} {p.Operator.Soyad}",
-                ToplamSureText = toplam == TimeSpan.Zero ? "—" : SureToText(toplam),
-                TarihText = maxBitis?.ToString("dd.MM.yyyy") ?? "—",
-                BasariYuzde = 100, // şimdilik sabit
-                BadgeClass = badgeClass
-            };
-        }).ToList();
-
-        return rows;
-    }
+    // Artık geçmiş program satırları servis tarafından sağlanıyor
 
     // ----------------- Home / Index -----------------
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        ViewBag.GecmisProgramlar = await LoadGecmisProgramlarAsync();
-          // En son program (Id’ye göre sıralıyoruz, en büyük olanı alıyoruz)
-        var lastProgram = await _context.ProgramVerileri
-            .Include(p => p.Kaynaklar)
-            .Include(p => p.Hatalar)
-            .OrderByDescending(p => p.Id)
-            .FirstOrDefaultAsync();
+        ViewBag.GecmisProgramlar = await _programService.GetGecmisProgramlarRowsAsync();
+        ViewBag.ProgramCount = await _programService.GetTotalProgramCountAsync();
+        // En son program
+        var lastProgram = await _programService.GetLastProgramAsync();
+
+        // Kaynak sayıları (global toplamlardan)
+        {
+            var (toplam, basarili) = await _kaynakService.GetKaynakCountsAsync();
+            ViewBag.KaynakToplam = toplam;
+            ViewBag.KaynakBasarili = basarili;
+        }
+
+        // Toplam Hata sayısı
+        ViewBag.HataToplam = await _hataService.GetToplamHataCountAsync();
+
+        // Bugün toplam kaynak süresi (saat/dakika/saniye)
+        var bugunSure = await _kaynakService.GetBugunToplamSureAsync();
+        ViewBag.AktifSureStr = FormatTimeSpan(bugunSure);
 
         return View(lastProgram);
   
@@ -93,8 +56,29 @@ public class HomeController : Controller
     [HttpPost]
     public async Task<IActionResult> Index(string? username)
     {
-        ViewBag.GecmisProgramlar = await LoadGecmisProgramlarAsync();
-        return View();
+        ViewBag.GecmisProgramlar = await _programService.GetGecmisProgramlarRowsAsync();
+        ViewBag.ProgramCount = await _programService.GetTotalProgramCountAsync();
+        var lastProgram = await _programService.GetLastProgramAsync();
+
+        {
+            var (toplam, basarili) = await _kaynakService.GetKaynakCountsAsync();
+            ViewBag.KaynakToplam = toplam;
+            ViewBag.KaynakBasarili = basarili;
+        }
+        // Toplam Hata sayısı
+        ViewBag.HataToplam = await _hataService.GetToplamHataCountAsync();
+        var bugunSure2 = await _kaynakService.GetBugunToplamSureAsync();
+        ViewBag.AktifSureStr = FormatTimeSpan(bugunSure2);
+        return View(lastProgram);
+    }
+
+    private static string FormatTimeSpan(TimeSpan ts)
+    {
+        // Her zaman saat, dakika ve saniye göster: "18 sa 45 dk 37 sn"
+        int hours = (int)Math.Floor(ts.TotalHours);
+        int minutes = ts.Minutes;
+        int seconds = ts.Seconds;
+        return $"{hours} sa {minutes} dk {seconds} sn";
     }
 
     // ----------------- (Opsiyonel) Ayrı sayfa -----------------
@@ -102,7 +86,7 @@ public class HomeController : Controller
     [Route("gecmis-programlar")]
     public async Task<IActionResult> GecmisProgramlar()
     {
-        ViewBag.GecmisProgramlar = await LoadGecmisProgramlarAsync();
+    ViewBag.GecmisProgramlar = await _programService.GetGecmisProgramlarRowsAsync();
         return View();
     }
 
@@ -117,29 +101,11 @@ public class HomeController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult SaveSettings(Setting model)
+    public async Task<IActionResult> SaveSettings(Setting model)
     {
         if (ModelState.IsValid)
         {
-            var setting = _context.Settings.FirstOrDefault();
-            if (setting == null)
-            {
-                _context.Settings.Add(model);
-            }
-            else
-            {
-                setting.RobotIp = model.RobotIp;
-                setting.RobotUser = model.RobotUser;
-                setting.RobotPassword = model.RobotPassword;
-                setting.SqlIp = model.SqlIp;
-                setting.Database = model.Database;
-                setting.SqlUser = model.SqlUser;
-                setting.SqlPassword = model.SqlPassword;
-                setting.TrustServerCertificate = model.TrustServerCertificate;
-                _context.Settings.Update(setting);
-            }
-
-            _context.SaveChanges();
+            await _settingsService.SaveOrUpdateAsync(model);
             TempData["Success"] = "Ayarlar başarıyla kaydedildi.";
         }
         else
@@ -151,16 +117,10 @@ public class HomeController : Controller
     }
     
 
-    public IActionResult TestDynamicDb()
+    public async Task<IActionResult> TestDynamicDb()
     {
-        var dynamicConn = ConnectionHelper.GetDynamicConnection(_context);
-        if (string.IsNullOrEmpty(dynamicConn)) return Content("Ayarlar bulunamadı!");
-
-        using var conn = new SqlConnection(dynamicConn);
-        conn.Open();
-        using var cmd = new SqlCommand("SELECT TOP 1 name FROM sys.tables", conn);
-        var result = cmd.ExecuteScalar();
-        return Content($"Bağlantı başarılı ✅, İlk tablo: {result}");
+        var result = await _settingsService.TestDynamicDbAsync();
+        return Content(result);
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
