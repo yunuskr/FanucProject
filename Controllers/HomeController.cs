@@ -78,7 +78,15 @@ public class HomeController : Controller
     public async Task<IActionResult> Index()
     {
         ViewBag.GecmisProgramlar = await LoadGecmisProgramlarAsync();
-        return View();
+          // En son program (Id’ye göre sıralıyoruz, en büyük olanı alıyoruz)
+        var lastProgram = await _context.ProgramVerileri
+            .Include(p => p.Kaynaklar)
+            .Include(p => p.Hatalar)
+            .OrderByDescending(p => p.Id)
+            .FirstOrDefaultAsync();
+
+        return View(lastProgram);
+  
     }
 
     // (Home'a POST dönüşleri varsa tablo boş kalmasın)

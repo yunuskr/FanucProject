@@ -11,6 +11,9 @@ public class ProgramVerisi
 
     [Display(Name = "Kaynak Sayısı")]
     public int KaynakSayisi { get; set; }
+
+    [Display(Name = "Tarih")]
+    public DateTime Tarih { get; set; }
     public int? OperatorId { get; set; }
 
     [ForeignKey("OperatorId")]
