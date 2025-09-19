@@ -235,7 +235,7 @@ namespace FanucRelease.Services
                         // Robotun son durumunu güncelle
                         _robotStatus = "Calisiyor";
                         _aktifProgram = prog_baslat ?? string.Empty;
-                        LogToFile($"_robotStatus set to {_robotStatus}, _aktifProgram set to '{_aktifProgram}'");
+                        LogToFile($"{_aktifProgram} programı başlatıldı.");
                         SaveRobotStatusToFile();
                         // SignalR ile robot durumu gönder - Sinyal geldiğinde robot çalışıyor
                         await _hubContext.Clients.All.SendAsync("ReceiveRobotStatus", _robotStatus, _aktifProgram);
@@ -245,6 +245,18 @@ namespace FanucRelease.Services
 
                     else if (veri.ToString().Contains("anlikveri"))
                     {
+
+                        // Program bittiğinde robot durdu bilgisini ve aktif programı kesin olarak temizle
+                        if (_robotStatus == "Durdu")
+                        {
+                            _robotStatus = "Calisiyor";
+                            LogToFile($" {_aktifProgram} programı hatadan sonra devam ediyor, robot durumu =  {_robotStatus}");
+                            SaveRobotStatusToFile();
+                            // SignalR ile robot durumu gönder - Sinyal geldiğinde robot çalışıyor
+                            await _hubContext.Clients.All.SendAsync("ReceiveRobotStatus", _robotStatus, _aktifProgram);
+
+                        }
+                      
                         string anlik_veriler = veri.ToString().Replace("anlikveri", string.Empty);
                         string[] anlik_parcalar = anlik_veriler.Split('/', StringSplitOptions.RemoveEmptyEntries);
                         anlikKaynak = new AnlikKaynak
@@ -265,7 +277,7 @@ namespace FanucRelease.Services
                             anlikKaynak.Amper,
                             anlikKaynak.Voltaj,
                             anlikKaynak.TelSurmeHizi,
-                            anlikKaynak.OlcumZamani.ToString("o")
+                            anlikKaynak.OlcumZamani.ToString("yyyy-MM-dd HH:mm:ss")
                         );
                         veri.Clear();
 
@@ -285,6 +297,7 @@ namespace FanucRelease.Services
                             BitisSaati = Hesaplayici.BaslangicaSureEkle(kaynak_parcalar[0], kaynak_parcalar[1]),
                             PrcNo = kaynak_parcalar.Length > 5 ? int.Parse(kaynak_parcalar[5]) : 0,
                             SrcNo = kaynak_parcalar.Length > 6 ? int.Parse(kaynak_parcalar[6]) : 0,
+                            basarili_mi = kaynak_parcalar.Length > 6 ? bool.Parse(kaynak_parcalar[7]) : false,
                             AnlikKaynaklar = anlikKaynaklar
                         };
                         kaynaklar.Add(kaynak);
@@ -347,6 +360,13 @@ namespace FanucRelease.Services
                         };
                         hatalar.Add(hata);
                         LogToFile($"Hata Log kaydedildi: Kod={hata.Kod}, Aciklama={hata.Aciklama}, Zaman={hata.Zaman:yyyy-MM-dd HH:mm:ss}");
+
+                        // Program bittiğinde robot durdu bilgisini ve aktif programı kesin olarak temizle
+                        _robotStatus = "Durdu";
+                        _aktifProgram = "";
+                        SaveRobotStatusToFile();
+                        await _hubContext.Clients.All.SendAsync("ReceiveRobotStatus", _robotStatus, _aktifProgram);
+
                         veri.Clear();
                       
                     }

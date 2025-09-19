@@ -25,6 +25,8 @@ namespace FanucRelease.Models
         public int PrcNo { get; set; }
         public int SrcNo { get; set; }
 
+        public bool basarili_mi { get; set; }
+
         [ForeignKey("ProgramVerisiId")]
         public virtual ProgramVerisi ProgramVerisi { get; set; } = null!;
         // Bir KaynakDongusu'na ait birden fazla AnlikKaynak kaydı olabilir
