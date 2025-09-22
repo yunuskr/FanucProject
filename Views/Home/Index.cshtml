@@ -410,65 +410,14 @@
         margin: 0;
     }
 
-    .parameter-subtitle {
-        font-size: 0.9rem;
-        color: #6c757d;
-        font-weight: 500;
-        margin-top: 0.25rem;
-    }
+    /* removed unused .parameter-subtitle */
 
     .chart-container {
         height: 300px;
         position: relative;
     }
 
-    /* Quick Actions */
-    .quick-actions {
-        background: var(--glass-bg);
-        backdrop-filter: blur(20px);
-        border-radius: var(--border-radius);
-        border: 1px solid var(--glass-border);
-        box-shadow: var(--shadow-glass);
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .quick-actions h4 {
-        font-size: 1.3rem;
-        font-weight: 600;
-        color: #2c3e50;
-        margin-bottom: 1rem;
-    }
-
-    .actions-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-    }
-
-    .action-btn {
-        background: var(--glass-bg);
-        border: 1px solid var(--glass-border);
-        border-radius: 12px;
-        padding: 1rem;
-        text-align: center;
-        transition: var(--transition);
-        text-decoration: none;
-        color: #2c3e50;
-    }
-
-    .action-btn:hover {
-        transform: translateY(-3px);
-        box-shadow: var(--shadow-glass);
-        text-decoration: none;
-        color: #2c3e50;
-    }
-
-    .action-btn i {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
-        display: block;
-    }
+    /* removed unused Quick Actions styles (.quick-actions, .action-btn, .actions-grid) */
 
     /* Responsive Design */
     @@media (max-width: 768px) {
@@ -589,14 +538,7 @@
         line-height: 1;
     }
 
-    .program-name {
-        position: relative;
-        z-index: 2;
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: #6c757d;
-        margin-top: 0.25rem;
-    }
+    /* Removed old .program-name here to avoid conflict with history table .program-name */
 
     /* Success Rate - name above circle layout */
     .success-meta {
@@ -926,7 +868,7 @@
     }
 
     .history-table-container::-webkit-scrollbar-thumb {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--gold-grad);
         border-radius: 4px;
     }
 
@@ -943,7 +885,7 @@
     }
 
     .history-table thead {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--gradient-primary);
         color: white;
         position: sticky;
         /* Header sabit kalacak */
@@ -1004,6 +946,23 @@
         font-weight: 600;
         font-size: 0.85rem;
         color: white;
+    }
+
+    /* Count badge for Toplam Kaynak Sayısı */
+    .badge-count {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        height: 44px;
+        padding: 0 .5rem;
+        border-radius: 999px;
+        font-weight: 800;
+        font-size: 1.05rem;
+        box-shadow: 0 6px 16px rgba(40, 167, 69, .25), inset 0 1px 0 rgba(255, 255, 255, .2);
+        letter-spacing: .2px;
     }
 
     .badge-success {
@@ -1147,7 +1106,7 @@
     }
 
     .program-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--gradient-primary);
         color: white;
         padding: 1.5rem;
         position: relative;
@@ -1162,7 +1121,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.12);
         backdrop-filter: blur(10px);
     }
 
@@ -1503,21 +1462,9 @@ body::before{
   background: var(--gold-grad) !important;
 }
 .kaynak-list-title{ border-bottom:2px solid rgba(240,151,1,.25) !important; }
-/* === Success Rate Badge (Green Pill) === */
-.success-rate-badge{
-    display:inline-flex; align-items:center; gap:.5rem;
-    padding:.4rem .75rem; border-radius:999px;
-    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-    color:#fff; font-weight:700; font-size:.95rem;
-    box-shadow: 0 6px 16px rgba(17,153,142,.35), inset 0 1px 0 rgba(255,255,255,.2);
-    letter-spacing:.2px;
-}
-.success-rate-badge i{ font-size:1rem; filter: drop-shadow(0 1px 1px rgba(0,0,0,.2)); }
-.success-rate-badge .value{ font-variant-numeric: tabular-nums; }
-.success-rate-badge .label{ opacity:.95; font-weight:600; }
-@@media (max-width: 480px){
-    .success-rate-badge{ font-size:.9rem; padding:.35rem .65rem; }
-}
+/* Removed unused .success-rate-badge styles */
+
+/* Removed column-specific overrides for history table for simpler, consistent styling */
 </style>
 
 <div class="dashboard-container">
@@ -1939,7 +1886,7 @@ body::before{
                             </td>
 
                             <td>
-                                <span class="@item.BadgeClass">@item.KaynakSayisi</span>
+                                <span class="badge badge-count">@item.KaynakSayisi</span>
                             </td>
 
                             <td>
@@ -2039,7 +1986,7 @@ body::before{
             loadingOverlay.classList.remove('show');
 
             // Add entrance animations
-            const cards = document.querySelectorAll('.stat-card, .chart-card, .robot-status, .quick-actions');
+            const cards = document.querySelectorAll('.stat-card, .chart-card, .robot-status');
             cards.forEach((card, index) => {
                 card.style.opacity = '0';
                 card.style.transform = 'translateY(30px)';
@@ -2055,7 +2002,7 @@ body::before{
     });
 
     // Add click effects to cards
-    document.querySelectorAll('.stat-card, .action-btn').forEach(card => {
+    document.querySelectorAll('.stat-card').forEach(card => {
         card.addEventListener('click', function (e) {
             // Create ripple effect
             const ripple = document.createElement('span');
