@@ -41,12 +41,24 @@ namespace FanucRelease.Services
                         maxBitis = k.BitisSaati;
                 }
 
+                // Fallback: kaynaklardan süre toplanmadıysa program baş/bitiş farkını kullan
+                if (toplam == TimeSpan.Zero && p.BaslangicZamani > DateTime.MinValue && p.BitisZamani > DateTime.MinValue && p.BitisZamani > p.BaslangicZamani)
+                {
+                    toplam = p.BitisZamani - p.BaslangicZamani;
+                }
+
                 string SureToText(TimeSpan ts)
                     => ts.TotalHours >= 1 ? $"{(int)ts.TotalHours}h {ts.Minutes}m"
                      : ts.TotalMinutes >= 1 ? $"{ts.Minutes}m"
                      : $"{ts.Seconds}s";
 
-                int kaynakSayisi = p.KaynakSayisi > 0 ? p.KaynakSayisi : p.Kaynaklar.Count;
+                // Toplam Kaynak Sayısı: öncelik ilişkili Kaynaklar; yoksa p.KaynakSayisi
+                int kaynakSayisi = p.Kaynaklar?.Count ?? (p.KaynakSayisi > 0 ? p.KaynakSayisi : 0);
+
+                // Başarı yüzdesi: başarılı / toplam
+                int basarili = p.Kaynaklar?.Count(k => k.basarili_mi) ?? 0;
+                int basariYuzde = kaynakSayisi > 0 ? (int)Math.Round((double)basarili * 100.0 / kaynakSayisi) : 0;
+
                 string badgeClass = kaynakSayisi >= 25 ? "badge badge-success"
                                   : kaynakSayisi >= 15 ? "badge badge-warning"
                                   :                       "badge badge-danger";
@@ -58,8 +70,9 @@ namespace FanucRelease.Services
                     KaynakSayisi = kaynakSayisi,
                     OperatorAdSoyad = p.Operator is null ? "—" : $"{p.Operator.Ad} {p.Operator.Soyad}",
                     ToplamSureText = toplam == TimeSpan.Zero ? "—" : SureToText(toplam),
-                    TarihText = maxBitis?.ToString("dd.MM.yyyy") ?? "—",
-                    BasariYuzde = 100,
+                    // Tarih: önce kaynakların max bitişi, yoksa program.Tarih ya da program.BitisZamani
+                    TarihText = (maxBitis ?? (p.Tarih > DateTime.MinValue ? p.Tarih : (p.BitisZamani > DateTime.MinValue ? p.BitisZamani : (DateTime?)null)))?.ToString("dd.MM.yyyy") ?? "—",
+                    BasariYuzde = basariYuzde,
                     BadgeClass = badgeClass
                 };
             }).ToList();

@@ -1,29 +1,21 @@
+@model FanucRelease.Models.ViewModels.DashboardViewModel
 @{
     Layout = "_Layout";
-    var items = ViewBag.GecmisProgramlar as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
-    var program = Model as FanucRelease.Models.ProgramVerisi;
-    int toplamKaynak = ViewBag.KaynakToplam ?? 0;
-    int basariliKaynak = ViewBag.KaynakBasarili ?? 0;
+    var items = (Model.GecmisProgramlar ?? Array.Empty<object>()).Select(x => (dynamic)x).ToList();
+    var program = Model.SonProgram;
+    int toplamKaynak = Model.ToplamKaynak;
+    int basariliKaynak = Model.BasariliKaynak;
     int basariOrani = toplamKaynak > 0 ? (int)System.Math.Round(basariliKaynak * 100.0 / toplamKaynak) : 0;
-    // Son program için başarı/başarısızlık hesapları (yalnızca bu sayfada kullanılacak)
+    // Son program için başarı/başarısızlık: controller tarafından hazırlanmış değerler öncelikli
     var kaynakListLocal = (program?.Kaynaklar ?? Enumerable.Empty<FanucRelease.Models.Kaynak>()).ToList();
-    int programToplam = kaynakListLocal.Count;
-    int programBasarili = kaynakListLocal.Count(k => k.basarili_mi);
-    int programBasarisiz = Math.Max(0, programToplam - programBasarili);
-    int programBasariYuzde = programToplam > 0 ? (int)System.Math.Round(programBasarili * 100.0 / programToplam) : 0;
+    int programToplam = Model.SonProgramToplam;
+    int programBasarili = Model.SonProgramBasarili;
+    int programBasarisiz = Model.SonProgramBasarisiz;
+    int programBasariYuzde = Model.SonProgramBasariYuzde;
     // En son programın son başarılı kaynağı (controller ViewBag'den)
-    var sonBasarili = ViewBag.SonBasariliKaynak as FanucRelease.Models.Kaynak;
-    TimeSpan sonToplamSureTs = TimeSpan.Zero;
-    if (sonBasarili != null)
-    {
-        sonToplamSureTs = sonBasarili.ToplamSure != default
-            ? sonBasarili.ToplamSure.ToTimeSpan()
-            : (sonBasarili.BitisSaati - sonBasarili.BaslangicSaati);
-        if (sonToplamSureTs < TimeSpan.Zero) sonToplamSureTs = TimeSpan.Zero;
-    }
-    string sonSureText = sonBasarili == null ? "—" : (sonToplamSureTs.Hours > 0
-        ? $"{(int)sonToplamSureTs.TotalHours} sa {sonToplamSureTs.Minutes} dk {sonToplamSureTs.Seconds} sn"
-        : $"{sonToplamSureTs.Minutes} dk {sonToplamSureTs.Seconds} sn");
+    var sonBasarili = Model.SonBasariliKaynak;
+    // Süre metni: controller'dan geliyorsa onu kullan, yoksa fallback hesapla
+    string sonSureText = Model.SonBasariliKaynakToplamSureText ?? "—";
 }
 
 @section Head {
@@ -1528,7 +1520,7 @@ body::before{
             <div class="stat-card primary">
                 <div class="stat-header">
                     <div>
-                        <h3 class="stat-value" id="programCount">@ViewBag.ProgramCount</h3>
+                        <h3 class="stat-value" id="programCount">@Model.ProgramCount</h3>
                         <p class="stat-label">Toplam Program</p>
                         <div class="stat-trend trend-up">
                             <i class="fas fa-arrow-up"></i>
@@ -1561,7 +1553,7 @@ body::before{
             <div class="stat-card danger">
                 <div class="stat-header">
                     <div>
-                        <h3 class="stat-value" id="hataCount">@ViewBag.HataToplam</h3>
+                        <h3 class="stat-value" id="hataCount">@Model.HataToplam</h3>
                         <p class="stat-label">Toplam Hata</p>
                         <div class="stat-trend trend-down">
                             <i class="fas fa-arrow-down"></i>
@@ -1577,7 +1569,7 @@ body::before{
             <div class="stat-card info">
                 <div class="stat-header">
                     <div>
-                        <h3 class="stat-value" id="totalTime">@ViewBag.AktifSureStr</h3>
+                        <h3 class="stat-value" id="totalTime">@Model.BugunToplamKaynakSureText</h3>
                         <p class="stat-label">Bugün Toplam Kaynak Süresi</p>
                         <div class="stat-trend trend-up">
                             <i class="fas fa-arrow-up"></i>
@@ -1635,17 +1627,11 @@ body::before{
         <!-- Son Çalıştırılan Program Kartı (Dinamik) -->
         <div class="program-card" style="margin-bottom:2rem;">
             @{
-                // Kaynakları bir kez sırala ve baş/bitiş için fallback hazırla
+                // Controller'da hazırlanmış baş/bitiş metinlerini kullan
                 var kaynaklar = program?.Kaynaklar?.OrderBy(k => k.BaslangicSaati).ToList()
                                ?? new List<FanucRelease.Models.Kaynak>();
-                DateTime? headerBas = (program != null && program.BaslangicZamani > DateTime.MinValue)
-                                        ? program.BaslangicZamani
-                                        : (kaynaklar.Count > 0 ? kaynaklar.First().BaslangicSaati : (DateTime?)null);
-                DateTime? headerBit = (program != null && program.BitisZamani > DateTime.MinValue)
-                                        ? program.BitisZamani
-                                        : (kaynaklar.Count > 0 ? kaynaklar.Max(x => x.BitisSaati) : (DateTime?)null);
-                string basText = headerBas.HasValue ? headerBas.Value.ToString( "yyyy-MM-dd HH:mm:ss") : "—";
-                string bitText = headerBit.HasValue ? headerBit.Value.ToString("yyyy-MM-dd HH:mm:ss") : "—";
+                string basText = Model.SonProgramBaslangicText ?? "—";
+                string bitText = Model.SonProgramBitisText ?? "—";
             }
             <div class="program-header">
                 <h4 class="program-title">
@@ -1848,7 +1834,7 @@ body::before{
             <div class="chart-card alarm-card">
                 <div class="chart-header">
                     <h5 class="chart-title">
-                        <i class="fas fa-exclamation-triangle"></i> Program Alarm Kayıtları
+                        <i class="fas fa-exclamation-triangle"></i>Son Program Alarm Kayıtları
                     </h5>
 
                 </div>
@@ -1902,7 +1888,7 @@ body::before{
                 <thead>
                     <tr>
                         <th><i class="fas fa-code"></i> Program Adı</th>
-                        <th><i class="fas fa-bolt"></i> Kaynak Sayısı</th>
+                        <th><i class="fas fa-bolt"></i> Toplam Kaynak Sayısı</th>
                         <th><i class="fas fa-user"></i> Operatör</th>
                         <th><i class="fas fa-clock"></i> Toplam Süre</th>
                         <th><i class="fas fa-calendar"></i> Tarih</th>
@@ -1921,6 +1907,7 @@ body::before{
                 {
                     foreach (var item in items)
                     {
+                        var rateClass = item.BasariYuzde >= 80 ? "high" : (item.BasariYuzde >= 50 ? "medium" : "low");
                         <tr>
                             <td>
                                 <div class="program-name">
@@ -1943,8 +1930,7 @@ body::before{
                             <td><span class="duration">@item.ToplamSureText</span></td>
                             <td><span class="date">@item.TarihText</span></td>
 
-                            <!-- Başarı: şimdilik sabit 100% -->
-                            <td><span class="success-rate high">@item.BasariYuzde%</span></td>
+                            <td><span class="success-rate @rateClass">@item.BasariYuzde%</span></td>
 
                             <td>
                                 <a class="btn-detail"
