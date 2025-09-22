@@ -39,7 +39,6 @@ namespace FanucRelease.Services
             return (toplam, basarili);
         }
 
-        // Global (tüm kayıtlar) sayımlar
         public async Task<int> GetToplamKaynakCountAsync()
         {
             return await _context.Kaynaklar.AsNoTracking().CountAsync();

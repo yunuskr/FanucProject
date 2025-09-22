@@ -5,6 +5,12 @@
     int toplamKaynak = ViewBag.KaynakToplam ?? 0;
     int basariliKaynak = ViewBag.KaynakBasarili ?? 0;
     int basariOrani = toplamKaynak > 0 ? (int)System.Math.Round(basariliKaynak * 100.0 / toplamKaynak) : 0;
+    // Son program için başarı/başarısızlık hesapları (yalnızca bu sayfada kullanılacak)
+    var kaynakListLocal = (program?.Kaynaklar ?? Enumerable.Empty<FanucRelease.Models.Kaynak>()).ToList();
+    int programToplam = kaynakListLocal.Count;
+    int programBasarili = kaynakListLocal.Count(k => k.basarili_mi);
+    int programBasarisiz = Math.Max(0, programToplam - programBasarili);
+    int programBasariYuzde = programToplam > 0 ? (int)System.Math.Round(programBasarili * 100.0 / programToplam) : 0;
 }
 
 @section Head {
@@ -1667,7 +1673,7 @@ body::before{
                         </div>
                         <div class="info-content">
                             <span class="info-label">Başarılı Kaynak</span>
-                            <span class="info-value">@(program is null ? 0 : (program.KaynakSayisi > 0 ? program.KaynakSayisi : (program.Kaynaklar?.Count ?? 0)))</span>
+                            <span class="info-value">@programBasarili</span>
                         </div>
                     </div>
                     <div class="info-item">
@@ -1676,7 +1682,7 @@ body::before{
                         </div>
                         <div class="info-content">
                             <span class="info-label">Başarısız Kaynak</span>
-                            <span class="info-value">@(program?.Hatalar?.Count ?? 0)</span>
+                            <span class="info-value">@programBasarisiz</span>
                         </div>
                     </div>
                 </div>
@@ -1732,28 +1738,28 @@ body::before{
                 </div>
                 <div class="success-rate-display">
                     <div class="success-circle">
-                        <div class="success-percentage">97%</div>
-                        <div class="program-name">PRG-2025-08</div>
+                        <div class="success-percentage">@programBasariYuzde%</div>
+                        <div class="program-name">@(string.IsNullOrWhiteSpace(program?.ProgramAdi) ? "—" : program!.ProgramAdi)</div>
                     </div>
                     <div class="success-stats">
                         <div class="stat-item success-stat">
                             <i class="fas fa-check-circle"></i>
                             <div>
-                                <span class="stat-number">29</span>
+                                <span class="stat-number">@programBasarili</span>
                                 <span class="stat-text">Başarılı</span>
                             </div>
                         </div>
                         <div class="stat-item error-stat">
                             <i class="fas fa-times-circle"></i>
                             <div>
-                                <span class="stat-number">1</span>
+                                <span class="stat-number">@programBasarisiz</span>
                                 <span class="stat-text">Hatalı</span>
                             </div>
                         </div>
                         <div class="stat-item total-stat">
                             <i class="fas fa-bolt"></i>
                             <div>
-                                <span class="stat-number">30</span>
+                                <span class="stat-number">@programToplam</span>
                                 <span class="stat-text">Toplam</span>
                             </div>
                         </div>
@@ -1770,12 +1776,9 @@ body::before{
                     <h5 class="chart-title">
                         <i class="fas fa-chart-bar"></i> Son Program Parametreleri
                     </h5>
-                    <div class="parameter-subtitle">
-                        PRG-2025-08 Ortalama Değerleri
-                    </div>
                 </div>
                 <div class="chart-container">
-                    <canvas id="parametersBar"></canvas>1
+                    <canvas id="parametersBar"></canvas>
                 </div>
             </div>
 
@@ -1963,7 +1966,7 @@ body::before{
                 data: {
                     labels: ['Başarılı', 'Hatalı'],
                     datasets: [{
-                        data: [92, 8],
+                        data: [@programBasarili, @programBasarisiz],
                         backgroundColor: ['#11998e', '#ff416c'],
                         borderWidth: 0,
                         cutout: '70%'
