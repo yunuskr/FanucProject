@@ -140,23 +140,6 @@ public class HomeController : Controller
             }
         }
 
-        // Push minimal ViewBags for existing view until we migrate fully to strongly typed model
-        ViewBag.GecmisProgramlar = vm.GecmisProgramlar;
-        ViewBag.ProgramCount = vm.ProgramCount;
-        ViewBag.KaynakToplam = vm.ToplamKaynak;
-        ViewBag.KaynakBasarili = vm.BasariliKaynak;
-        ViewBag.HataToplam = vm.HataToplam;
-        ViewBag.AktifSureStr = vm.BugunToplamKaynakSureText;
-        ViewBag.SonBasariliKaynak = vm.SonBasariliKaynak;
-        // Program-level computed fields for the view to consume without recomputation
-        ViewBag.SonProgramBaslangicText = vm.SonProgramBaslangicText;
-        ViewBag.SonProgramBitisText = vm.SonProgramBitisText;
-        ViewBag.SonProgramToplam = vm.SonProgramToplam;
-        ViewBag.SonProgramBasarili = vm.SonProgramBasarili;
-        ViewBag.SonProgramBasarisiz = vm.SonProgramBasarisiz;
-        ViewBag.SonProgramBasariYuzde = vm.SonProgramBasariYuzde;
-        ViewBag.SonBasariliKaynakToplamSureText = vm.SonBasariliKaynakToplamSureText;
-
         return vm;
     }
 }

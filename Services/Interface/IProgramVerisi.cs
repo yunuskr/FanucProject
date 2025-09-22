@@ -6,7 +6,7 @@ namespace FanucRelease.Services.Interfaces
 {
     public interface IProgramVerisiService:IGenericService<ProgramVerisi>
     {
-        Task<List<object>> GetGecmisProgramlarRowsAsync(int take = 100);
+        Task<List<FanucRelease.Models.ViewModels.GecmisProgramRow>> GetGecmisProgramlarRowsAsync(int take = 100);
         Task<ProgramVerisi?> GetLastProgramAsync();
         Task<int> GetTotalProgramCountAsync();
     }

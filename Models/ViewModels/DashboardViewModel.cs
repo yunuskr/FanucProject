@@ -26,7 +26,7 @@ namespace FanucRelease.Models.ViewModels
         public Kaynak? SonBasariliKaynak { get; set; }
         public string SonBasariliKaynakToplamSureText { get; set; } = "—";
 
-        // History table rows (already shaped objects)
-        public IEnumerable<object> GecmisProgramlar { get; set; } = Array.Empty<object>();
+    // History table rows (typed)
+    public IEnumerable<GecmisProgramRow> GecmisProgramlar { get; set; } = Array.Empty<GecmisProgramRow>();
     }
 }

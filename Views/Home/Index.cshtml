@@ -1,7 +1,7 @@
 @model FanucRelease.Models.ViewModels.DashboardViewModel
 @{
     Layout = "_Layout";
-    var items = (Model.GecmisProgramlar ?? Array.Empty<object>()).Select(x => (dynamic)x).ToList();
+    var items = Model.GecmisProgramlar ?? Array.Empty<FanucRelease.Models.ViewModels.GecmisProgramRow>();
     var program = Model.SonProgram;
     int toplamKaynak = Model.ToplamKaynak;
     int basariliKaynak = Model.BasariliKaynak;
@@ -596,6 +596,26 @@
         font-weight: 600;
         color: #6c757d;
         margin-top: 0.25rem;
+    }
+
+    /* Success Rate - name above circle layout */
+    .success-meta {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .success-program-name {
+        position: relative;
+        z-index: 2;
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #2c3e50;
+        text-align: center;
+        max-width: 220px;
+        line-height: 1.2;
+        word-break: break-word;
     }
 
     .success-stats {
@@ -1736,9 +1756,11 @@ body::before{
                     </h5>
                 </div>
                 <div class="success-rate-display">
-                    <div class="success-circle">
-                        <div class="success-percentage">@programBasariYuzde%</div>
-                        <div class="program-name">@(string.IsNullOrWhiteSpace(program?.ProgramAdi) ? "—" : program!.ProgramAdi)</div>
+                    <div class="success-meta">
+                        <div class="success-program-name">@(string.IsNullOrWhiteSpace(program?.ProgramAdi) ? "—" : program!.ProgramAdi)</div>
+                        <div class="success-circle" style="background: conic-gradient(from 0deg, #11998e 0% @programBasariYuzde% , #f1f3f4 @programBasariYuzde% 100%);">
+                            <div class="success-percentage">@programBasariYuzde%</div>
+                        </div>
                     </div>
                     <div class="success-stats">
                         <div class="stat-item success-stat">

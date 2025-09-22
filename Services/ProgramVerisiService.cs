@@ -14,8 +14,8 @@ namespace FanucRelease.Services
             _context = context;
         }
 
-        // Home/Index ve gecmis listesi için satırlar
-        public async Task<List<object>> GetGecmisProgramlarRowsAsync(int take = 100)
+    // Home/Index ve gecmis listesi için satırlar
+    public async Task<List<FanucRelease.Models.ViewModels.GecmisProgramRow>> GetGecmisProgramlarRowsAsync(int take = 100)
         {
             var programlar = await _context.ProgramVerileri
                 .AsNoTracking()
@@ -63,10 +63,10 @@ namespace FanucRelease.Services
                                   : kaynakSayisi >= 15 ? "badge badge-warning"
                                   :                       "badge badge-danger";
 
-                return (object)new
+                return new FanucRelease.Models.ViewModels.GecmisProgramRow
                 {
-                    p.Id,
-                    p.ProgramAdi,
+                    Id = p.Id,
+                    ProgramAdi = p.ProgramAdi ?? "—",
                     KaynakSayisi = kaynakSayisi,
                     OperatorAdSoyad = p.Operator is null ? "—" : $"{p.Operator.Ad} {p.Operator.Soyad}",
                     ToplamSureText = toplam == TimeSpan.Zero ? "—" : SureToText(toplam),
