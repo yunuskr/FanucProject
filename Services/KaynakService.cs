@@ -73,5 +73,33 @@ namespace FanucRelease.Services
             }
             return total;
         }
+
+        public async Task<Kaynak?> GetLastSuccessfulKaynakOfLatestProgramAsync()
+        {
+            // Son programın Id'sini Tarih'e göre (eşitlikte Id) belirle
+            var lastProgramId = await _context.ProgramVerileri
+                .AsNoTracking()
+                .OrderByDescending(p => p.Tarih)
+                .ThenByDescending(p => p.Id)
+                .Select(p => p.Id)
+                .FirstOrDefaultAsync();
+
+            if (lastProgramId == 0)
+                return null;
+
+            // Bu programa ait, başarılı kaynaklar arasından en son biteni/ekleneni getir
+            // Öncelik: BitisSaati varsa ona göre, yoksa Id'ye göre sırala
+            var q = _context.Kaynaklar.AsNoTracking()
+                .Where(k => k.basarili_mi && EF.Property<int>(k, "ProgramVerisiId") == lastProgramId);
+
+            var last = await q
+                .OrderByDescending(k => k.BitisSaati == default ? DateTime.MinValue : k.BitisSaati)
+                .ThenByDescending(k => k.Id)
+                .FirstOrDefaultAsync();
+
+            return last;
+        }
+
+
     }
 }

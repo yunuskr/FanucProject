@@ -31,6 +31,9 @@ public class HomeController : Controller
         // En son program
         var lastProgram = await _programService.GetLastProgramAsync();
 
+    // En son programın son başarılı kaynağı
+    ViewBag.SonBasariliKaynak = await _kaynakService.GetLastSuccessfulKaynakOfLatestProgramAsync();
+
         // Kaynak sayıları (global toplamlardan)
         {
             var (toplam, basarili) = await _kaynakService.GetKaynakCountsAsync();
@@ -56,6 +59,9 @@ public class HomeController : Controller
         ViewBag.GecmisProgramlar = await _programService.GetGecmisProgramlarRowsAsync();
         ViewBag.ProgramCount = await _programService.GetTotalProgramCountAsync();
         var lastProgram = await _programService.GetLastProgramAsync();
+
+        // En son programın son başarılı kaynağı
+        ViewBag.SonBasariliKaynak = await _kaynakService.GetLastSuccessfulKaynakOfLatestProgramAsync();
 
         {
             var (toplam, basarili) = await _kaynakService.GetKaynakCountsAsync();

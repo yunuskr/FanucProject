@@ -11,6 +11,19 @@
     int programBasarili = kaynakListLocal.Count(k => k.basarili_mi);
     int programBasarisiz = Math.Max(0, programToplam - programBasarili);
     int programBasariYuzde = programToplam > 0 ? (int)System.Math.Round(programBasarili * 100.0 / programToplam) : 0;
+    // En son programın son başarılı kaynağı (controller ViewBag'den)
+    var sonBasarili = ViewBag.SonBasariliKaynak as FanucRelease.Models.Kaynak;
+    TimeSpan sonToplamSureTs = TimeSpan.Zero;
+    if (sonBasarili != null)
+    {
+        sonToplamSureTs = sonBasarili.ToplamSure != default
+            ? sonBasarili.ToplamSure.ToTimeSpan()
+            : (sonBasarili.BitisSaati - sonBasarili.BaslangicSaati);
+        if (sonToplamSureTs < TimeSpan.Zero) sonToplamSureTs = TimeSpan.Zero;
+    }
+    string sonSureText = sonBasarili == null ? "—" : (sonToplamSureTs.Hours > 0
+        ? $"{(int)sonToplamSureTs.TotalHours} sa {sonToplamSureTs.Minutes} dk {sonToplamSureTs.Seconds} sn"
+        : $"{sonToplamSureTs.Minutes} dk {sonToplamSureTs.Seconds} sn");
 }
 
 @section Head {
@@ -1774,11 +1787,61 @@ body::before{
             <div class="chart-card">
                 <div class="chart-header">
                     <h5 class="chart-title">
-                        <i class="fas fa-chart-bar"></i> Son Program Parametreleri
+                        <i class="fas fa-chart-bar"></i> Son Kaynak Verileri
                     </h5>
                 </div>
-                <div class="chart-container">
-                    <canvas id="parametersBar"></canvas>
+                <div class="chart-container" style="padding:1rem;">
+                    @if (sonBasarili == null)
+                    {
+                        <div style="color:#6c757d; font-weight:600;">Veri bulunamadı.</div>
+                    }
+                    else
+                    {
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: .75rem;">
+                            <div class="info-item">
+                                <div class="info-icon info"><i class="fas fa-code"></i></div>
+                                <div class="info-content">
+                                    <span class="info-label">Başlangıç Satırı</span>
+                                    <span class="info-value">@sonBasarili.BaslangicSatiri</span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-icon primary"><i class="fas fa-code-branch"></i></div>
+                                <div class="info-content">
+                                    <span class="info-label">Bitiş Satırı</span>
+                                    <span class="info-value">@sonBasarili.BitisSatiri</span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-icon success"><i class="fas fa-hashtag"></i></div>
+                                <div class="info-content">
+                                    <span class="info-label">PRC No</span>
+                                    <span class="info-value">@sonBasarili.PrcNo</span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-icon warning"><i class="fas fa-hashtag"></i></div>
+                                <div class="info-content">
+                                    <span class="info-label">SRC No</span>
+                                    <span class="info-value">@sonBasarili.SrcNo</span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-icon info"><i class="fas fa-ruler"></i></div>
+                                <div class="info-content">
+                                    <span class="info-label">Kaynak Uzunluğu</span>
+                                    <span class="info-value">@sonBasarili.KaynakUzunlugu mm</span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-icon danger"><i class="fas fa-clock"></i></div>
+                                <div class="info-content">
+                                    <span class="info-label">Toplam Süre</span>
+                                    <span class="info-value">@sonSureText</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
 
@@ -1791,61 +1854,33 @@ body::before{
                 </div>
                 <div class="alarm-container">
                     <div class="alarm-list">
-                        <div class="alarm-item high">
+                        @if (program?.Hatalar == null || !program.Hatalar.Any())
+                        {
+                            <div class="text-muted" style="padding:.5rem 1rem;">Kayıt bulunamadı.</div>
+                        }
+                        else
+                        {
+                            foreach (var hata in program.Hatalar.OrderByDescending(h => h.Zaman))
+                            {
+                                var severityClass = hata.Tip == 1 ? "high" : (hata.Tip == 2 ? "medium" : "low");
+                                var kod = string.IsNullOrWhiteSpace(hata.Kod) ? "—" : hata.Kod;
+                                var desc = string.IsNullOrWhiteSpace(hata.Aciklama) ? "—" : hata.Aciklama;
+                                var zamanText = hata.Zaman.ToString("dd.MM.yyyy HH:mm:ss");
+                        <div class="alarm-item @severityClass">
                             <div class="alarm-icon">
                                 <i class="fas fa-exclamation-triangle"></i>
                             </div>
                             <div class="alarm-details">
-                                <div class="alarm-code">ALM-001</div>
-                                <div class="alarm-desc">Yüksek Akım Değeri Tespit Edildi</div>
-                                <div class="alarm-time">14:32:15</div>
+                                <div class="alarm-code">KOD-@kod</div>
+                                <div class="alarm-desc">@desc</div>
+                                <div class="alarm-time">@zamanText</div>
                             </div>
                             <div class="alarm-status resolved">
                                 <i class="fas fa-check"></i>
                             </div>
                         </div>
-
-                        <div class="alarm-item medium">
-                            <div class="alarm-icon">
-                                <i class="fas fa-exclamation-circle"></i>
-                            </div>
-                            <div class="alarm-details">
-                                <div class="alarm-code">ALM-015</div>
-                                <div class="alarm-desc">Tel Hızı Normal Değerlerin Altında</div>
-                                <div class="alarm-time">14:45:22</div>
-                            </div>
-                            <div class="alarm-status resolved">
-                                <i class="fas fa-check"></i>
-                            </div>
-                        </div>
-
-                        <div class="alarm-item low">
-                            <div class="alarm-icon">
-                                <i class="fas fa-info-circle"></i>
-                            </div>
-                            <div class="alarm-details">
-                                <div class="alarm-code">ALM-032</div>
-                                <div class="alarm-desc">Kaynak Pozisyonu Uyarısı</div>
-                                <div class="alarm-time">15:10:08</div>
-                            </div>
-                            <div class="alarm-status resolved">
-                                <i class="fas fa-check"></i>
-                            </div>
-                        </div>
-
-                        <div class="alarm-item high">
-                            <div class="alarm-icon">
-                                <i class="fas fa-exclamation-triangle"></i>
-                            </div>
-                            <div class="alarm-details">
-                                <div class="alarm-code">ALM-008</div>
-                                <div class="alarm-desc">Voltaj Dalgalanması</div>
-                                <div class="alarm-time">15:18:45</div>
-                            </div>
-                            <div class="alarm-status active">
-                                <i class="fas fa-times"></i>
-                            </div>
-                        </div>
+                            }
+                        }
                     </div>
                 </div>
             </div>
@@ -1982,60 +2017,6 @@ body::before{
             });
         }
 
-        // Parameters Bar Chart
-        const parametersBarCanvas = document.getElementById('parametersBar');
-        if (parametersBarCanvas) {
-            new Chart(parametersBarCanvas, {
-                type: 'bar',
-                data: {
-                    labels: ['Akım (A)', 'Voltaj (V)', 'Tel Hızı (m/dk)', 'Robot Hızı (%)'],
-                    datasets: [{
-                        label: 'Ortalama Değer',
-                        data: [185, 24.5, 8.2, 75],
-                        backgroundColor: [
-                            '#ff416c',
-                            '#4facfe',
-                            '#f093fb',
-                            '#11998e'
-                        ],
-                        borderRadius: 8,
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    ...chartDefaults,
-                    plugins: {
-                        ...chartDefaults.plugins,
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: function (context) {
-                                    const labels = ['185 A', '24.5 V', '8.2 m/dk', '75%'];
-                                    return labels[context.dataIndex];
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: { display: false },
-                            ticks: {
-                                font: { family: 'Poppins', size: 10, weight: '600' },
-                                color: '#2c3e50',
-                                maxRotation: 0
-                            }
-                        },
-                        y: {
-                            grid: { color: 'rgba(0,0,0,0.05)' },
-                            ticks: {
-                                font: { family: 'Poppins', size: 11 },
-                                color: '#6c757d'
-                            }
-                        }
-                    }
-                }
-            });
-        }
     });
 
     // Page loading animation
