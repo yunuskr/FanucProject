@@ -252,6 +252,7 @@ body.program-detay {
   width: 100%;
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0;
 }
 
 .chart-card:hover {
@@ -283,6 +284,7 @@ body.program-detay {
   position: relative;
   overflow: hidden;
   border-radius: 20px 20px 0 0;
+  margin: 0;
 }
 
 .error-header::before {
@@ -352,7 +354,7 @@ body.program-detay {
 
 /* Chart container düzeni */
 .chart-container {
-  padding: 2.5rem;
+  padding: 0;
   min-height: 200px;
   position: relative;
 }
@@ -360,11 +362,15 @@ body.program-detay {
 /* Error card içeriği */
 .error-card .chart-container {
   background: transparent;
+  padding: 2.5rem;
+  border-radius: 0 0 20px 20px;
 }
 
 /* History card içeriği */
 .history-card .chart-container {
   background: transparent;
+  padding: 2.5rem;
+  border-radius: 0 0 20px 20px;
 }
 
 .chart-header {
@@ -415,19 +421,20 @@ body.program-detay {
 
 /* Tablo geliştirmeleri */
 .chart-container .table {
-  background: rgba(255,255,255,0.8);
+  background: rgba(255,255,255,0.9);
   border-radius: 12px;
   overflow: hidden;
   border: none;
   box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+  margin-bottom: 0;
 }
 
 .chart-container .table thead th {
-  background: rgba(0,0,0,0.04);
+  background: rgba(0,0,0,0.06);
   border: none;
   font-weight: 600;
   color: #374151;
-  padding: 1rem;
+  padding: 1.2rem 1rem;
   font-size: 0.875rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -438,6 +445,7 @@ body.program-detay {
   padding: 1rem;
   vertical-align: middle;
   border-bottom: 1px solid rgba(0,0,0,0.06);
+  color: #4b5563;
 }
 
 .chart-container .table tbody tr:last-child td {
@@ -446,6 +454,79 @@ body.program-detay {
 
 .chart-container .table tbody tr:hover {
   background: rgba(0,0,0,0.02);
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+/* Basit HTML Table Tasarımı */
+.error-card .table-responsive {
+  max-height: 400px;
+  overflow-y: auto;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+.error-card .hata-table {
+  margin-bottom: 0;
+  background: white;
+}
+
+.error-card .hata-table tbody tr {
+  border-left: 4px solid transparent;
+}
+
+.error-card .hata-table tbody tr.table-danger {
+  border-left-color: #dc3545;
+  background-color: rgba(248, 215, 218, 0.2) !important;
+}
+
+.error-card .hata-table tbody tr.table-warning {
+  border-left-color: #ffc107;
+  background-color: rgba(255, 243, 205, 0.2) !important;
+}
+
+.error-card .hata-table tbody tr:hover {
+  background-color: rgba(0,0,0,0.05) !important;
+}
+
+.error-card .hata-table td {
+  vertical-align: middle;
+  padding: 0.75rem;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.error-card .tip-cell {
+  width: 120px;
+  text-align: center;
+}
+
+.error-card .kod-cell {
+  width: 100px;
+  text-align: center;
+  font-family: 'Courier New', monospace;
+  font-size: 0.95rem;
+}
+
+.error-card .aciklama-cell {
+  width: auto;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.error-card .zaman-cell {
+  width: 140px;
+  text-align: right;
+  font-size: 0.85rem;
+}
+
+.error-card .zaman-cell div {
+  font-weight: 600;
+  color: #495057;
+}
+
+.error-card .badge {
+  font-size: 0.7rem;
+  padding: 0.25rem 0.5rem;
 }
 
 /* Boş durum mesajları */

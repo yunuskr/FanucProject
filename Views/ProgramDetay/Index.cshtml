@@ -152,24 +152,48 @@
             </a>
         </div>
         <div class="chart-container">
-            <div style="height: 200px; display: flex; align-items: center; justify-content: center; padding: 2rem;">
-                @if (hataSay > 0)
-                {
-                    <div class="text-center">
-                        <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
-                        <h4 class="text-danger">@hataSay Hata Tespit Edildi</h4>
-                        <p class="text-muted">Detayları görmek için butona tıklayın</p>
-                    </div>
-                }
-                else
-                {
-                    <div class="text-center">
-                        <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-                        <h4 class="text-success">Hata Yok</h4>
-                        <p class="text-muted">Program başarıyla tamamlandı</p>
-                    </div>
-                }
-            </div>
+            @if (Model?.Program?.Hatalar != null && Model.Program.Hatalar.Any())
+            {
+                <!-- Basit HTML Tablosu -->
+                <div class="table-responsive">
+                    <table class="table table-hover hata-table">
+                        <tbody>
+                            @foreach (var hata in Model.Program.Hatalar.OrderByDescending(h => h.Zaman))
+                            {
+                                var tipClass = hata.Tip == 1 ? "table-danger" : "table-warning";
+                                var tipIcon = hata.Tip == 1 ? "fas fa-exclamation-circle" : "fas fa-exclamation-triangle";
+                                var tipText = hata.Tip == 1 ? "KRİTİK" : "UYARI";
+                                
+                                <tr class="@tipClass">
+                                    <td class="tip-cell">
+                                        <span class="badge bg-danger" style="@(hata.Tip == 1 ? "background-color: #dc3545 !important;" : "background-color: #ffc107 !important; color: #000;")">
+                                            <i class="@tipIcon me-1"></i>@tipText
+                                        </span>
+                                    </td>
+                                    <td class="kod-cell">
+                                        <strong>@hata.Kod</strong>
+                                    </td>
+                                    <td class="aciklama-cell">
+                                        @hata.Aciklama
+                                    </td>
+                                    <td class="zaman-cell">
+                                        <div>@hata.Zaman.ToString("dd.MM.yyyy")</div>
+                                        <small class="text-muted">@hata.Zaman.ToString("HH:mm:ss")</small>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-check-circle fa-4x text-success mb-3" style="opacity: 0.6;"></i>
+                    <h4 class="text-success mb-2">Hiç Hata Yok</h4>
+                    <p class="text-muted">Bu program başarıyla tamamlandı, herhangi bir hata kaydı bulunmuyor.</p>
+                </div>
+            }
         </div>
     </div>
 

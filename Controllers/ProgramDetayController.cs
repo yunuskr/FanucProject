@@ -19,7 +19,6 @@ public class ProgramDetayController : Controller
         _hataService = hataService;
     }
 
-    // GET: /ProgramDetay/Index   veya  /ProgramDetay/Index/{id}
     [HttpGet]
     public async Task<IActionResult> Index(int? id)
     {
