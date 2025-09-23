@@ -1,40 +1,39 @@
-using FanucRelease.Data;
 using FanucRelease.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FanucRelease.ViewModels;
+using FanucRelease.Services.Interfaces;
 public class ProgramDetayController : Controller
 {
-    private readonly ApplicationDbContext _db;
-    public ProgramDetayController(ApplicationDbContext db) => _db = db;
+    private readonly IProgramVerisiService _programService;
+    private readonly IKaynakService _kaynakService;
+    private readonly IHataService _hataService;
+
+    public ProgramDetayController(
+        IProgramVerisiService programService,
+        IKaynakService kaynakService,
+        IHataService hataService)
+    {
+        _programService = programService;
+        _kaynakService = kaynakService;
+        _hataService = hataService;
+    }
 
     // GET: /ProgramDetay/Index   veya  /ProgramDetay/Index/{id}
     [HttpGet]
     public async Task<IActionResult> Index(int? id)
     {
         // Geçmiş programlar listesi (son 10–20 kayıt)
-        var sonProgramlar = await _db.ProgramVerileri
-            .AsNoTracking()
-            .Include(p => p.Hatalar)      // view'da hata sayısı için
-            .OrderByDescending(p => p.Id) // en yeniler üstte
-            .Take(20)
-            .ToListAsync();
+        var sonProgramlar = await _programService.GetRecentProgramsWithHatalarAsync(20);
 
         ViewBag.SonProgramlar = sonProgramlar;
 
         // Detayını göstereceğimiz program
-        var detayQuery = _db.ProgramVerileri
-            .AsNoTracking()
-            .Include(p => p.Operator)
-            .Include(p => p.Kaynaklar)
-            .Include(p => p.Hatalar);
-
-        ProgramVerisi? program;
-
+        ProgramVerisi? program = null;
         if (id.HasValue && id.Value > 0)
-            program = await detayQuery.FirstOrDefaultAsync(p => p.Id == id.Value);
+            program = await _programService.GetProgramWithDetailsByIdAsync(id.Value);
         else
-            program = await detayQuery.OrderByDescending(p => p.Id).FirstOrDefaultAsync();
+            program = await _programService.GetLatestProgramWithDetailsAsync();
 
         if (program is null)
             return NotFound("Gösterilecek program bulunamadı.");
@@ -46,11 +45,7 @@ public class ProgramDetayController : Controller
     {
         if (id <= 0) return BadRequest();
 
-        var kaynak = await _db.Kaynaklar
-            .AsNoTracking()
-            .Include(k => k.ProgramVerisi)
-            .Include(k => k.AnlikKaynaklar)
-            .FirstOrDefaultAsync(k => k.Id == id);
+        var kaynak = await _kaynakService.GetKaynakWithDetailsByIdAsync(id);
 
         if (kaynak is null) return NotFound();
 
@@ -81,19 +76,12 @@ public async Task<IActionResult> Hatalar(int id)
     if (id <= 0) return BadRequest();
 
     // Program bilgisi (başlık/geri dönüş için)
-    var program = await _db.ProgramVerileri
-        .AsNoTracking()
-        .Include(p => p.Operator)
-        .FirstOrDefaultAsync(p => p.Id == id);
+    var program = await _programService.GetProgramHeaderByIdAsync(id);
 
     if (program is null) return NotFound();
 
     // Bu programa ait tüm hatalar
-    var hatalar = await _db.Hatalar
-        .AsNoTracking()
-        .Where(h => h.ProgramVerisiId == id)
-        .OrderByDescending(h => h.Zaman)
-        .ToListAsync();
+    var hatalar = await _hataService.GetHatalarByProgramIdAsync(id);
 
     var vm = new ProgramHatalarVM
     {

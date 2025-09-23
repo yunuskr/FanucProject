@@ -6,6 +6,9 @@ namespace FanucRelease.Services.Interfaces
 	{
 		// Global toplam hata sayısı
 		Task<int> GetToplamHataCountAsync();
+
+		// ProgramDetay/Hatalar için
+		Task<List<FanucRelease.Models.Hata>> GetHatalarByProgramIdAsync(int programVerisiId);
 	}
 }
 

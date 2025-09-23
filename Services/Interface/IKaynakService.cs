@@ -17,5 +17,8 @@ namespace FanucRelease.Services.Interfaces
 
         // En son programa göre, o programın son başarılı kaynağını getirir
         Task<Kaynak?> GetLastSuccessfulKaynakOfLatestProgramAsync();
+
+        // ProgramDetay/KaynakDetay için
+        Task<Kaynak?> GetKaynakWithDetailsByIdAsync(int id);
     }
 }

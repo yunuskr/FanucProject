@@ -109,5 +109,56 @@ namespace FanucRelease.Services
         {
             return await _context.ProgramVerileri.AsNoTracking().CountAsync();
         }
+
+        /// <summary>
+        /// Detay görünümü için son "take" adet programı Hatalar ile birlikte getirir.
+        /// </summary>
+        public async Task<List<ProgramVerisi>> GetRecentProgramsWithHatalarAsync(int take = 20)
+        {
+            return await _context.ProgramVerileri
+                .AsNoTracking()
+                .Include(p => p.Hatalar)
+                .OrderByDescending(p => p.Id)
+                .Take(take)
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Id'ye göre Program'ı Operator, Kaynaklar ve Hatalar dahil getirir.
+        /// </summary>
+        public async Task<ProgramVerisi?> GetProgramWithDetailsByIdAsync(int id)
+        {
+            return await _context.ProgramVerileri
+                .AsNoTracking()
+                .Include(p => p.Operator)
+                .Include(p => p.Kaynaklar)
+                .Include(p => p.Hatalar)
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
+
+        /// <summary>
+        /// En güncel programı (Id'ye göre) detaylarıyla getirir.
+        /// </summary>
+        public async Task<ProgramVerisi?> GetLatestProgramWithDetailsAsync()
+        {
+            return await _context.ProgramVerileri
+                .AsNoTracking()
+                .Include(p => p.Operator)
+                .Include(p => p.Kaynaklar)
+                .Include(p => p.Hatalar)
+                .OrderByDescending(p => p.Id)
+                .FirstOrDefaultAsync();
+        }
+
+        /// <summary>
+        /// Sadece başlık bilgileri için (Operator dahil) programı getirir.
+        /// </summary>
+        public async Task<ProgramVerisi?> GetProgramHeaderByIdAsync(int id)
+        {
+            return await _context.ProgramVerileri
+                .AsNoTracking()
+                .Include(p => p.Operator)
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
     }
 }

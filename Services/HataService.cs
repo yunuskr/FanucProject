@@ -16,6 +16,15 @@ namespace FanucRelease.Services
 		{
 			return await _db.Hatalar.AsNoTracking().CountAsync();
 		}
+
+		public async Task<List<FanucRelease.Models.Hata>> GetHatalarByProgramIdAsync(int programVerisiId)
+		{
+			return await _db.Hatalar
+				.AsNoTracking()
+				.Where(h => h.ProgramVerisiId == programVerisiId)
+				.OrderByDescending(h => h.Zaman)
+				.ToListAsync();
+		}
 	}
 }
 

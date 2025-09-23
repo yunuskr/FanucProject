@@ -100,6 +100,18 @@ namespace FanucRelease.Services
             return last;
         }
 
+        /// <summary>
+        /// Kaynak detay sayfası için; belirtilen Id'li kaynağı ProgramVerisi ve AnlikKaynaklar ile getirir.
+        /// </summary>
+        public async Task<Kaynak?> GetKaynakWithDetailsByIdAsync(int id)
+        {
+            return await _context.Kaynaklar
+                .AsNoTracking()
+                .Include(k => k.ProgramVerisi)
+                .Include(k => k.AnlikKaynaklar)
+                .FirstOrDefaultAsync(k => k.Id == id);
+        }
+
 
     }
 }
