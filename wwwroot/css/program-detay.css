@@ -1,0 +1,59 @@
+/* Program Detay sayfası için özel stiller - altın tema uyumlu */
+:root{
+  --gold-start:#f09701;
+  --gold-end:#face00;
+  --brand-gradient: linear-gradient(90deg, var(--gold-start), var(--gold-end));
+}
+
+/* Arkaplan ve içerik alanı */
+body.program-detay {
+  background-color:#15120a;
+  background-image:
+    radial-gradient(1200px 800px at 38% 35%, rgba(250,206,0,.95) 0%, rgba(240,151,1,.65) 34%, rgba(240,151,1,.25) 50%, rgba(21,18,10,0) 68%),
+    radial-gradient(900px 600px at 88% 8%, rgba(240,151,1,.35) 0%, rgba(21,18,10,0) 60%),
+    radial-gradient(1000px 700px at 0% 100%, rgba(0,0,0,.55) 10%, rgba(0,0,0,0) 60%),
+    linear-gradient(180deg,#1c150a 0%, #15120a 100%);
+  background-attachment:fixed;
+  background-size:cover;
+}
+body.program-detay::after{
+  content:""; position:fixed; inset:0; pointer-events:none;
+  background: radial-gradient(150% 130% at 50% 50%, rgba(0,0,0,0) 60%, rgba(0,0,0,.45) 100%);
+  mix-blend-mode:multiply;
+}
+body.program-detay::before{
+  content:""; position:fixed; inset:-2px; pointer-events:none;
+  background: repeating-linear-gradient(0deg, rgba(255,255,255,.015) 0 2px, rgba(0,0,0,.02) 2px 4px);
+  opacity:.25; mix-blend-mode:overlay;
+}
+
+.content-area{ background: transparent !important; }
+
+/* Header */
+.page-header .page-title{ color:#fff; text-shadow:0 2px 8px rgba(0,0,0,.35); }
+.badge.bg-gold-soft{
+  background: rgba(240,151,1,.12);
+  border:1px solid rgba(240,151,1,.35);
+}
+.text-gold{ color:#f5c518; }
+
+/* Stat cards */
+.stat-card .card-body{ backdrop-filter:saturate(1.2) blur(2px); }
+
+/* Tablo */
+.table.program-kaynaklar thead th{ border-bottom:2px solid rgba(240,151,1,.35); }
+.table.program-kaynaklar tbody tr:hover{ background: rgba(240,151,1,.06); }
+.table.program-kaynaklar td, .table.program-kaynaklar th{ vertical-align: middle; }
+
+/* Geçmiş program listesi */
+#programList .program-item{ transition: background .2s ease, transform .08s ease; }
+#programList .program-item:hover{ background: rgba(240,151,1,.06); transform: translateY(-1px); }
+#programList .badge{ background: rgba(220,53,69,.1)!important; border:1px solid rgba(220,53,69,.35)!important; }
+
+/* Scrollbar uyumu */
+::-webkit-scrollbar-thumb{ background: var(--brand-gradient); }
+
+/* Responsive küçük dokunuşlar */
+@media (max-width: 576px){
+  .page-header .page-title{ font-size:1.25rem; }
+}

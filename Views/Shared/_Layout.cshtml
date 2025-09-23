@@ -353,7 +353,7 @@
     @RenderSection("Head", required: false)
 </head>
 
-<body>
+<body class="@((ViewContext.RouteData.Values["controller"]?.ToString()=="ProgramDetay" && ViewContext.RouteData.Values["action"]?.ToString()=="Index")?"program-detay":"")">
     <div class="layout-wrapper">
         <!-- Sidebar -->
         <nav class="sidebar" id="sidebar">
@@ -388,13 +388,13 @@
                             asp-controller="ProgramDetay"
                             asp-action="Index">
                                 <i class="fas fa-file-code me-2"></i>
-                                <span>Program Detayı</span>
+                                <span>Geçmiş Programlar</span>
                         </a>
                     </div>
                     <div class="nav-item">
                         <a class="nav-link" href="#">
                             <i class="fas fa-bolt"></i>
-                            <span>Kaynak İşlemleri</span>
+                            <span>Geçmiş Kaynaklar</span>
                         </a>
                     </div>
                 </div>

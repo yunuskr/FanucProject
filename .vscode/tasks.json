@@ -70,6 +70,19 @@
 				"$msCompile"
 			],
 			"group": "build"
+		},
+		{
+			"label": "build (one-off)",
+			"type": "shell",
+			"command": "dotnet",
+			"args": [
+				"build",
+				"c:\\Users\\ahmet.cakar\\Desktop\\FanucProject\\FanucRelease.csproj"
+			],
+			"problemMatcher": [
+				"$msbuild"
+			],
+			"group": "build"
 		}
 	]
 }
