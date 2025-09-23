@@ -26,8 +26,6 @@ public class ProgramDetayController : Controller
         // Geçmiş programlar listesi (son 10–20 kayıt)
         var sonProgramlar = await _programService.GetRecentProgramsWithHatalarAsync(20);
 
-        ViewBag.SonProgramlar = sonProgramlar;
-
         // Detayını göstereceğimiz program
         ProgramVerisi? program = null;
         if (id.HasValue && id.Value > 0)
@@ -38,7 +36,13 @@ public class ProgramDetayController : Controller
         if (program is null)
             return NotFound("Gösterilecek program bulunamadı.");
 
-        return View(program);
+        var vm = new ProgramDetayIndexVM
+        {
+            Program = program,
+            SonProgramlar = sonProgramlar
+        };
+
+        return View(vm);
     }
     [HttpGet]
     public async Task<IActionResult> KaynakDetay(int id)

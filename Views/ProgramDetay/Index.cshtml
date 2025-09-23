@@ -1,19 +1,18 @@
-@model FanucRelease.Models.ProgramVerisi
+@model FanucRelease.ViewModels.ProgramDetayIndexVM
 @using System.Linq
 @using FanucRelease.Models
 
 @{
     ViewData["Title"] = "Program Detayı";
 
-    var opAdSoyad  = Model?.Operator is null ? "—" : $"{Model.Operator.Ad} {Model.Operator.Soyad}";
-    var kaynakSay  = Model?.Kaynaklar?.Count ?? 0;
-    var hataSay    = Model?.Hatalar?.Count ?? 0;
-    var bas        = Model?.BaslangicZamani ?? DateTime.MinValue;
-    var bit        = Model?.BitisZamani ?? DateTime.MinValue;
+    var opAdSoyad  = Model?.Program?.Operator is null ? "—" : $"{Model.Program.Operator.Ad} {Model.Program.Operator.Soyad}";
+    var kaynakSay  = Model?.Program?.Kaynaklar?.Count ?? 0;
+    var hataSay    = Model?.Program?.Hatalar?.Count ?? 0;
+    var bas        = Model?.Program?.BaslangicZamani ?? DateTime.MinValue;
+    var bit        = Model?.Program?.BitisZamani ?? DateTime.MinValue;
     var sure       = (bas != DateTime.MinValue && bit != DateTime.MinValue && bit > bas) ? (TimeSpan?)(bit - bas) : null;
 
-    // Controller: ViewBag.SonProgramlar => IEnumerable<ProgramVerisi>
-    var sonProgramlar = (ViewBag.SonProgramlar as IEnumerable<ProgramVerisi>) ?? Enumerable.Empty<ProgramVerisi>();
+    var sonProgramlar = Model?.SonProgramlar ?? Enumerable.Empty<ProgramVerisi>();
 }
 
 @section Head{
@@ -25,11 +24,11 @@
     <div class="page-header d-flex align-items-center justify-content-between mb-4">
         <div>
             <h2 class="page-title mb-1">
-                <i class="fas fa-robot me-2"></i>@(Model?.ProgramAdi ?? "—")
+                <i class="fas fa-robot me-2"></i>@(Model?.Program?.ProgramAdi ?? "—")
             </h2>
             <div class="text-muted small d-flex flex-wrap gap-3">
-                <span><i class="fas fa-hashtag me-1"></i>ID: @Model?.Id</span>
-                <span><i class="far fa-calendar-alt me-1"></i>@Model?.Tarih.ToString("dd.MM.yyyy")</span>
+                <span><i class="fas fa-hashtag me-1"></i>ID: @Model?.Program?.Id</span>
+                <span><i class="far fa-calendar-alt me-1"></i>@Model?.Program?.Tarih.ToString("dd.MM.yyyy")</span>
                 <span class="operator-info"><i class="fas fa-user me-1"></i>@opAdSoyad</span>
             </div>
         </div>
@@ -38,7 +37,7 @@
             <span class="badge bg-gold-soft text-dark px-3 py-2">
                 <i class="fas fa-bolt me-1"></i>@kaynakSay Kaynak
             </span>
-            <a asp-action="Hatalar" asp-route-id="@Model?.Id" class="btn btn-danger">
+            <a asp-action="Hatalar" asp-route-id="@Model?.Program?.Id" class="btn btn-danger">
                 <i class="fas fa-exclamation-triangle me-1"></i>
                 Hatalar (@hataSay)
             </a>
@@ -106,14 +105,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                    @if (Model?.Kaynaklar is null || !Model.Kaynaklar.Any())
+                    @if (Model?.Program?.Kaynaklar is null || !Model.Program.Kaynaklar.Any())
                     {
                         <tr><td colspan="7" class="text-muted">Kayıt yok.</td></tr>
                     }
                     else
                     {
                         var i = 1;
-                        foreach (var k in Model.Kaynaklar.OrderBy(x => x.Id))
+                        foreach (var k in Model.Program.Kaynaklar.OrderBy(x => x.Id))
                         {
                             <tr>
                                 <td>@i</td>
@@ -168,8 +167,8 @@
 
         <!-- Liste -->
         <div class="list-group list-group-flush" id="programList">
-        @foreach (var p in sonProgramlar
-                           .Where(x => x.Id != (Model?.Id ?? 0))
+    @foreach (var p in sonProgramlar
+               .Where(x => x.Id != (Model?.Program?.Id ?? 0))
                            .OrderByDescending(x => x.Id)
                            .Take(10))
         {
