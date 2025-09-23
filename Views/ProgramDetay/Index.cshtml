@@ -16,140 +16,176 @@
 }
 
 @section Head{
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/program-detay.css" asp-append-version="true" />
 }
 
-<div class="container-fluid py-3">
-    <!-- Üst başlık -->
-    <div class="page-header d-flex align-items-center justify-content-between mb-4">
-        <div>
-            <h2 class="page-title mb-1">
-                <i class="fas fa-robot me-2"></i>@(Model?.Program?.ProgramAdi ?? "—")
-            </h2>
-            <div class="text-muted small d-flex flex-wrap gap-3">
-                <span><i class="fas fa-hashtag me-1"></i>ID: @Model?.Program?.Id</span>
-                <span><i class="far fa-calendar-alt me-1"></i>@Model?.Program?.Tarih.ToString("dd.MM.yyyy")</span>
-                <span class="operator-info"><i class="fas fa-user me-1"></i>@opAdSoyad</span>
+<div class="dashboard-container">
+    <div class="container-fluid">
+    <!-- Program Header Card -->
+    <div class="program-card mb-4">
+        <div class="program-header">
+            <h4 class="program-title">
+                <i class="fas fa-robot"></i>
+                Program: @(Model?.Program?.ProgramAdi ?? "—") 
+                <span class="program-id">#@(Model?.Program?.Id ?? 0)</span>
+            </h4>
+            <div class="program-info-grid">
+                <div class="info-item">
+                    <div class="info-icon success">
+                        <i class="fas fa-play"></i>
+                    </div>
+                    <div class="info-content">
+                        <span class="info-label">Başlangıç</span>
+                        <span class="info-value">@(bas == DateTime.MinValue ? "—" : bas.ToString("dd.MM.yyyy HH:mm"))</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon danger">
+                        <i class="fas fa-stop"></i>
+                    </div>
+                    <div class="info-content">
+                        <span class="info-label">Bitiş</span>
+                        <span class="info-value">@(bit == DateTime.MinValue ? "—" : bit.ToString("dd.MM.yyyy HH:mm"))</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon info">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="info-content">
+                        <span class="info-label">Operatör</span>
+                        <span class="info-value">@opAdSoyad</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon warning">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="info-content">
+                        <span class="info-label">Toplam Kaynak</span>
+                        <span class="info-value">@kaynakSay</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon primary">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="info-content">
+                        <span class="info-label">Toplam Süre</span>
+                        <span class="info-value">@(sure.HasValue ? sure.Value.ToString(@"hh\:mm\:ss") : "—")</span>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="d-flex align-items-center gap-2">
-            <span class="badge bg-gold-soft text-dark px-3 py-2">
-                <i class="fas fa-bolt me-1"></i>@kaynakSay Kaynak
-            </span>
-            <a asp-action="Hatalar" asp-route-id="@Model?.Program?.Id" class="btn btn-danger">
-                <i class="fas fa-exclamation-triangle me-1"></i>
-                Hatalar (@hataSay)
+        <!-- Kaynak Cards -->
+        <div class="kaynak-list">
+            <h5 class="kaynak-list-title">
+                <i class="fas fa-bolt"></i>
+                Kaynak Detayları
+            </h5>
+            <div class="kaynak-grid">
+                @if (Model?.Program?.Kaynaklar is null || !Model.Program.Kaynaklar.Any())
+                {
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-info-circle fa-2x mb-2"></i>
+                        <p>Kaynak verisi bulunamadı.</p>
+                    </div>
+                }
+                else
+                {
+                    var i = 1;
+                    foreach (var k in Model.Program.Kaynaklar.OrderBy(x => x.Id))
+                    {
+                        var ad = $"Kaynak-{i.ToString("D2")}";
+                        var basKaynak = k.BaslangicSaati == default ? "—" : k.BaslangicSaati.ToString("HH:mm");
+                        var bitKaynak = k.BitisSaati == default ? "—" : k.BitisSaati.ToString("HH:mm");
+                        var ts = k.ToplamSure != default ? k.ToplamSure.ToTimeSpan() : (k.BitisSaati - k.BaslangicSaati);
+                        if (ts < TimeSpan.Zero) { ts = TimeSpan.Zero; }
+                        var totalMinutes = (int)Math.Round(ts.TotalMinutes);
+                        var sureText = ts.TotalHours >= 1 ? $"{(int)ts.TotalHours} sa {ts.Minutes} dk" : $"{totalMinutes} dk";
+                        var statusClass = k.basarili_mi ? "success" : "danger";
+                        var statusIcon = k.basarili_mi ? "fas fa-check" : "fas fa-times";
+                        
+                        <div class="kaynak-item">
+                            <div class="kaynak-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <div class="kaynak-details">
+                                <h6>@ad</h6>
+                                <div class="kaynak-time">
+                                    <span><i class="fas fa-play-circle"></i> @basKaynak</span>
+                                    <span><i class="fas fa-stop-circle"></i> @bitKaynak</span>
+                                    <span class="duration"><i class="fas fa-clock"></i> @sureText</span>
+                                </div>
+                                <div class="kaynak-meta">
+                                    <small class="text-muted">PRC: @k.PrcNo | SRC: @k.SrcNo</small>
+                                </div>
+                            </div>
+                            <div class="kaynak-status @statusClass">
+                                <i class="@statusIcon"></i>
+                            </div>
+                            <div class="kaynak-actions">
+                                <a asp-action="KaynakDetay" asp-route-id="@k.Id" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-search"></i>
+                                </a>
+                            </div>
+                        </div>
+                        i++;
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Hata Detayları - Üstte -->
+    <div class="chart-card error-card mb-4">
+        <div class="chart-header error-header">
+            <h5 class="chart-title">
+                <i class="fas fa-exclamation-triangle"></i> 
+                Hata Detayları
+            </h5>
+            <a asp-action="Hatalar" asp-route-id="@Model?.Program?.Id" class="btn btn-sm">
+                Tüm Hatalar (@hataSay)
             </a>
         </div>
-    </div>
-
-    <!-- Özet kartları -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-4">
-            <div class="card stat-card shadow-sm h-100">
-                <div class="card-body d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="text-muted">Başlangıç</div>
-                        <div class="h6 mb-0"><i class="far fa-clock me-1"></i>@(bas == DateTime.MinValue ? "—" : bas.ToString("dd.MM.yyyy HH:mm:ss"))</div>
+        <div class="chart-container">
+            <div style="height: 200px; display: flex; align-items: center; justify-content: center; padding: 2rem;">
+                @if (hataSay > 0)
+                {
+                    <div class="text-center">
+                        <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
+                        <h4 class="text-danger">@hataSay Hata Tespit Edildi</h4>
+                        <p class="text-muted">Detayları görmek için butona tıklayın</p>
                     </div>
-                    <i class="fas fa-play-circle fa-2x text-gold"></i>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card stat-card shadow-sm h-100">
-                <div class="card-body d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="text-muted">Bitiş</div>
-                        <div class="h6 mb-0"><i class="far fa-flag-checkered me-1"></i>@(bit == DateTime.MinValue ? "—" : bit.ToString("dd.MM.yyyy HH:mm:ss"))</div>
+                }
+                else
+                {
+                    <div class="text-center">
+                        <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                        <h4 class="text-success">Hata Yok</h4>
+                        <p class="text-muted">Program başarıyla tamamlandı</p>
                     </div>
-                    <i class="fas fa-stop-circle fa-2x text-gold"></i>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card stat-card shadow-sm h-100">
-                <div class="card-body d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="text-muted">Toplam Süre</div>
-                        <div class="h4 mb-0">
-                            @(sure.HasValue ? sure.Value.ToString(@"hh\:mm\:ss") : "—")
-                        </div>
-                    </div>
-                    <i class="fas fa-hourglass-half fa-2x text-gold"></i>
-                </div>
+                }
             </div>
         </div>
     </div>
 
-    <!-- Kaynaklar tablosu -->
-    <div class="card shadow-sm">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Kaynaklar</h5>
+    <!-- Geçmiş Programlar - Altta -->
+    <div class="chart-card history-card">
+        <div class="chart-header history-header">
+            <h5 class="chart-title">
+                <i class="fas fa-history"></i> 
+                Geçmiş Programlar
+            </h5>
+            <small class="text-light">Son 10 program</small>
         </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table align-middle table-hover program-kaynaklar">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Başlangıç</th>
-                            <th>Bitiş</th>
-                            <th>Toplam Süre</th>
-                            <th>PRC</th>
-                            <th>SRC</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    @if (Model?.Program?.Kaynaklar is null || !Model.Program.Kaynaklar.Any())
-                    {
-                        <tr><td colspan="7" class="text-muted">Kayıt yok.</td></tr>
-                    }
-                    else
-                    {
-                        var i = 1;
-                        foreach (var k in Model.Program.Kaynaklar.OrderBy(x => x.Id))
-                        {
-                            <tr>
-                                <td>@i</td>
-                                <td>@k.BaslangicSaati.ToString("HH:mm:ss")</td>
-                                <td>@k.BitisSaati.ToString("HH:mm:ss")</td>
-                                <td>
-                                    @(k.ToplamSure != default
-                                        ? k.ToplamSure.ToString("HH:mm:ss")
-                                        : (k.BitisSaati - k.BaslangicSaati).ToString(@"hh\:mm\:ss"))
-                                </td>
-                                <td>@k.PrcNo</td>
-                                <td>@k.SrcNo</td>
-                                <td class="text-end">
-                                    <a asp-action="KaynakDetay" asp-route-id="@k.Id" class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-search me-1"></i>Detay
-                                    </a>
-                                </td>
-                            </tr>
-                            i++;
-                        }
-                    }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- GEÇMİŞ PROGRAMLAR -->
-    <div class="card shadow-sm mt-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0"><i class="fas fa-history me-2"></i>Geçmiş Programlar</h5>
-            <small class="text-muted">Son 10</small>
-        </div>
-
-        <!-- Filtreler -->
-        <div class="card-body">
-            <div class="row g-3">
+        
+        <div class="chart-container" style="height: auto;">
+            <!-- Filtreler -->
+            <div class="row g-3 mb-3 px-3">
                 <div class="col-md-4">
                     <input type="text" id="searchProgram" class="form-control" placeholder="Program adı ara...">
                 </div>
@@ -163,30 +199,39 @@
                     <button type="button" id="clearFilters" class="btn btn-secondary">Temizle</button>
                 </div>
             </div>
-        </div>
 
-        <!-- Liste -->
-        <div class="list-group list-group-flush" id="programList">
-    @foreach (var p in sonProgramlar
-               .Where(x => x.Id != (Model?.Program?.Id ?? 0))
-                           .OrderByDescending(x => x.Id)
-                           .Take(10))
-        {
-            <a asp-controller="ProgramDetay"
-               asp-action="Index"
-               asp-route-id="@p.Id"
-               class="list-group-item list-group-item-action d-flex justify-content-between align-items-center program-item"
-               data-program="@p.ProgramAdi"
-               data-date="@p.Tarih.ToString("yyyy-MM-dd")">
-                <div class="me-2">
-                    <div class="fw-semibold">@p.ProgramAdi</div>
-                    <small class="text-muted">
-                        #@p.Id • @p.KaynakSayisi kaynak • @p.Tarih.ToString("dd.MM.yyyy")
-                    </small>
+            <!-- Program History List -->
+            <div class="alarm-container">
+                <div class="alarm-list" id="programList">
+                    @foreach (var p in sonProgramlar
+                               .Where(x => x.Id != (Model?.Program?.Id ?? 0))
+                                               .OrderByDescending(x => x.Id)
+                                               .Take(10))
+                    {
+                        <div class="alarm-item low program-item"
+                             data-program="@p.ProgramAdi"
+                             data-date="@p.Tarih.ToString("yyyy-MM-dd")">
+                            <div class="alarm-icon">
+                                <i class="fas fa-file-code"></i>
+                            </div>
+                            <div class="alarm-details">
+                                <div class="alarm-code">@p.ProgramAdi</div>
+                                <div class="alarm-desc">#@p.Id • @p.KaynakSayisi kaynak • @p.Tarih.ToString("dd.MM.yyyy")</div>
+                                <div class="alarm-time">Program ID: @p.Id</div>
+                            </div>
+                            <div class="alarm-status" style="background: linear-gradient(135deg,#dc3545,#c82333);">
+                                <span class="text-white">@((p.Hatalar?.Count) ?? 0)</span>
+                            </div>
+                            <a asp-controller="ProgramDetay"
+                               asp-action="Index"
+                               asp-route-id="@p.Id"
+                               class="btn btn-sm btn-outline-primary ms-2">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </div>
+                    }
                 </div>
-                <span class="badge bg-danger-subtle text-danger border"><i class="fas fa-exclamation-circle me-1"></i>@((p.Hatalar?.Count) ?? 0)</span>
-            </a>
-        }
+            </div>
         </div>
     </div>
 </div>
@@ -194,6 +239,10 @@
 @section Scripts{
 <script>
 (function () {
+  // sayfa teması: yalnızca bu view'da arka plan ve stiller aktif olsun
+  document.body.classList.add('program-detay');
+  window.addEventListener('beforeunload', function(){ document.body.classList.remove('program-detay'); });
+
   const searchInput = document.getElementById('searchProgram');
   const startInput  = document.getElementById('startDate');
   const endInput    = document.getElementById('endDate');
