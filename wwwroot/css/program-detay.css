@@ -458,75 +458,227 @@ body.program-detay {
   transition: all 0.2s ease;
 }
 
-/* Basit HTML Table Tasarımı */
+/* Düzgün Hata Tablosu Tasarımı */
+.error-card .hata-table-container {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
 .error-card .table-responsive {
   max-height: 400px;
   overflow-y: auto;
-  border-radius: 8px;
-  border: 1px solid rgba(0,0,0,0.1);
+  overflow-x: hidden;
 }
 
+/* İnce Kaydırma Çubuğu */
+.error-card .table-responsive::-webkit-scrollbar {
+  width: 6px;
+}
+
+.error-card .table-responsive::-webkit-scrollbar-track {
+  background: #f9fafb;
+}
+
+.error-card .table-responsive::-webkit-scrollbar-thumb {
+  background: #dc2626;
+  border-radius: 3px;
+}
+
+.error-card .table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #b91c1c;
+}
+
+/* Tablo Ana Yapısı */
 .error-card .hata-table {
   margin-bottom: 0;
   background: white;
+  border-collapse: collapse;
 }
 
-.error-card .hata-table tbody tr {
-  border-left: 4px solid transparent;
+/* Tablo Başlığı */
+.error-card .hata-table thead .table-header {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
-.error-card .hata-table tbody tr.table-danger {
-  border-left-color: #dc3545;
-  background-color: rgba(248, 215, 218, 0.2) !important;
-}
-
-.error-card .hata-table tbody tr.table-warning {
-  border-left-color: #ffc107;
-  background-color: rgba(255, 243, 205, 0.2) !important;
-}
-
-.error-card .hata-table tbody tr:hover {
-  background-color: rgba(0,0,0,0.05) !important;
-}
-
-.error-card .hata-table td {
-  vertical-align: middle;
-  padding: 0.75rem;
-  border-bottom: 1px solid rgba(0,0,0,0.05);
-}
-
-.error-card .tip-cell {
-  width: 120px;
-  text-align: center;
-}
-
-.error-card .kod-cell {
-  width: 100px;
-  text-align: center;
-  font-family: 'Courier New', monospace;
-  font-size: 0.95rem;
-}
-
-.error-card .aciklama-cell {
-  width: auto;
-  color: #495057;
-  font-size: 0.9rem;
-}
-
-.error-card .zaman-cell {
-  width: 140px;
-  text-align: right;
-  font-size: 0.85rem;
-}
-
-.error-card .zaman-cell div {
+.error-card .hata-table thead th {
+  border: none;
+  padding: 1rem 1.25rem;
+  font-size: 0.875rem;
   font-weight: 600;
-  color: #495057;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
 }
 
-.error-card .badge {
-  font-size: 0.7rem;
+.error-card .hata-table thead th i {
+  color: #f1c40f;
+  text-shadow: 0 0 8px rgba(241, 196, 15, 0.4);
+}
+
+.error-card .hata-table thead .th-tip { width: 140px; text-align: center; }
+.error-card .hata-table thead .th-kod { width: 130px; text-align: center; }
+.error-card .hata-table thead .th-aciklama { width: auto; text-align: left; }
+.error-card .hata-table thead .th-zaman { width: 170px; text-align: center; }
+
+/* Tablo Başlığı - Basit */
+.error-card .hata-table thead th {
+  background-color: #f8f9fa;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.error-card .hata-table thead .th-aciklama {
+  text-align: left;
+}
+
+/* Hata Satırları */
+.error-card .hata-table tbody .hata-row {
+  border-left: 3px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.error-card .hata-table tbody .hata-row.kritik-row {
+  border-left-color: #dc2626;
+  background-color: rgba(254, 242, 242, 0.5);
+}
+
+.error-card .hata-table tbody .hata-row.uyari-row {
+  border-left-color: #f59e0b;
+  background-color: rgba(255, 251, 235, 0.5);
+}
+
+.error-card .hata-table tbody .hata-row:hover {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+}
+
+/* Tablo Hücreleri */
+.error-card .hata-table td {
+  border-bottom: 1px solid #f3f4f6;
+  padding: 0.75rem;
+  vertical-align: middle;
+}
+
+/* Tip Badge */
+.error-card .tip-cell {
+  text-align: center;
+  width: 120px;
+}
+
+.error-card .hata-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
   padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.error-card .hata-badge.badge-kritik {
+  background-color: #dc2626;
+  color: white;
+}
+
+.error-card .hata-badge.badge-uyari {
+  background-color: #f59e0b;
+  color: black;
+}
+
+/* Kod Hücresi */
+.error-card .kod-cell {
+  text-align: center;
+}
+
+.error-card .kod-wrapper {
+  display: inline-block;
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.error-card .kod-text {
+  font-family: 'Courier New', 'Monaco', monospace;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: 0.5px;
+}
+
+/* Açıklama Hücresi */
+.error-card .aciklama-cell {
+  padding: 1.25rem 1.5rem !important;
+}
+
+.error-card .aciklama-wrapper {
+  max-width: 100%;
+}
+
+.error-card .aciklama-text {
+  margin: 0;
+  color: #475569;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+/* Zaman Hücresi */
+.error-card .zaman-cell {
+  text-align: center;
+  padding-right: 1.5rem !important;
+}
+
+.error-card .zaman-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.error-card .tarih {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1e293b;
+  background: linear-gradient(135deg, #e2e8f0, #f1f5f9);
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+}
+
+.error-card .saat {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  font-family: 'Courier New', monospace;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .error-card .hata-table thead th {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.8rem;
+  }
+  
+  .error-card .hata-table td {
+    padding: 1rem 0.75rem;
+  }
+  
+  .error-card .hata-badge {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.7rem;
+  }
 }
 
 /* Boş durum mesajları */

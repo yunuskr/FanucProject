@@ -154,36 +154,54 @@
         <div class="chart-container">
             @if (Model?.Program?.Hatalar != null && Model.Program.Hatalar.Any())
             {
-                <!-- Basit HTML Tablosu -->
-                <div class="table-responsive">
-                    <table class="table table-hover hata-table">
-                        <tbody>
-                            @foreach (var hata in Model.Program.Hatalar.OrderByDescending(h => h.Zaman))
-                            {
-                                var tipClass = hata.Tip == 1 ? "table-danger" : "table-warning";
-                                var tipIcon = hata.Tip == 1 ? "fas fa-exclamation-circle" : "fas fa-exclamation-triangle";
-                                var tipText = hata.Tip == 1 ? "KRİTİK" : "UYARI";
-                                
-                                <tr class="@tipClass">
-                                    <td class="tip-cell">
-                                        <span class="badge bg-danger" style="@(hata.Tip == 1 ? "background-color: #dc3545 !important;" : "background-color: #ffc107 !important; color: #000;")">
-                                            <i class="@tipIcon me-1"></i>@tipText
-                                        </span>
-                                    </td>
-                                    <td class="kod-cell">
-                                        <strong>@hata.Kod</strong>
-                                    </td>
-                                    <td class="aciklama-cell">
-                                        @hata.Aciklama
-                                    </td>
-                                    <td class="zaman-cell">
-                                        <div>@hata.Zaman.ToString("dd.MM.yyyy")</div>
-                                        <small class="text-muted">@hata.Zaman.ToString("HH:mm:ss")</small>
-                                    </td>
+                <!-- Premium Hata Tablosu -->
+                <div class="hata-table-container">
+                    <div class="table-responsive">
+                        <table class="table hata-table">
+                            <thead>
+                                <tr>
+                                    <th class="th-tip">Seviye</th>
+                                    <th class="th-kod">Hata Kodu</th>
+                                    <th class="th-aciklama">Açıklama</th>
+                                    <th class="th-zaman">Zaman</th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @foreach (var hata in Model.Program.Hatalar.OrderByDescending(h => h.Zaman))
+                                {
+                                    var tipClass = hata.Tip == 1 ? "kritik-row" : "uyari-row";
+                                    var tipIcon = hata.Tip == 1 ? "fas fa-exclamation-circle" : "fas fa-exclamation-triangle";
+                                    var tipText = hata.Tip == 1 ? "KRİTİK" : "UYARI";
+                                    var badgeClass = hata.Tip == 1 ? "badge-kritik" : "badge-uyari";
+                                    
+                                    <tr class="hata-row @tipClass">
+                                        <td class="tip-cell">
+                                            <span class="hata-badge @badgeClass">
+                                                <i class="@tipIcon"></i>
+                                                <span>@tipText</span>
+                                            </span>
+                                        </td>
+                                        <td class="kod-cell">
+                                            <div class="kod-wrapper">
+                                                <span class="kod-text">@hata.Kod</span>
+                                            </div>
+                                        </td>
+                                        <td class="aciklama-cell">
+                                            <div class="aciklama-wrapper">
+                                                <p class="aciklama-text">@hata.Aciklama</p>
+                                            </div>
+                                        </td>
+                                        <td class="zaman-cell">
+                                            <div class="zaman-wrapper">
+                                                <div class="tarih">@hata.Zaman.ToString("dd.MM.yyyy")</div>
+                                                <div class="saat">@hata.Zaman.ToString("HH:mm:ss")</div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             }
             else
