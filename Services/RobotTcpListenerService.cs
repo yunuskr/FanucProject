@@ -339,12 +339,12 @@ namespace FanucRelease.Services
                         {
                             using (var scope = _services.CreateScope())
                             {
-                                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                                db.ProgramVerileri.Add(programVerisi);
-                                db.Hatalar.AddRange(hatalar);
-                                db.Kaynaklar.AddRange(kaynaklar);
-                                db.AnlikKaynaklar.AddRange(anlikKaynaklar);
-                                await db.SaveChangesAsync();
+                                // var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                                // db.ProgramVerileri.Add(programVerisi);
+                                // db.Hatalar.AddRange(hatalar);
+                                // db.Kaynaklar.AddRange(kaynaklar);
+                                // db.AnlikKaynaklar.AddRange(anlikKaynaklar);
+                                // await db.SaveChangesAsync();
                             }
                         }
                         catch (Exception ex)

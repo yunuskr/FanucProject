@@ -5,201 +5,628 @@
 }
 
 <style>
-  /* sayfaya nefes */
-  .metric-card .card-body{ display:flex; align-items:center; gap:.75rem; }
-  .metric-card .title{ font-weight:600; }
-  .metric-card .value{ font-size:1.25rem; margin:0; }
-  .metric-card .sub{ font-size:.8125rem; color:#6c757d; }
-
-  .status-dot{
-      display:inline-block; width:14px; height:14px; border-radius:999px; background:#6c757d;
-      box-shadow:0 0 0 3px rgba(0,0,0,.04) inset;
+  /* === PREMIUM DESIGN SYSTEM === */
+  :root {
+    /* Premium Gold Color Palette */
+    --gold-primary: #face00;
+    --gold-secondary: #f09701;
+    --gold-accent: #ffd700;
+    --gold-dark: #e6940b;
+    --gold-light: #fff8dc;
+    
+    /* Advanced Gradients */
+    --gradient-gold: linear-gradient(135deg, #f09701 0%, #face00 50%, #ffd700 100%);
+    --gradient-gold-subtle: linear-gradient(135deg, rgba(240,151,1,0.1) 0%, rgba(250,206,0,0.1) 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.05) 100%);
+    --gradient-dark: linear-gradient(135deg, #15120a 0%, #1c150a 100%);
+    
+    /* Premium Shadows */
+    --shadow-subtle: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+    --shadow-soft: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.06);
+    --shadow-medium: 0 8px 25px rgba(0,0,0,0.12), 0 3px 10px rgba(0,0,0,0.08);
+    --shadow-strong: 0 15px 35px rgba(0,0,0,0.15), 0 6px 15px rgba(0,0,0,0.1);
+    --shadow-gold: 0 8px 32px rgba(240,151,1,0.3), 0 3px 12px rgba(250,206,0,0.2);
+    --shadow-inner: inset 0 2px 4px rgba(0,0,0,0.06);
+    
+    /* Typography Scale */
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 1.875rem;
+    --font-size-4xl: 2.25rem;
+    
+    /* Spacing System */
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    --space-2xl: 3rem;
+    
+    /* Border Radius */
+    --radius-sm: 0.25rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    --radius-2xl: 1.5rem;
+    --radius-full: 9999px;
+    
+    /* Animation System */
+    --duration-fast: 150ms;
+    --duration-normal: 300ms;
+    --duration-slow: 500ms;
+    --easing-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    --easing-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
 
-  .chart-card .card-header{ background:transparent; }
-  .chart-card .card-body{ padding-bottom:.5rem; }
-  .chart-card .chart-box{ height:220px; }
-  .chart-card .card-footer{ border-top:1px solid rgba(0,0,0,.06); background:transparent; }
-  .chart-card table.table-sm td, 
-  .chart-card table.table-sm th{ padding:.45rem .6rem; }
+  /* Premium Base Styles */
+  * { box-sizing: border-box; }
+  
+  /* Enhanced Typography */
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+    letter-spacing: -0.01em;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+  }
+  
+  /* Premium Card System */
+  .card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-soft);
+    transition: all var(--duration-normal) var(--easing-smooth);
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--gradient-glass);
+    opacity: 0.5;
+  }
+  
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+    border-color: rgba(240, 151, 1, 0.3);
+  }
+  
+  /* Premium Glass Morphism Effect */
+  .glass-card {
+    background: linear-gradient(135deg, 
+      rgba(255, 255, 255, 0.15) 0%, 
+      rgba(255, 255, 255, 0.05) 100%);
+    backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: var(--shadow-medium);
+  }
+  
+  /* Premium Metric Cards */
+  .metric-card {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .metric-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100px;
+    height: 100%;
+    background: var(--gradient-gold-subtle);
+    opacity: 0.6;
+    transform: skew(-15deg);
+    transition: all var(--duration-normal) var(--easing-smooth);
+  }
+  
+  .metric-card:hover::after {
+    opacity: 0.8;
+    transform: skew(-15deg) translateX(10px);
+  }
+  
+  .metric-card .card-body {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    padding: var(--space-xl);
+  }
+  
+  .metric-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: var(--shadow-subtle);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .metric-icon::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--gradient-glass);
+    opacity: 0.3;
+  }
+  
+  .metric-title {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: var(--space-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  .metric-value {
+    font-size: var(--font-size-2xl);
+    font-weight: 800;
+    color: #111827;
+    margin: 0;
+    line-height: 1;
+  }
+  
+  .metric-subtitle {
+    font-size: var(--font-size-xs);
+    color: #6B7280;
+    margin: 0;
+  }
+  
+  /* Premium Status Indicators */
+  .status-indicator {
+    position: relative;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  
+  .status-indicator.active {
+    background: #10B981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    animation: pulse-green 2s infinite;
+  }
+  
+  .status-indicator.inactive {
+    background: #DC2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+  }
+  
+  @@keyframes pulse-green {
+    0%, 100% { 
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+      transform: scale(1);
+    }
+    50% { 
+      box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.1);
+      transform: scale(1.1);
+    }
+  }
+  
+  /* Premium Chart Cards */
+  .chart-card {
+    height: 100%;
+    position: relative;
+  }
+  
+  .chart-card .card-header {
+    background: var(--gradient-gold-subtle);
+    border-bottom: 1px solid rgba(240, 151, 1, 0.1);
+    padding: var(--space-lg) var(--space-xl);
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+  }
+  
+  .chart-card .card-title {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+  
+  .chart-card .chart-container {
+    padding: var(--space-lg);
+    height: 280px;
+    position: relative;
+  }
+  
+  /* Premium Badges */
+  .badge-premium {
+    background: var(--gradient-gold);
+    color: #1F2937;
+    font-weight: 600;
+    font-size: var(--font-size-xs);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-subtle);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  /* Premium Tables */
+  .table-premium {
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  
+  .table-premium thead th {
+    background: var(--gradient-gold-subtle);
+    color: #374151;
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    padding: var(--space-md) var(--space-lg);
+    border: none;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  
+  .table-premium thead th:first-child {
+    border-radius: var(--radius-md) 0 0 0;
+  }
+  
+  .table-premium thead th:last-child {
+    border-radius: 0 var(--radius-md) 0 0;
+  }
+  
+  .table-premium tbody td {
+    padding: var(--space-md) var(--space-lg);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    background: rgba(255, 255, 255, 0.7);
+    transition: all var(--duration-fast) var(--easing-smooth);
+  }
+  
+  .table-premium tbody tr:hover td {
+    background: rgba(240, 151, 1, 0.08);
+    transform: scale(1.01);
+  }
+  
+  /* New Data Animation */
+  .table-row-new {
+    animation: slideInGlow var(--duration-slow) var(--easing-bounce);
+  }
+  
+  @@keyframes slideInGlow {
+    0% {
+      background: rgba(240, 151, 1, 0.4);
+      transform: translateX(-20px) scale(1.02);
+    }
+    100% {
+      background: transparent;
+      transform: translateX(0) scale(1);
+    }
+  }
+  
   /* === SAYFAYA ÖZEL ALTIN ARKAPLAN (login ile aynı) === */
-:root{
-  --gold:#face00;      /* parlak sarı */
-  --amber:#f09701;     /* sıcak turuncu */
-  --dark:#15120a;      /* çok koyu kahve/siyah */
-}
+  :root{
+    --gold:#face00;      /* parlak sarı */
+    --amber:#f09701;     /* sıcak turuncu */
+    --dark:#15120a;      /* çok koyu kahve/siyah */
+  }
 
-/* Layout'taki body arkaplanını ez */
-body{
-  background-color:var(--dark) !important;
-  background-image:
-    /* merkez ışık */
-    radial-gradient(1200px 800px at 38% 35%,
-      rgba(250,206,0,.95) 0%,
-      rgba(240,151,1,.65) 34%,
-      rgba(240,151,1,.25) 50%,
-      rgba(21,18,10,0) 68%),
-    /* sağ üst sıcaklık */
-    radial-gradient(900px 600px at 88% 8%,
-      rgba(240,151,1,.35) 0%,
-      rgba(21,18,10,0) 60%),
-    /* sol alt karartma */
-    radial-gradient(1000px 700px at 0% 100%,
-      rgba(0,0,0,.55) 10%,
-      rgba(0,0,0,0) 60%),
-    /* zemin */
-    linear-gradient(180deg,#1c150a 0%, var(--dark) 100%);
-  background-attachment:fixed;
-  background-size:cover;
-}
-
-/* yumuşak vignette + hafif dither (banding azaltır) */
-body::after{
-  content:""; position:fixed; inset:0; pointer-events:none;
-  background: radial-gradient(150% 130% at 50% 50%,
-    rgba(0,0,0,0) 60%, rgba(0,0,0,.45) 100%);
-  mix-blend-mode:multiply;
-}
-body::before{
-  content:""; position:fixed; inset:-2px; pointer-events:none;
-  background: repeating-linear-gradient(0deg,
-    rgba(255,255,255,.015) 0 2px,
-    rgba(0,0,0,.02) 2px 4px);
-  opacity:.25; mix-blend-mode:overlay;
-}
-
-/* Layout'taki içerik katmanının beyaz film efektini kaldır */
-.content-area{ background: transparent !important; }
-/* === MOR -> ALTIN OVERRIDE'LAR === */
-:root{
-  --gold-start:#f09701;
-  --gold-end:#face00;
-  --gold-grad:linear-gradient(90deg, var(--gold-start), var(--gold-end));
-  /* sayfadaki tüm "primary" temayı altına çek */
-  --gradient-primary: var(--gold-grad);
-}
-.brand-gold {
-    color: #f5c518; /* altın sarısı */
-}
-
-/* RoboEye başlık kartı ve başlık yazısı */
-.dashboard-header::before{ background: var(--gold-grad) !important; }
-.dashboard-title{
-  background: none !important;
-  -webkit-text-fill-color: initial !important;
-  color:#fff !important;
-  text-shadow: 0 2px 8px rgba(0,0,0,.35);
-}
-
-/* "En son Program" kartının mor başlığını altın yap */
-.program-header{ background: var(--gold-grad) !important; }
-.program-header::before{
-  background: rgba(255,255,255,.12) !important; /* cam efekti kalsın */
-}
-
-/* Geçmiş Programlar tablosu başlığı */
-.history-table thead{ background: var(--gold-grad) !important; }
-
-/* Küçük altın vurgular */
-.operator-info i{ color: var(--gold-start) !important; }
-.program-version{
-  background: rgba(240,151,1,.12) !important;
-  color:#2c3e50;
-}
-
-/* Scrollbarları da altınla uyumlu yap */
-.history-table-container::-webkit-scrollbar-thumb,
-.kaynak-list::-webkit-scrollbar-thumb{
-  background: var(--gold-grad) !important;
-}
-.kaynak-list-title{ border-bottom:2px solid rgba(240,151,1,.25) !important; }
+  /* Layout'taki body arkaplanını ez */
+  body {
+    background-color: var(--dark) !important;
+    background-image:
+      /* merkez ışık */
+      radial-gradient(1200px 800px at 38% 35%,
+        rgba(250,206,0,.95) 0%,
+        rgba(240,151,1,.65) 34%,
+        rgba(240,151,1,.25) 50%,
+        rgba(21,18,10,0) 68%),
+      /* sağ üst sıcaklık */
+      radial-gradient(900px 600px at 88% 8%,
+        rgba(240,151,1,.35) 0%,
+        rgba(21,18,10,0) 60%),
+      /* sol alt karartma */
+      radial-gradient(1000px 700px at 0% 100%,
+        rgba(0,0,0,.55) 10%,
+        rgba(0,0,0,0) 60%),
+      /* zemin */
+      linear-gradient(180deg,#1c150a 0%, var(--dark) 100%);
+    background-attachment: fixed;
+    background-size: cover;
+    position: relative;
+  }
+  
+  /* Enhanced texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(circle at 20% 80%, rgba(240,151,1,0.03) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(250,206,0,0.03) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  
+  /* Subtle noise texture */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      repeating-linear-gradient(
+        45deg,
+        rgba(255,255,255,0.01) 0px,
+        rgba(255,255,255,0.01) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+    pointer-events: none;
+    z-index: 0;
+  }
+  
+  /* Content area enhancement */
+  .content-area { 
+    background: transparent !important;
+    position: relative;
+    z-index: 1;
+  }
+  
+  /* Premium Scrollbars */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-full);
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: var(--gradient-gold);
+    border-radius: var(--radius-full);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #e6940b 0%, #f0b90b 100%);
+  }
+  
+  /* Page Entrance Animation */
+  .page-container {
+    animation: pageEnter 0.8s var(--easing-smooth) forwards;
+  }
+  
+  @@keyframes pageEnter {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Responsive Enhancements */
+  @@media (max-width: 768px) {
+    .metric-card .card-body {
+      padding: var(--space-lg);
+    }
+    
+    .metric-icon {
+      width: 48px;
+      height: 48px;
+      font-size: 1.25rem;
+    }
+    
+    .metric-value {
+      font-size: var(--font-size-xl);
+    }
+  }
+  
+  /* Focus States */
+  .card:focus-within {
+    outline: 2px solid rgba(240, 151, 1, 0.5);
+    outline-offset: 2px;
+  }
+  
+  /* Loading States */
+  .loading-shimmer {
+    background: linear-gradient(90deg, 
+      rgba(255,255,255,0.1) 25%, 
+      rgba(240,151,1,0.1) 50%, 
+      rgba(255,255,255,0.1) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+  
+  @@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  
+  /* Entrance Animations */
+  @@keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 </style>
 
-<div class="container-fluid mt-3">
-    <!-- Başlık -->
-    <div class="row mb-3">
+<div class="container-fluid py-4 page-container">
+    <!-- Premium Header -->
+    <div class="row mb-4">
         <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-body d-flex align-items-center justify-content-between">
-                    <div>
-                        <h4 class="mb-1">Robot Canlı İzleme</h4>
-                        <small class="text-muted">Gerçek zamanlı kaynak verileri</small>
+            <div class="card glass-card" style="background: linear-gradient(135deg, rgba(250, 206, 0, 0.95) 0%, rgba(240, 151, 1, 0.9) 50%, rgba(218, 165, 32, 0.95) 100%); border: 1px solid rgba(240,151,1,0.3); box-shadow: 0 8px 32px rgba(240, 151, 1, 0.15);">
+                <div class="card-body d-flex align-items-center justify-content-between py-4 px-4">
+                    <div class="d-flex align-items-center">
+                        <div class="me-4" style="width: 60px; height: 60px; background: var(--gradient-gold); border-radius: var(--radius-xl); display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-gold);">
+                            <i class="fas fa-robot" style="font-size: 1.75rem; color: #1F2937;"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-2" style="font-size: var(--font-size-3xl); font-weight: 800; color: #111827; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                Robot Canlı İzleme
+                            </h3>
+                            <p class="mb-0" style="color: #6B7280; font-size: var(--font-size-lg); font-weight: 500;">
+                                <i class="fas fa-satellite-dish me-2" style="color: var(--gold-secondary);"></i>
+                                Gerçek zamanlı kaynak verileri ve performans analizi
+                            </p>
+                        </div>
                     </div>
-                    <div>
+                    <div class="d-flex align-items-center gap-3">
                         @if (kaynakId.HasValue)
                         {
-                            <span class="badge bg-primary">Kaynak ID: @kaynakId.Value</span>
+                            <div class="badge-premium d-flex align-items-center gap-2">
+                                <i class="fas fa-layer-group"></i>
+                                <span style="font-weight: 700;">Kaynak ID: @kaynakId.Value</span>
+                            </div>
                         }
+                        <div class="d-flex align-items-center gap-2 px-3 py-2" style="background: rgba(250, 252, 251, 0.836); border-radius: var(--radius-lg); border: 1px solid rgb(210, 216, 214);">
+                            <div class="status-indicator active"></div>
+                            <span style="color: #10B981; font-weight: 600; font-size: var(--font-size-sm);">Sistem Aktif</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Durum Kartları -->
-    <div class="row g-3 mb-3">
-        <div class="col-md-4">
-            <div class="card metric-card h-100 shadow-sm">
-                <div class="card-body">
-                    <span id="dot-status" class="status-dot"></span>
-                    <div>
-                        <div class="title">Robot Durumu</div>
-                        <div id="txt-status" class="sub">Robot durdu / veri yok</div>
-                    </div>
-                    <div class="ms-auto text-end">
-                        <div class="sub">Son güncelleme:</div>
-                        <div class="sub" id="last-upd">-</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card metric-card h-100 shadow-sm">
-                <div class="card-body">
-                    <i class="fas fa-tachometer-alt fa-lg text-primary"></i>
-                    <div>
-                        <div class="title">Robot Hızı</div>
-                        <p class="value"><span id="val-speed">0</span> <small class="text-muted">mm/s</small></p>
-                    </div>
-                    <span class="badge bg-light text-dark ms-auto">Anlık</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card metric-card h-100 shadow-sm">
-                <div class="card-body">
-                    <i class="fas fa-exclamation-triangle fa-lg text-danger"></i>
-                    <div>
-                        <div class="title">Alarm</div>
-                        <p id="val-alarm" class="mb-0 text-muted">Yok</p>
-                        <small id="val-alarm-msg" class="sub">-</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Grafik Kartları -->
-    <div class="row g-3">
-        <!-- Amper -->
+    <!-- Premium Metric Cards -->
+    <div class="row g-4 mb-5">
         <div class="col-lg-4">
-            <div class="card chart-card h-100 shadow-sm">
-                <div class="card-header py-2">
-                    <strong>Amper (A)</strong>
-                </div>
+            <div class="card metric-card h-100" style="animation: fadeInUp 0.6s ease-out 0.1s both;">
                 <div class="card-body">
-                    <div class="chart-box">
-                        <canvas id="chartAmper"></canvas>
+                    <div class="metric-icon" id="robot-icon-container" style="background: linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0.05) 100%); color: #10B981; transition: all 0.3s ease;">
+                        <i class="fas fa-robot" style="font-size: 1.75rem;"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="metric-title">Robot Durumu</div>
+                        <div class="metric-value" id="txt-status" style="color: #10B981; font-size: var(--font-size-lg); font-weight: 400;">Sistem Hazır</div>
+                        <div class="metric-subtitle mt-3">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <span id="status-icon" class="status-indicator active me-2" style="width: 10px; height: 10px;"></span>
+                                    <span style="color: #9CA3AF; font-size: 0.8rem; font-weight: 500;">Canlı Bağlantı</span>
+                                </div>
+                                <div style="color: #6B7280; font-size: 0.75rem;">
+                                    <span id="last-upd" style="color: #374151; font-weight: 600;">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ms-auto">
+                        <div class="badge-premium" id="status-badge" style="background: rgba(16,185,129,0.1); color: #10B981;">
+                            <i class="fas fa-wifi me-1"></i>Canlı
+                        </div>
                     </div>
                 </div>
-                <div class="card-footer p-0">
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card metric-card h-100" style="animation: fadeInUp 0.6s ease-out 0.2s both;">
+                <div class="card-body">
+                    <div class="metric-icon" style="background: linear-gradient(135deg, rgba(240,151,1,0.15) 0%, rgba(250,206,0,0.05) 100%); color: var(--gold-secondary);">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="metric-title">Robot Hızı</div>
+                        <div class="metric-value">
+                            <span id="val-speed" style="color: var(--gold-secondary);">0</span>
+                            <small style="color: #6B7280; font-size: var(--font-size-sm); font-weight: 500;">mm/s</small>
+                        </div>
+                        <div class="metric-subtitle">Anlık hareket hızı</div>
+                    </div>
+                    <div class="ms-auto">
+                        <div class="badge-premium">
+                            <i class="fas fa-bolt me-1"></i>Anlık
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card metric-card h-100" style="animation: fadeInUp 0.6s ease-out 0.3s both;">
+                <div class="card-body">
+                    <div class="metric-icon" style="background: linear-gradient(135deg, rgba(239,68,68,0.15) 0%, rgba(239,68,68,0.05) 100%); color: #EF4444;">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="metric-title">Sistem Durumu</div>
+                        <div class="metric-value">
+                            <span id="val-alarm" style="color: #10B981;">Normal</span>
+                        </div>
+                        <div class="metric-subtitle">
+                            <span id="val-alarm-msg">Alarm bulunmuyor</span>
+                        </div>
+                    </div>
+                    <div class="ms-auto">
+                        <div id="alarm-indicator" class="badge-premium" style="background: rgba(16,185,129,0.1); color: #10B981;">
+                            <i class="fas fa-check-circle me-1"></i>OK
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Premium Chart Visualization -->
+    <div class="row g-4">
+        <!-- Amper Chart -->
+        <div class="col-lg-4">
+            <div class="card chart-card h-100" style="animation: fadeInUp 0.6s ease-out 0.4s both;">
+                <div class="card-header">
+                    <h5 class="chart-card .card-title">
+                        <i class="fas fa-bolt" style="color: #DC2626;"></i>
+                        Amper Değerleri
+                    </h5>
+                    <div class="badge-premium" style="background: rgba(220,38,38,0.1); color: #DC2626;">
+                        <i class="fas fa-chart-area me-1"></i>Gerçek Zamanlı
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="chartAmper"></canvas>
+                </div>
+                <div class="card-footer p-0" style="border-top: 1px solid rgba(0,0,0,0.08);">
                     <div class="table-responsive">
-                        <table class="table table-sm mb-0 align-middle">
-                            <thead class="table-light">
+                        <table class="table table-premium mb-0">
+                            <thead>
                                 <tr>
-                                    <th>Zaman</th><th>Amper</th>
+                                    <th style="width: 45%;">
+                                        <i class="fas fa-clock me-1" style="color: #6B7280;"></i>
+                                        Zaman
+                                    </th>
+                                    <th>
+                                        <i class="fas fa-bolt me-1" style="color: #DC2626;"></i>
+                                        Amper (A)
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody id="tbl-amper"></tbody>
@@ -209,23 +636,34 @@ body::before{
             </div>
         </div>
 
-        <!-- Voltaj -->
+        <!-- Voltaj Chart -->
         <div class="col-lg-4">
-            <div class="card chart-card h-100 shadow-sm">
-                <div class="card-header py-2">
-                    <strong>Voltaj (V)</strong>
-                </div>
-                <div class="card-body">
-                    <div class="chart-box">
-                        <canvas id="chartVoltaj"></canvas>
+            <div class="card chart-card h-100" style="animation: fadeInUp 0.6s ease-out 0.5s both;">
+                <div class="card-header">
+                    <h5 class="chart-card .card-title">
+                        <i class="fas fa-plug" style="color: #059669;"></i>
+                        Voltaj Değerleri
+                    </h5>
+                    <div class="badge-premium" style="background: rgba(5,150,105,0.1); color: #059669;">
+                        <i class="fas fa-chart-area me-1"></i>Gerçek Zamanlı
                     </div>
                 </div>
-                <div class="card-footer p-0">
+                <div class="chart-container">
+                    <canvas id="chartVoltaj"></canvas>
+                </div>
+                <div class="card-footer p-0" style="border-top: 1px solid rgba(0,0,0,0.08);">
                     <div class="table-responsive">
-                        <table class="table table-sm mb-0 align-middle">
-                            <thead class="table-light">
+                        <table class="table table-premium mb-0">
+                            <thead>
                                 <tr>
-                                    <th>Zaman</th><th>Voltaj</th>
+                                    <th style="width: 45%;">
+                                        <i class="fas fa-clock me-1" style="color: #6B7280;"></i>
+                                        Zaman
+                                    </th>
+                                    <th>
+                                        <i class="fas fa-plug me-1" style="color: #059669;"></i>
+                                        Voltaj (V)
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody id="tbl-voltaj"></tbody>
@@ -235,23 +673,34 @@ body::before{
             </div>
         </div>
 
-        <!-- Tel Sürme Hızı -->
+        <!-- Tel Sürme Hızı Chart -->
         <div class="col-lg-4">
-            <div class="card chart-card h-100 shadow-sm">
-                <div class="card-header py-2">
-                    <strong>Tel Sürme Hızı</strong>
-                </div>
-                <div class="card-body">
-                    <div class="chart-box">
-                        <canvas id="chartTel"></canvas>
+            <div class="card chart-card h-100" style="animation: fadeInUp 0.6s ease-out 0.6s both;">
+                <div class="card-header">
+                    <h5 class="chart-card .card-title">
+                        <i class="fas fa-wind" style="color: var(--gold-secondary);"></i>
+                        Tel Sürme Hızı
+                    </h5>
+                    <div class="badge-premium">
+                        <i class="fas fa-chart-area me-1"></i>Gerçek Zamanlı
                     </div>
                 </div>
-                <div class="card-footer p-0">
+                <div class="chart-container">
+                    <canvas id="chartTel"></canvas>
+                </div>
+                <div class="card-footer p-0" style="border-top: 1px solid rgba(0,0,0,0.08);">
                     <div class="table-responsive">
-                        <table class="table table-sm mb-0 align-middle">
-                            <thead class="table-light">
+                        <table class="table table-premium mb-0">
+                            <thead>
                                 <tr>
-                                    <th>Zaman</th><th>Tel Hızı</th>
+                                    <th style="width: 45%;">
+                                        <i class="fas fa-clock me-1" style="color: #6B7280;"></i>
+                                        Zaman
+                                    </th>
+                                    <th>
+                                        <i class="fas fa-wind me-1" style="color: var(--gold-secondary);"></i>
+                                        Hız
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody id="tbl-tel"></tbody>
@@ -277,10 +726,52 @@ body::before{
                 if (res.ok) {
                     const data = await res.json();
                     const txtStatus = document.getElementById('txt-status');
+                    const statusIcon = document.getElementById('status-icon');
+                    const robotIconContainer = document.getElementById('robot-icon-container');
+                    const statusBadge = document.getElementById('status-badge');
+                    
                     if (data.status === "Calisiyor") {
                         txtStatus.textContent = "Robot çalışıyor";
+                        txtStatus.style.color = "#10B981"; // Yeşil
+                        
+                        // Robot icon container yeşil
+                        if (robotIconContainer) {
+                            robotIconContainer.style.background = "linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0.05) 100%)";
+                            robotIconContainer.style.color = "#10B981";
+                        }
+                        
+                        // Status indicator yeşil
+                        if (statusIcon) {
+                            statusIcon.style.background = "#10B981";
+                            statusIcon.classList.add('active');
+                        }
+                        
+                        // Badge yeşil
+                        if (statusBadge) {
+                            statusBadge.style.background = "rgba(16,185,129,0.1)";
+                            statusBadge.style.color = "#10B981";
+                        }
                     } else {
-                        txtStatus.textContent = "Robot durdu / veri yok";
+                        txtStatus.textContent = "Robot durdu";
+                        txtStatus.style.color = "#DC2626"; // Kırmızı
+                        
+                        // Robot icon container kırmızı
+                        if (robotIconContainer) {
+                            robotIconContainer.style.background = "linear-gradient(135deg, rgba(220,38,38,0.15) 0%, rgba(220,38,38,0.05) 100%)";
+                            robotIconContainer.style.color = "#DC2626";
+                        }
+                        
+                        // Status indicator kırmızı
+                        if (statusIcon) {
+                            statusIcon.style.background = "#DC2626";
+                            statusIcon.classList.remove('active');
+                        }
+                        
+                        // Badge kırmızı
+                        if (statusBadge) {
+                            statusBadge.style.background = "rgba(220,38,38,0.1)";
+                            statusBadge.style.color = "#DC2626";
+                        }
                     }
                 }
             } catch {}
@@ -296,6 +787,10 @@ body::before{
         connection.on("ReceiveRobotStatus", (status, prog_baslat) => {
             // Robot durumu alanını güncelle
             const txtStatus = document.getElementById('txt-status');
+            const statusIcon = document.getElementById('status-icon');
+            const robotIconContainer = document.getElementById('robot-icon-container');
+            const statusBadge = document.getElementById('status-badge');
+            
             if (status === "Calisiyor") {
                 // Yeni program başladığında grafik ve tablo verilerini sıfırla
                 dataPoints.labels = [];
@@ -320,9 +815,47 @@ body::before{
                 document.getElementById('tbl-tel').innerHTML = '';
 
                 txtStatus.textContent = "Robot çalışıyor";
+                txtStatus.style.color = "#10B981"; // Yeşil
+                
+                // Robot icon container yeşil
+                if (robotIconContainer) {
+                    robotIconContainer.style.background = "linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0.05) 100%)";
+                    robotIconContainer.style.color = "#10B981";
+                }
+                
+                // Status indicator yeşil
+                if (statusIcon) {
+                    statusIcon.style.background = "#10B981";
+                    statusIcon.classList.add('active');
+                }
+                
+                // Badge yeşil
+                if (statusBadge) {
+                    statusBadge.style.background = "rgba(16,185,129,0.1)";
+                    statusBadge.style.color = "#10B981";
+                }
             } else {
                 // Robot durduğunda sadece durum metni güncellensin, veriler korunacak
-                txtStatus.textContent = "Robot durdu / veri yok";
+                txtStatus.textContent = "Robot durdu";
+                txtStatus.style.color = "#DC2626"; // Kırmızı
+                
+                // Robot icon container kırmızı
+                if (robotIconContainer) {
+                    robotIconContainer.style.background = "linear-gradient(135deg, rgba(220,38,38,0.15) 0%, rgba(220,38,38,0.05) 100%)";
+                    robotIconContainer.style.color = "#DC2626";
+                }
+                
+                // Status indicator kırmızı
+                if (statusIcon) {
+                    statusIcon.style.background = "#DC2626";
+                    statusIcon.classList.remove('active');
+                }
+                
+                // Badge kırmızı
+                if (statusBadge) {
+                    statusBadge.style.background = "rgba(220,38,38,0.1)";
+                    statusBadge.style.color = "#DC2626";
+                }
             }
         });
 
@@ -470,13 +1003,51 @@ body::before{
         function setStatus(ok, speed, alarm, msg, lastTimeIso) {
             const dot = document.getElementById('dot-status');
             const txt = document.getElementById('txt-status');
+            const statusIcon = document.getElementById('status-icon');
+            const robotIconContainer = document.getElementById('robot-icon-container');
+            const statusBadge = document.getElementById('status-badge');
             const spd = document.getElementById('val-speed');
             const alm = document.getElementById('val-alarm');
             const almMsg = document.getElementById('val-alarm-msg');
             const upd = document.getElementById('last-upd');
 
-            dot.style.background = ok ? '#28a745' : '#dc3545';
-            txt.textContent = ok ? 'Robot çalışıyor' : 'Robot durdu / veri yok';
+            // Robot durumu renkleri
+            if (dot) dot.style.background = ok ? '#10B981' : '#DC2626';
+            txt.textContent = ok ? 'Robot çalışıyor' : 'Robot durdu';
+            txt.style.color = ok ? '#10B981' : '#DC2626'; // Yeşil veya kırmızı
+            
+            // Robot icon container rengi
+            if (robotIconContainer) {
+                if (ok) {
+                    robotIconContainer.style.background = "linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0.05) 100%)";
+                    robotIconContainer.style.color = "#10B981";
+                } else {
+                    robotIconContainer.style.background = "linear-gradient(135deg, rgba(220,38,38,0.15) 0%, rgba(220,38,38,0.05) 100%)";
+                    robotIconContainer.style.color = "#DC2626";
+                }
+            }
+            
+            // Status icon rengi
+            if (statusIcon) {
+                statusIcon.style.background = ok ? '#10B981' : '#DC2626';
+                if (ok) {
+                    statusIcon.classList.add('active');
+                } else {
+                    statusIcon.classList.remove('active');
+                }
+            }
+            
+            // Badge rengi
+            if (statusBadge) {
+                if (ok) {
+                    statusBadge.style.background = "rgba(16,185,129,0.1)";
+                    statusBadge.style.color = "#10B981";
+                } else {
+                    statusBadge.style.background = "rgba(220,38,38,0.1)";
+                    statusBadge.style.color = "#DC2626";
+                }
+            }
+            
             spd.textContent = speed ?? 0;
             alm.textContent = alarm ? 'VAR' : 'Yok';
             alm.className = alarm ? 'mb-0 text-danger' : 'mb-0 text-muted';
