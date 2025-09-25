@@ -30,6 +30,7 @@ namespace FanucRelease.Services
         // Robot durumları
         private string _robotStatus = "Durdu";
         private string _aktifProgram = "";
+    private bool _hasFault = false; // sistem fault durum bayrağı
 
         // Sabitler
         private const int RobotPort = 59002; // Karel ile aynı port
@@ -239,6 +240,13 @@ namespace FanucRelease.Services
                         SaveRobotStatusToFile();
                         // SignalR ile robot durumu gönder - Sinyal geldiğinde robot çalışıyor
                         await _hubContext.Clients.All.SendAsync("ReceiveRobotStatus", _robotStatus, _aktifProgram);
+
+                        // Program yeniden başlarken aktif fault varsa sıfırla ve Normal yayınla
+                        if (_hasFault)
+                        {
+                            _hasFault = false;
+                            try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Normal"); LogToFile("RobotAktif: Normal yayınlandı (fault reset)"); } catch { }
+                        }
                         programVerisi.ProgramAdi = prog_baslat ?? string.Empty;
                         programVerisi.BaslangicZamani = DateTime.Now;
                         veri.Clear();
@@ -246,6 +254,12 @@ namespace FanucRelease.Services
 
                     else if (veri.ToString().Contains("anlikveri"))
                     {
+                        // Eğer hata modundan çıkıldıysa ilk gerçek zamanlı veriyle normal e dön
+                        if (_hasFault)
+                        {
+                            _hasFault = false;
+                            try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Normal"); LogToFile("anlikveri: Normal yayınlandı (fault reset)"); } catch { }
+                        }
 
                         // Program bittiğinde robot durdu bilgisini ve aktif programı kesin olarak temizle
                         if (_robotStatus == "Durdu")
@@ -280,6 +294,13 @@ namespace FanucRelease.Services
                             anlikKaynak.TelSurmeHizi,
                             anlikKaynak.OlcumZamani.ToString("yyyy-MM-dd HH:mm:ss")
                         );
+
+                        // UI senkron değilse (örneğin Normal yayın kaçırıldıysa) Normal durumunu tekrar yayınla
+                        // Her anlık veri geldiğinde fault yoksa Normal'i tekrar gönder (UI kaybını tolere etmek için)
+                        if (!_hasFault)
+                        {
+                            try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Normal"); } catch { }
+                        }
                         veri.Clear();
 
                     }
@@ -358,6 +379,17 @@ namespace FanucRelease.Services
                         SaveRobotStatusToFile();
                         await _hubContext.Clients.All.SendAsync("ReceiveRobotStatus", _robotStatus, _aktifProgram);
 
+                        // Program tamamen bittiğinde varsa aktif fault durumunu sıfırla
+                        if (_hasFault)
+                        {
+                            _hasFault = false;
+                            try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Normal"); LogToFile("progbitti: Normal yayınlandı (fault reset)"); } catch { }
+                        }
+                        else
+                        {
+                            try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Normal"); } catch { }
+                        }
+
                         // Reset all temporary data for next program
                         veri.Clear();
                         kaynaklar = new List<Kaynak>();
@@ -384,11 +416,14 @@ namespace FanucRelease.Services
                         hatalar.Add(hata);
                         LogToFile($"Hata Log kaydedildi: Kod={hata.Kod}, Aciklama={hata.Aciklama}, Zaman={hata.Zaman:yyyy-MM-dd HH:mm:ss}");
 
-                        // Program bittiğinde robot durdu bilgisini ve aktif programı kesin olarak temizle
+                        // Hata olduğunda sistem fault durumuna geçsin
                         _robotStatus = "Durdu";
                         _aktifProgram = "";
                         SaveRobotStatusToFile();
                         await _hubContext.Clients.All.SendAsync("ReceiveRobotStatus", _robotStatus, _aktifProgram);
+
+                        _hasFault = true; // her hata durumunda set (üst üste gelse bile)
+                        try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Fault"); LogToFile("hataalindi: Fault yayınlandı"); } catch { }
 
                         veri.Clear();
                       

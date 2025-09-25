@@ -573,15 +573,15 @@
         </div>
 
         <div class="col-lg-4">
-            <div class="card metric-card h-100" style="animation: fadeInUp 0.6s ease-out 0.3s both;">
+            <div id="system-status-card" class="card metric-card h-100" data-status="normal" style="animation: fadeInUp 0.6s ease-out 0.3s both;">
                 <div class="card-body">
-                    <div class="metric-icon" style="background: linear-gradient(135deg, rgba(239,68,68,0.15) 0%, rgba(239,68,68,0.05) 100%); color: #EF4444;">
+                    <div id="system-status-icon" class="metric-icon" style="background: linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0.05) 100%); color: #10B981; transition: all .3s;">
                         <i class="fas fa-shield-alt"></i>
                     </div>
                     <div class="flex-grow-1">
                         <div class="metric-title">Sistem Durumu</div>
                         <div class="metric-value">
-                            <span id="val-alarm" style="color: #10B981;">Normal</span>
+                            <span id="val-alarm" style="color: #10B981; font-weight:700;">Normal</span>
                         </div>
                         <div class="metric-subtitle">
                             <span id="val-alarm-msg">Alarm bulunmuyor</span>
@@ -589,7 +589,7 @@
                     </div>
                     <div class="ms-auto">
                         <div id="alarm-indicator" class="badge-premium" style="background: rgba(16,185,129,0.1); color: #10B981;">
-                            <i class="fas fa-check-circle me-1"></i>OK
+                            <i class="fas fa-check-circle me-1"></i><span id="alarm-indicator-text">OK</span>
                         </div>
                     </div>
                 </div>
@@ -856,6 +856,44 @@
                     statusBadge.style.background = "rgba(220,38,38,0.1)";
                     statusBadge.style.color = "#DC2626";
                 }
+            }
+        });
+
+        // Sistem durumu (fault/normal) güncelleyici
+        connection.on("ReceiveSystemStatus", (sysStatus) => {
+            const card = document.getElementById('system-status-card');
+            const iconBox = document.getElementById('system-status-icon');
+            const valAlarm = document.getElementById('val-alarm');
+            const valAlarmMsg = document.getElementById('val-alarm-msg');
+            const badge = document.getElementById('alarm-indicator');
+            const badgeText = document.getElementById('alarm-indicator-text');
+
+            if (!card || !iconBox || !valAlarm || !valAlarmMsg || !badge || !badgeText) return;
+
+            if (sysStatus === 'Fault') {
+                card.setAttribute('data-status','fault');
+                iconBox.style.background = 'linear-gradient(135deg,#dc2626,#b91c1c)';
+                iconBox.style.color = '#fff';
+                valAlarm.textContent = 'Fault';
+                valAlarm.className = 'mb-0 text-danger fw-bold';
+                valAlarmMsg.textContent = 'Hata alındı';
+                badge.className = 'badge-premium d-inline-flex align-items-center gap-1';
+                badge.style.background = 'linear-gradient(135deg,#dc2626,#ef4444)';
+                badge.style.color = '#fff';
+                badgeText.textContent = 'FAULT';
+                badge.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i><span id="alarm-indicator-text">FAULT</span>';
+            } else { // Normal
+                card.setAttribute('data-status','normal');
+                iconBox.style.background = 'linear-gradient(135deg,#059669,#10b981)';
+                iconBox.style.color = '#fff';
+                valAlarm.textContent = 'Normal';
+                valAlarm.className = 'mb-0 text-success fw-semibold';
+                valAlarmMsg.textContent = 'Alarm bulunmuyor';
+                badge.className = 'badge-premium d-inline-flex align-items-center gap-1';
+                badge.style.background = 'var(--gradient-gold)';
+                badge.style.color = '#1F2937';
+                badgeText.textContent = 'OK';
+                badge.innerHTML = '<i class="fas fa-check-circle me-1"></i><span id="alarm-indicator-text">OK</span>';
             }
         });
 
