@@ -507,9 +507,12 @@
                                 <span style="font-weight: 700;">Kaynak ID: @kaynakId.Value</span>
                             </div>
                         }
-                        <div class="d-flex align-items-center gap-2 px-3 py-2" style="background: rgba(250, 252, 251, 0.836); border-radius: var(--radius-lg); border: 1px solid rgb(210, 216, 214);">
-                            <div class="status-indicator active"></div>
-                            <span style="color: #10B981; font-weight: 600; font-size: var(--font-size-sm);">Sistem Aktif</span>
+                        <div id="program-pill" class="d-flex align-items-center gap-3 px-3 py-2" style="background: rgba(250,252,251,0.9); border-radius: var(--radius-lg); border: 1px solid rgb(210,216,214); min-width:260px;">
+                            <div id="program-status-dot" class="status-indicator inactive"></div>
+                            <div class="d-flex flex-column" style="line-height:1.1;">
+                                <span id="program-name" style="font-weight:600; font-size: var(--font-size-sm); color:#374151;">Program Yok</span>
+                            </div>
+                            <span id="program-state-label" class="ms-auto badge-premium" style="background: rgba(107,114,128,0.15); color:#6B7280; font-weight:600;">BEKLEME</span>
                         </div>
                     </div>
                 </div>
@@ -730,9 +733,46 @@
                     const robotIconContainer = document.getElementById('robot-icon-container');
                     const statusBadge = document.getElementById('status-badge');
                     
+                    // Program pill element references
+                    const pill = document.getElementById('program-pill');
+                    const progNameEl = document.getElementById('program-name');
+                    const progIdEl = document.getElementById('program-id');
+                    const progDot = document.getElementById('program-status-dot');
+                    const progState = document.getElementById('program-state-label');
+
+                    function setProgramPill(running, programText) {
+                        if (!pill) return;
+                        if (running) {
+                            progDot.classList.remove('inactive');
+                            progDot.classList.add('active');
+                            if (progDot) { progDot.style.background = '#10B981'; }
+                            if (progState) {
+                                progState.textContent = 'ÇALIŞIYOR';
+                                progState.style.background = 'rgba(16,185,129,0.15)';
+                                progState.style.color = '#059669';
+                            }
+                            if (progNameEl) progNameEl.textContent = programText && programText.trim() !== '' ? programText : 'Program Bilgisi';
+                        } else {
+                            progDot.classList.remove('active');
+                            progDot.classList.add('inactive');
+                            if (progDot) { progDot.style.background = '#DC2626'; }
+                            if (progState) {
+                                progState.textContent = 'BEKLEME';
+                                progState.style.background = 'rgba(107,114,128,0.15)';
+                                progState.style.color = '#6B7280';
+                            }
+                            if (progNameEl) progNameEl.textContent = 'Program Yok';
+                        }
+                        if (progIdEl) {
+                            const kid = '@(ViewBag.KaynakId?.ToString() ?? "-")';
+                            progIdEl.textContent = 'ID: ' + (kid || '-');
+                        }
+                    }
+
                     if (data.status === "Calisiyor") {
                         txtStatus.textContent = "Robot çalışıyor";
                         txtStatus.style.color = "#10B981"; // Yeşil
+                        setProgramPill(true, data.aktifProgram || '');
                         
                         // Robot icon container yeşil
                         if (robotIconContainer) {
@@ -754,6 +794,7 @@
                     } else {
                         txtStatus.textContent = "Robot durdu";
                         txtStatus.style.color = "#DC2626"; // Kırmızı
+                        setProgramPill(false, '');
                         
                         // Robot icon container kırmızı
                         if (robotIconContainer) {
@@ -790,6 +831,30 @@
             const statusIcon = document.getElementById('status-icon');
             const robotIconContainer = document.getElementById('robot-icon-container');
             const statusBadge = document.getElementById('status-badge');
+            const progNameEl = document.getElementById('program-name');
+            const progIdEl = document.getElementById('program-id');
+            const progDot = document.getElementById('program-status-dot');
+            const progState = document.getElementById('program-state-label');
+
+            function updateProgramPill(running, programText) {
+                if (running) {
+                    progDot?.classList.add('active');
+                    progDot?.classList.remove('inactive');
+                    if (progDot) progDot.style.background = '#10B981';
+                    if (progState) { progState.textContent = 'ÇALIŞIYOR'; progState.style.background = 'rgba(16,185,129,0.15)'; progState.style.color = '#059669'; }
+                    if (progNameEl) progNameEl.textContent = (programText && programText.trim() !== '') ? programText : 'Program Bilgisi';
+                } else {
+                    progDot?.classList.add('inactive');
+                    progDot?.classList.remove('active');
+                    if (progDot) progDot.style.background = '#DC2626';
+                    if (progState) { progState.textContent = 'BEKLEME'; progState.style.background = 'rgba(107,114,128,0.15)'; progState.style.color = '#6B7280'; }
+                    if (progNameEl) progNameEl.textContent = 'Program Yok';
+                }
+                if (progIdEl) {
+                    const kid = '@(ViewBag.KaynakId?.ToString() ?? "-")';
+                    progIdEl.textContent = 'ID: ' + (kid || '-');
+                }
+            }
             
             if (status === "Calisiyor") {
                 // Yeni program başladığında grafik ve tablo verilerini sıfırla
@@ -809,6 +874,8 @@
                 chW.data.labels = [];
                 chW.data.datasets[0].data = [];
                 chW.update('active');
+
+                updateProgramPill(true, prog_baslat);
 
                 document.getElementById('tbl-amper').innerHTML = '';
                 document.getElementById('tbl-voltaj').innerHTML = '';
@@ -838,6 +905,7 @@
                 // Robot durduğunda sadece durum metni güncellensin, veriler korunacak
                 txtStatus.textContent = "Robot durdu";
                 txtStatus.style.color = "#DC2626"; // Kırmızı
+                updateProgramPill(false, '');
                 
                 // Robot icon container kırmızı
                 if (robotIconContainer) {
