@@ -49,7 +49,7 @@ body.program-detay {
 .kaynak-icon {
   width: 50px;
   height: 50px;
-  background: var(--brand-gradient);
+  background: linear-gradient(135deg,#f093fb 0%,#f5576c 100%)
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -276,6 +276,16 @@ body.program-detay {
     0 16px 40px rgba(239, 68, 68, 0.08),
     0 0 0 1px rgba(255,255,255,0.6);
 }
+.hata-alarm-container { padding:1.25rem 1.5rem 1.25rem 1.5rem; }
+.hata-alarm-container .alarm-item { padding:1.1rem 1.1rem; }
+.hata-alarm-container .alarm-item + .alarm-item { margin-top:.5rem; }
+/* Hata listesi iyileştirmeleri */
+.hata-alarm-container .alarm-list { position:relative; }
+.hata-alarm-container .alarm-list::after { content:""; display:block; height:14px; }
+.hata-alarm-container .alarm-item .alarm-code { font-size:.85rem; }
+.hata-alarm-container .alarm-item .alarm-desc { font-size:.8rem; }
+.hata-alarm-container .alarm-item .alarm-time, 
+.hata-alarm-container .alarm-item .date { font-size:.75rem; }
 
 .error-header {
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%);
@@ -459,17 +469,30 @@ body.program-detay {
 }
 
 /* Düzgün Hata Tablosu Tasarımı */
+/* Error table container */
 .error-card .hata-table-container {
-  background: white;
-  border-radius: 8px;
+  background: #ffffff;
+  border-radius: 12px;
   border: 1px solid #e5e7eb;
+  /* allow inner element to show full last row */
   overflow: hidden;
+  position: relative;
 }
 
+/* Scroll wrapper */
 .error-card .table-responsive {
   max-height: 400px;
   overflow-y: auto;
   overflow-x: hidden;
+  padding-bottom: 12px; /* space for last row */
+  scrollbar-gutter: stable;
+}
+
+/* Extra spacer to ensure last row can scroll above bottom radius */
+.error-card .table-responsive::after {
+  content: "";
+  display: block;
+  height: 4px;
 }
 
 /* İnce Kaydırma Çubuğu */
@@ -498,48 +521,26 @@ body.program-detay {
 }
 
 /* Tablo Başlığı */
-.error-card .hata-table thead .table-header {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-  color: white;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
+/* Table head (single clean definition) */
 .error-card .hata-table thead th {
-  border: none;
-  padding: 1rem 1.25rem;
-  font-size: 0.875rem;
+  background: #f8f9fa;
+  color: #374151;
+  border-bottom: 2px solid #e5e7eb;
+  padding: 0.75rem 0.75rem;
+  font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-}
-
-.error-card .hata-table thead th i {
-  color: #f1c40f;
-  text-shadow: 0 0 8px rgba(241, 196, 15, 0.4);
-}
-
-.error-card .hata-table thead .th-tip { width: 140px; text-align: center; }
-.error-card .hata-table thead .th-kod { width: 130px; text-align: center; }
-.error-card .hata-table thead .th-aciklama { width: auto; text-align: left; }
-.error-card .hata-table thead .th-zaman { width: 170px; text-align: center; }
-
-/* Tablo Başlığı - Basit */
-.error-card .hata-table thead th {
-  background-color: #f8f9fa;
-  color: #495057;
-  border-bottom: 2px solid #dee2e6;
-  padding: 0.75rem;
-  font-size: 0.875rem;
-  font-weight: 600;
+  letter-spacing: .5px;
   text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 5;
 }
 
-.error-card .hata-table thead .th-aciklama {
-  text-align: left;
-}
+.error-card .hata-table thead .th-tip { width: 130px; }
+.error-card .hata-table thead .th-kod { width: 120px; }
+.error-card .hata-table thead .th-aciklama { text-align: left; }
+.error-card .hata-table thead .th-zaman { width: 160px; }
 
 /* Hata Satırları */
 .error-card .hata-table tbody .hata-row {
@@ -557,15 +558,20 @@ body.program-detay {
   background-color: rgba(255, 251, 235, 0.5);
 }
 
-.error-card .hata-table tbody .hata-row:hover {
+ .error-card .hata-table tbody .hata-row:hover {
   background-color: rgba(0, 0, 0, 0.03) !important;
 }
 
 /* Tablo Hücreleri */
 .error-card .hata-table td {
   border-bottom: 1px solid #f3f4f6;
-  padding: 0.75rem;
+  padding: 0.65rem 0.75rem;
   vertical-align: middle;
+}
+
+/* keep last row visible & with border */
+.error-card .hata-table tbody tr:last-child td {
+  border-bottom: 1px solid #f3f4f6;
 }
 
 /* Tip Badge */
