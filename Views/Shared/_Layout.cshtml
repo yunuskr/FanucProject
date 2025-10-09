@@ -417,7 +417,7 @@
                         </a>
                     </div>
                     <div class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link @(IsActive("Raporlar") ? "active" : "")" asp-controller="Raporlar" asp-action="Index">
                             <i class="fas fa-file-alt"></i>
                             <span>Raporlar</span>
                         </a>
