@@ -9,118 +9,256 @@
 }
 
 <div class="container-fluid">
-    <!-- Header + Filters -->
-    <div class="d-flex align-items-center justify-content-between mb-4">
-        <h2 class="mb-0 text-white" style="text-shadow: 0 2px 8px rgba(0,0,0,.25)">Raporlar</h2>
-        <form method="get" class="d-flex align-items-end gap-2">
-            <div>
-                <label class="form-label text-white-50">Başlangıç</label>
-                <input type="date" name="startDate" value="@Model.StartDate?.ToString("yyyy-MM-dd")" class="form-control form-control-sm" />
+    <!-- Header + Enhanced Filters -->
+    <div class="row align-items-center mb-4">
+        <div class="col-lg-4">
+            <div class="d-flex align-items-center">
+                <div class="stat-icon primary me-3" style="width: 60px; height: 60px; font-size: 1.5rem;">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <div>
+                    <h2 class="mb-0 text-white" style="text-shadow: 0 2px 8px rgba(0,0,0,.25)">
+                        Yönetici Raporları
+                    </h2>
+                    <p class="mb-0 text-white-50 small">Performans analizi ve KPI takibi</p>
+                </div>
             </div>
-            <div>
-                <label class="form-label text-white-50">Bitiş</label>
-                <input type="date" name="endDate" value="@Model.EndDate?.ToString("yyyy-MM-dd")" class="form-control form-control-sm" />
+        </div>
+        <div class="col-lg-8">
+            <div class="gold-card p-3">
+                <form method="get" class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label small fw-semibold text-dark mb-1">
+                            <i class="fas fa-calendar-alt me-1 text-primary"></i>Başlangıç Tarihi
+                        </label>
+                        <input type="date" name="startDate" value="@Model.StartDate?.ToString("yyyy-MM-dd")" 
+                               class="form-control form-control-sm border-2 shadow-sm" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-semibold text-dark mb-1">
+                            <i class="fas fa-calendar-check me-1 text-success"></i>Bitiş Tarihi
+                        </label>
+                        <input type="date" name="endDate" value="@Model.EndDate?.ToString("yyyy-MM-dd")" 
+                               class="form-control form-control-sm border-2 shadow-sm" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-semibold text-dark mb-1">
+                            <i class="fas fa-user me-1 text-warning"></i>Operatör ID <span class="text-muted">(opsiyonel)</span>
+                        </label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text border-2 bg-light">
+                                <i class="fas fa-hashtag text-muted"></i>
+                            </span>
+                            <input type="number" name="operatorId" value="@(Model.OperatorId?.ToString() ?? "")" 
+                                   class="form-control border-2 shadow-sm" placeholder="Tüm operatörler" min="1" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary btn-sm shadow-sm flex-grow-1">
+                                <i class="fas fa-search me-1"></i> Filtrele
+                            </button>
+                            <a class="btn btn-outline-secondary btn-sm shadow-sm" asp-action="Index" title="Filtreleri temizle">
+                                <i class="fas fa-eraser"></i>
+                            </a>
+                        </div>
+                        <div class="d-flex gap-1 mt-1">
+                            <button type="button" class="btn btn-outline-info btn-xs" onclick="setLastWeek()" title="Son 7 gün">
+                                <i class="fas fa-calendar-week"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-info btn-xs" onclick="setLastMonth()" title="Son 30 gün">
+                                <i class="fas fa-calendar-day"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
-            <div>
-                <label class="form-label text-white-50">Operatör Id</label>
-                <input type="number" name="operatorId" value="@(Model.OperatorId?.ToString() ?? "")" class="form-control form-control-sm" placeholder="Opsiyonel" />
-            </div>
-            <div class="d-flex gap-2 align-items-end">
-                <button type="submit" class="btn btn-outline-light btn-sm"><i class="fas fa-filter me-1"></i> Filtrele</button>
-                <a class="btn btn-outline-light btn-sm" asp-action="Index"><i class="fas fa-undo me-1"></i> Sıfırla</a>
-            </div>
-        </form>
+        </div>
     </div>
 
-    <!-- Summary Cards -->
-    <div class="row g-3 mb-3">
+    <!-- Executive Summary Cards -->
+    <div class="row g-4 mb-4">
         <div class="col-md-3">
-            <div class="gold-card p-3 text-white bg-gradient-warning">
-                <div class="small text-white-50">Toplam Program</div>
-                <div class="fs-3 fw-semibold">@Model.ToplamProgram</div>
-                <div class="small">Önceki: @Model.OncekiToplamProgram • Delta: @Model.DeltaProgram</div>
+            <div class="gold-card p-4 text-white bg-gradient-warning position-relative overflow-hidden">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="stat-icon warning">
+                        <i class="fas fa-file-code"></i>
+                    </div>
+                    <div class="text-end">
+                        <div class="small text-white-50 text-uppercase fw-semibold">Toplam Program</div>
+                        <div class="fs-2 fw-bold">@Model.ToplamProgram</div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="small">
+                        <span class="text-white-75">Önceki: @Model.OncekiToplamProgram</span>
+                    </div>
+                    <div class="badge @(Model.DeltaProgram >= 0 ? "bg-success" : "bg-danger") rounded-pill">
+                        <i class="fas @(Model.DeltaProgram >= 0 ? "fa-arrow-up" : "fa-arrow-down") me-1"></i>
+                        @Math.Abs(Model.DeltaProgram)
+                    </div>
+                </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="gold-card p-3 text-white bg-gradient-success">
-                <div class="small text-white-50">Toplam Kaynak</div>
-                <div class="fs-3 fw-semibold">@Model.ToplamKaynak</div>
-                <div class="small">Önceki: @Model.OncekiToplamKaynak • Delta: @Model.DeltaKaynak</div>
+            <div class="gold-card p-4 text-white bg-gradient-success position-relative overflow-hidden">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="stat-icon success">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="text-end">
+                        <div class="small text-white-50 text-uppercase fw-semibold">Toplam Kaynak</div>
+                        <div class="fs-2 fw-bold">@Model.ToplamKaynak</div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="small">
+                        <span class="text-white-75">Önceki: @Model.OncekiToplamKaynak</span>
+                    </div>
+                    <div class="badge @(Model.DeltaKaynak >= 0 ? "bg-success" : "bg-danger") rounded-pill">
+                        <i class="fas @(Model.DeltaKaynak >= 0 ? "fa-arrow-up" : "fa-arrow-down") me-1"></i>
+                        @Math.Abs(Model.DeltaKaynak)
+                    </div>
+                </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="gold-card p-3 text-white bg-gradient-info">
-                <div class="small text-white-50">Başarı Oranı</div>
-                <div class="fs-3 fw-semibold">@Model.BasariYuzdesi%</div>
-                <div class="small">Önceki: @Model.OncekiBasariYuzdesi% • Delta: @Model.DeltaBasariYuzdesi%</div>
+            <div class="gold-card p-4 text-white bg-gradient-info position-relative overflow-hidden">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="stat-icon info">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="text-end">
+                        <div class="small text-white-50 text-uppercase fw-semibold">Başarı Oranı</div>
+                        <div class="fs-2 fw-bold">@Model.BasariYuzdesi%</div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="small">
+                        <span class="text-white-75">Önceki: @Model.OncekiBasariYuzdesi%</span>
+                    </div>
+                    <div class="badge @(Model.DeltaBasariYuzdesi >= 0 ? "bg-success" : "bg-danger") rounded-pill">
+                        <i class="fas @(Model.DeltaBasariYuzdesi >= 0 ? "fa-arrow-up" : "fa-arrow-down") me-1"></i>
+                        @Math.Abs(Model.DeltaBasariYuzdesi)%
+                    </div>
+                </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="gold-card p-3 text-white bg-gradient-danger">
-                <div class="small text-white-50">Toplam Hata</div>
-                <div class="fs-3 fw-semibold">@Model.ToplamHata</div>
-                <div class="small">Önceki: @Model.OncekiToplamHata • Delta: @Model.DeltaHata</div>
+            <div class="gold-card p-4 text-white bg-gradient-danger position-relative overflow-hidden">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="stat-icon danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="text-end">
+                        <div class="small text-white-50 text-uppercase fw-semibold">Toplam Hata</div>
+                        <div class="fs-2 fw-bold">@Model.ToplamHata</div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="small">
+                        <span class="text-white-75">Önceki: @Model.OncekiToplamHata</span>
+                    </div>
+                    <div class="badge @(Model.DeltaHata <= 0 ? "bg-success" : "bg-danger") rounded-pill">
+                        <i class="fas @(Model.DeltaHata <= 0 ? "fa-arrow-down" : "fa-arrow-up") me-1"></i>
+                        @Math.Abs(Model.DeltaHata)
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Content Rows -->
-    <div class="row g-3">
+    <div class="row g-4">
         <!-- Top Operators -->
         <div class="col-lg-6">
-            <div class="gold-card p-3">
-                <div class="section-card-title">En İyi Operatörler</div>
-                <div class="mt-2">
-                    @if (!Model.TopOperatorlar.Any())
-                    {
-                        <div class="alert alert-warning mb-0">Kayıt bulunamadı.</div>
-                    }
-                    else
-                    {
-                        <div class="list-group">
-                            @foreach (var op in Model.TopOperatorlar)
-                            {
-                                <div class="list-group-item d-flex justify-content-between align-items-center ranking-item">
-                                    <div class="d-flex align-items-center gap-2 ranking-item-content">
-                                        <div class="avatar-initials avatar-sm brand-gradient-bg text-white">@op.AdSoyad.FirstOrDefault().ToString().ToUpper()</div>
-                                        <div>
-                                            <div class="fw-semibold">@op.AdSoyad</div>
-                                            <div class="small text-muted">@op.ProgramSayisi program • @op.ToplamKaynak kaynak • @op.BasariYuzdesi% başarı</div>
+            <div class="gold-card p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="stat-icon primary me-3">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="section-card-title mb-0">En İyi Operatörler</div>
+                </div>
+                @if (!Model.TopOperatorlar.Any())
+                {
+                    <div class="alert alert-gold-border mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Kayıt bulunamadı.
+                    </div>
+                }
+                else
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var op in Model.TopOperatorlar.Take(5))
+                        {
+                            <div class="list-group-item border-0 px-0 py-3 ranking-item">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-initials avatar-sm brand-gradient-bg text-white me-3">
+                                        @op.AdSoyad.FirstOrDefault().ToString().ToUpper()
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-semibold text-dark">@op.AdSoyad</div>
+                                        <div class="small text-muted d-flex gap-3">
+                                            <span><i class="fas fa-file-code me-1"></i>@op.ProgramSayisi program</span>
+                                            <span><i class="fas fa-bolt me-1"></i>@op.ToplamKaynak kaynak</span>
+                                            <span><i class="fas fa-chart-line me-1"></i>@op.BasariYuzdesi% başarı</span>
                                         </div>
                                     </div>
-                                    <span class="badge badge-pill-gold">@op.HataSayisi hata</span>
+                                    <div class="text-end">
+                                        <span class="badge @(op.HataSayisi == 0 ? "bg-success" : op.HataSayisi < 5 ? "bg-warning" : "bg-danger") rounded-pill">
+                                            @op.HataSayisi hata
+                                        </span>
+                                    </div>
                                 </div>
-                            }
-                        </div>
-                    }
-                </div>
+                            </div>
+                        }
+                    </div>
+                }
             </div>
         </div>
 
         <!-- Top Programs -->
         <div class="col-lg-6">
-            <div class="gold-card p-3">
-                <div class="section-card-title">En Yoğun Programlar</div>
-                <div class="table-responsive mt-2">
-                    <table class="table table-sm table-hover align-middle" id="tbl-rapor-program">
-                        <thead>
+            <div class="gold-card p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="stat-icon warning me-3">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="section-card-title mb-0">En Yoğun Programlar</div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" id="tbl-rapor-program">
+                        <thead class="table-dark">
                             <tr>
-                                <th>Program</th>
-                                <th>Operatör</th>
-                                <th class="text-end">Kaynak</th>
-                                <th class="text-end">Başarı</th>
-                                <th>Tarih</th>
+                                <th class="border-0 py-3">Program</th>
+                                <th class="border-0 py-3">Operatör</th>
+                                <th class="border-0 py-3 text-end">Kaynak</th>
+                                <th class="border-0 py-3 text-end">Başarı</th>
+                                <th class="border-0 py-3">Tarih</th>
                             </tr>
                         </thead>
                         <tbody>
-                        @foreach (var p in Model.TopProgramlar)
+                        @foreach (var p in Model.TopProgramlar.Take(8))
                         {
-                            <tr>
-                                <td>@p.ProgramAdi</td>
-                                <td>@p.OperatorAdSoyad</td>
-                                <td class="text-end"><span class="@p.BadgeClass">@p.KaynakSayisi</span></td>
-                                <td class="text-end">@p.BasariYuzde%</td>
-                                <td>@p.TarihText</td>
+                            <tr class="border-bottom">
+                                <td class="py-3">
+                                    <div class="fw-semibold text-dark">@p.ProgramAdi</div>
+                                </td>
+                                <td class="py-3">
+                                    <span class="text-muted">@p.OperatorAdSoyad</span>
+                                </td>
+                                <td class="text-end py-3">
+                                    <span class="badge @(p.KaynakSayisi >= 25 ? "bg-success" : p.KaynakSayisi >= 15 ? "bg-warning" : "bg-danger") rounded-pill">
+                                        @p.KaynakSayisi
+                                    </span>
+                                </td>
+                                <td class="text-end py-3">
+                                    <span class="fw-semibold @(p.BasariYuzde >= 90 ? "text-success" : p.BasariYuzde >= 70 ? "text-warning" : "text-danger")">
+                                        @p.BasariYuzde%
+                                    </span>
+                                </td>
+                                <td class="py-3">
+                                    <small class="text-muted font-monospace">@p.TarihText</small>
+                                </td>
                             </tr>
                         }
                         </tbody>
@@ -129,34 +267,92 @@
             </div>
         </div>
 
-        <!-- Error Trend Placeholder -->
+        <!-- Error Trend Chart Placeholder -->
         <div class="col-12">
-            <div class="gold-card p-3">
-                <div class="section-card-title">Hata Trendi</div>
+            <div class="gold-card p-4">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon danger me-3">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="section-card-title mb-0">Hata Trendi Grafiği</div>
+                    </div>
+                    <small class="text-muted">Günlük hata dağılımı</small>
+                </div>
                 @if (Model.HataTrend.Count == 0)
                 {
-                    <div class="alert alert-info mb-0">Grafik için veri bulunamadı.</div>
+                    <div class="alert alert-gold-border text-center py-5">
+                        <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                        <h6>Grafik Verisi Bulunamadı</h6>
+                        <p class="mb-0 text-muted">Seçili dönemde hata kaydı bulunmuyor veya veri yetersiz.</p>
+                    </div>
                 }
                 else
                 {
-                    <div class="table-responsive mt-2">
-                        <table class="table table-sm align-middle">
-                            <thead>
-                                <tr>
-                                    <th>Tarih</th>
-                                    <th>Hata Sayısı</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var (date, count) in Model.HataTrend)
-                                {
-                                    <tr>
-                                        <td>@date.ToString("dd.MM.yyyy")</td>
-                                        <td>@count</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+                    <!-- Simple table display for now, can be replaced with Chart.js later -->
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th class="border-0 py-3">Tarih</th>
+                                            <th class="border-0 py-3 text-end">Hata Sayısı</th>
+                                            <th class="border-0 py-3 text-center">Trend</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for (int i = 0; i < Model.HataTrend.Count; i++)
+                                        {
+                                            var (date, count) = Model.HataTrend[i];
+                                            var prevCount = i > 0 ? Model.HataTrend[i-1].Count : count;
+                                            var trend = count - prevCount;
+                                            <tr class="border-bottom">
+                                                <td class="py-3">
+                                                    <div class="fw-semibold">@date.ToString("dd MMM")</div>
+                                                    <small class="text-muted">@date.ToString("dddd")</small>
+                                                </td>
+                                                <td class="text-end py-3">
+                                                    <span class="fw-bold @(count == 0 ? "text-success" : count < 5 ? "text-warning" : "text-danger")">
+                                                        @count
+                                                    </span>
+                                                </td>
+                                                <td class="text-center py-3">
+                                                    @if (i > 0 && trend != 0)
+                                                    {
+                                                        <span class="badge @(trend < 0 ? "bg-success" : "bg-danger") rounded-pill">
+                                                            <i class="fas @(trend < 0 ? "fa-arrow-down" : "fa-arrow-up")"></i>
+                                                            @Math.Abs(trend)
+                                                        </span>
+                                                    }
+                                                    else if (i == 0)
+                                                    {
+                                                        <small class="text-muted">—</small>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-secondary rounded-pill">
+                                                            <i class="fas fa-minus"></i>
+                                                        </span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="alert alert-info border-0">
+                                <h6><i class="fas fa-info-circle me-2"></i>Özet</h6>
+                                <ul class="mb-0 small">
+                                    <li>Toplam gün: @Model.HataTrend.Count</li>
+                                    <li>Toplam hata: @Model.HataTrend.Sum(h => h.Count)</li>
+                                    <li>Günlük ort: @(Model.HataTrend.Any() ? Math.Round(Model.HataTrend.Average(h => h.Count), 1) : 0)</li>
+                                    <li>En yüksek: @(Model.HataTrend.Any() ? Model.HataTrend.Max(h => h.Count) : 0)</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 }
             </div>
@@ -164,33 +360,88 @@
 
         <!-- Longest Programs -->
         <div class="col-12">
-            <div class="gold-card p-3">
-                <div class="section-card-title">En Uzun Süren Programlar</div>
-                <div class="table-responsive mt-2">
-                    <table class="table table-sm align-middle">
-                        <thead>
-                            <tr>
-                                <th>Program</th>
-                                <th>Operatör</th>
-                                <th class="text-end">Kaynak</th>
-                                <th class="text-end">Başarı</th>
-                                <th class="text-end">Süre</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var r in Model.UzunSurenProgramlar)
-                            {
-                                <tr>
-                                    <td>@r.ProgramAdi</td>
-                                    <td>@(r.OperatorAdSoyad ?? "—")</td>
-                                    <td class="text-end">@r.KaynakSayisi</td>
-                                    <td class="text-end">@r.BasariYuzdesi%</td>
-                                    <td class="text-end">@r.SureText</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+            <div class="gold-card p-4">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon warning me-3">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="section-card-title mb-0">En Uzun Süren Programlar</div>
+                    </div>
+                    <small class="text-muted">Süre optimizasyonu için inceleme önerileri</small>
                 </div>
+                @if (!Model.UzunSurenProgramlar.Any())
+                {
+                    <div class="alert alert-gold-border text-center py-4">
+                        <i class="fas fa-clock fa-2x text-muted mb-2"></i>
+                        <p class="mb-0">Süre verileri bulunamadı.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th class="border-0 py-3">Program</th>
+                                    <th class="border-0 py-3">Operatör</th>
+                                    <th class="border-0 py-3 text-end">Kaynak</th>
+                                    <th class="border-0 py-3 text-end">Başarı</th>
+                                    <th class="border-0 py-3 text-end">Süre</th>
+                                    <th class="border-0 py-3 text-center">Önem</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var r in Model.UzunSurenProgramlar.Take(10))
+                                {
+                                    var isLongDuration = r.Sure.TotalHours > 2;
+                                    var hasLowSuccess = r.BasariYuzdesi < 80;
+                                    <tr class="border-bottom">
+                                        <td class="py-3">
+                                            <div class="fw-semibold text-dark">@r.ProgramAdi</div>
+                                        </td>
+                                        <td class="py-3">
+                                            <span class="text-muted">@(r.OperatorAdSoyad ?? "—")</span>
+                                        </td>
+                                        <td class="text-end py-3">
+                                            <span class="fw-semibold">@r.KaynakSayisi</span>
+                                        </td>
+                                        <td class="text-end py-3">
+                                            <span class="fw-semibold @(r.BasariYuzdesi >= 90 ? "text-success" : r.BasariYuzdesi >= 70 ? "text-warning" : "text-danger")">
+                                                @r.BasariYuzdesi%
+                                            </span>
+                                        </td>
+                                        <td class="text-end py-3">
+                                            <span class="fw-bold font-monospace @(isLongDuration ? "text-warning" : "text-muted")">
+                                                @r.SureText
+                                            </span>
+                                        </td>
+                                        <td class="text-center py-3">
+                                            @if (isLongDuration && hasLowSuccess)
+                                            {
+                                                <span class="badge bg-danger rounded-pill">
+                                                    <i class="fas fa-exclamation-triangle"></i> Yüksek
+                                                </span>
+                                            }
+                                            else if (isLongDuration || hasLowSuccess)
+                                            {
+                                                <span class="badge bg-warning rounded-pill">
+                                                    <i class="fas fa-exclamation-circle"></i> Orta
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-success rounded-pill">
+                                                    <i class="fas fa-check"></i> Düşük
+                                                </span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
             </div>
         </div>
 
@@ -207,61 +458,221 @@
         </div>
 
         <!-- Daily Trend -->
-        <div class="col-12">
-            <div class="gold-card p-3">
-                <div class="section-card-title">Günlük Trend</div>
-                <div class="table-responsive mt-2">
-                    <table class="table table-sm align-middle">
-                        <thead>
-                            <tr>
-                                <th>Tarih</th>
-                                <th class="text-end">Program</th>
-                                <th class="text-end">Kaynak</th>
-                                <th class="text-end">Başarı</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var d in Model.GunlukTrend)
-                            {
-                                <tr>
-                                    <td>@d.Date.ToString("dd.MM.yyyy")</td>
-                                    <td class="text-end">@d.Program</td>
-                                    <td class="text-end">@d.Kaynak</td>
-                                    <td class="text-end">@d.BasariYuzdesi%</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+        <div class="col-lg-8">
+            <div class="gold-card p-4">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon info me-3">
+                            <i class="fas fa-chart-area"></i>
+                        </div>
+                        <div class="section-card-title mb-0">Günlük Performans Trendi</div>
+                    </div>
+                    <small class="text-muted">Son @Model.GunlukTrend.Count gün</small>
                 </div>
+                @if (!Model.GunlukTrend.Any())
+                {
+                    <div class="alert alert-gold-border text-center py-5">
+                        <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                        <p class="mb-0">Trend verileri bulunamadı.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th class="border-0 py-3">Tarih</th>
+                                    <th class="border-0 py-3 text-end">Program</th>
+                                    <th class="border-0 py-3 text-end">Kaynak</th>
+                                    <th class="border-0 py-3 text-end">Başarı Oranı</th>
+                                    <th class="border-0 py-3 text-center">Trend</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.GunlukTrend.Count; i++)
+                                {
+                                    var d = Model.GunlukTrend[i];
+                                    var prevDay = i > 0 ? Model.GunlukTrend[i-1] : d;
+                                    var successTrend = d.BasariYuzdesi - prevDay.BasariYuzdesi;
+                                    <tr class="border-bottom">
+                                        <td class="py-3">
+                                            <div class="fw-semibold">@d.Date.ToString("dd MMM")</div>
+                                            <small class="text-muted">@d.Date.ToString("dddd")</small>
+                                        </td>
+                                        <td class="text-end py-3">
+                                            <span class="fw-semibold">@d.Program</span>
+                                        </td>
+                                        <td class="text-end py-3">
+                                            <span class="fw-semibold">@d.Kaynak</span>
+                                        </td>
+                                        <td class="text-end py-3">
+                                            <span class="fw-bold @(d.BasariYuzdesi >= 90 ? "text-success" : d.BasariYuzdesi >= 70 ? "text-warning" : "text-danger")">
+                                                @d.BasariYuzdesi%
+                                            </span>
+                                        </td>
+                                        <td class="text-center py-3">
+                                            @if (i > 0 && successTrend != 0)
+                                            {
+                                                <span class="badge @(successTrend > 0 ? "bg-success" : "bg-danger") rounded-pill">
+                                                    <i class="fas @(successTrend > 0 ? "fa-arrow-up" : "fa-arrow-down")"></i>
+                                                    @Math.Abs(successTrend)%
+                                                </span>
+                                            }
+                                            else if (i == 0)
+                                            {
+                                                <small class="text-muted">—</small>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary rounded-pill">
+                                                    <i class="fas fa-minus"></i> 0%
+                                                </span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
             </div>
         </div>
 
         <!-- Top Errors -->
-        <div class="col-12">
-            <div class="gold-card p-3">
-                <div class="section-card-title">En Sık Hatalar</div>
-                <div class="table-responsive mt-2">
-                    <table class="table table-sm align-middle">
-                        <thead>
-                            <tr>
-                                <th>Kod</th>
-                                <th>Açıklama</th>
-                                <th class="text-end">Adet</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var h in Model.TopHatalar)
-                            {
-                                <tr>
-                                    <td>@h.Kod</td>
-                                    <td>@h.Aciklama</td>
-                                    <td class="text-end">@h.Adet</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+        <div class="col-lg-4">
+            <div class="gold-card p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="stat-icon danger me-3">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <div class="section-card-title mb-0">En Sık Hatalar</div>
                 </div>
+                @if (!Model.TopHatalar.Any())
+                {
+                    <div class="alert alert-success border-0">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Harika!</strong> Bu dönemde hata kaydı bulunmuyor.
+                    </div>
+                }
+                else
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var h in Model.TopHatalar.Take(8))
+                        {
+                            <div class="list-group-item border-0 px-0 py-3">
+                                <div class="d-flex align-items-start">
+                                    <div class="stat-icon danger me-3" style="width: 35px; height: 35px; font-size: 0.9rem;">
+                                        <i class="fas fa-bug"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center justify-content-between mb-1">
+                                            <div class="fw-semibold text-dark">@h.Kod</div>
+                                            <span class="badge bg-danger rounded-pill">@h.Adet</span>
+                                        </div>
+                                        <div class="small text-muted">@h.Aciklama</div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    /* Enhanced filter styling */
+    .btn-xs {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.75rem;
+        border-radius: 0.25rem;
+    }
+    
+    .gold-card .form-control:focus {
+        border-color: #ffc107;
+        box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+    }
+    
+    .gold-card .input-group-text {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-color: #dee2e6;
+    }
+    
+    .filter-quick-buttons .btn:hover {
+        transform: translateY(-1px);
+        transition: all 0.2s ease;
+    }
+    
+    .stat-icon.primary {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+    }
+    
+    .form-label .fa-calendar-alt { color: #007bff !important; }
+    .form-label .fa-calendar-check { color: #28a745 !important; }
+    .form-label .fa-user { color: #ffc107 !important; }
+    
+    @@media (max-width: 768px) {
+        .col-lg-4, .col-lg-8 {
+            text-align: center;
+        }
+        
+        .gold-card .row {
+            justify-content: center;
+        }
+    }
+</style>
+
+<script>
+    // Quick filter functions for date shortcuts
+    function setLastWeek() {
+        const today = new Date();
+        const lastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+        
+        document.querySelector('input[name="startDate"]').value = formatDate(lastWeek);
+        document.querySelector('input[name="endDate"]').value = formatDate(today);
+    }
+    
+    function setLastMonth() {
+        const today = new Date();
+        const lastMonth = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+        
+        document.querySelector('input[name="startDate"]').value = formatDate(lastMonth);
+        document.querySelector('input[name="endDate"]').value = formatDate(today);
+    }
+    
+    function formatDate(date) {
+        return date.toISOString().split('T')[0];
+    }
+    
+    // Add some hover effects and animations
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate filter form on page load
+        const filterCard = document.querySelector('.gold-card');
+        if (filterCard) {
+            filterCard.style.opacity = '0';
+            filterCard.style.transform = 'translateY(-20px)';
+            setTimeout(() => {
+                filterCard.style.transition = 'all 0.5s ease-out';
+                filterCard.style.opacity = '1';
+                filterCard.style.transform = 'translateY(0)';
+            }, 200);
+        }
+        
+        // Add tooltips to filter buttons
+        const tooltips = document.querySelectorAll('[title]');
+        tooltips.forEach(element => {
+            element.setAttribute('data-bs-toggle', 'tooltip');
+        });
+        
+        // Initialize Bootstrap tooltips if available
+        if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        }
+    });
+</script>
