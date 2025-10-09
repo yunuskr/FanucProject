@@ -638,7 +638,7 @@
         if (activeProgram) {
             activeProgramText.textContent = activeProgram;
         }
-        console.log(`Robot Status Updated: ${status}, Program: ${activeProgram}`);
+    // Debug log kaldırıldı
     }
 
     // SignalR Connection for Real-time Robot Status
@@ -653,7 +653,7 @@
 
     // Start SignalR connection
     connection.start().then(function () {
-        console.log("SignalR connected - Robot status updates enabled");
+        // Bağlantı kuruldu (debug log kaldırıldı)
     }).catch(function (err) {
         console.error("SignalR connection error:", err.toString());
     });
