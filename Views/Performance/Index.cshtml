@@ -5,95 +5,10 @@
 
 @section Head {
     <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/performance.css" asp-append-version="true" />
 }
 
-<style>
-:root {
-    /* Use brand gold gradient everywhere on this page */
-    --gradient-primary: var(--brand-gradient, linear-gradient(90deg, #f09701, #face00));
-    --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    --gradient-warning: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-    --gradient-danger: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
-    --gradient-info: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-    --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --shadow-medium: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    --border-radius: 16px;
-}
-
-.performance-header {
-    background: var(--gradient-primary);
-    border-radius: var(--border-radius);
-    padding: 2rem;
-    margin-bottom: 2rem;
-    color: white;
-    box-shadow: var(--shadow-medium);
-}
-
-.filter-card {
-    /* Subtle gold-tinted glass card */
-    background: linear-gradient(135deg, rgba(240,151,1,.14) 0%, rgba(250,206,0,.14) 100%), rgba(255, 255, 255, 0.94);
-    backdrop-filter: blur(20px);
-    border-radius: var(--border-radius);
-    padding: 1.5rem;
-    box-shadow: var(--shadow-soft);
-    border: 1px solid rgba(240,151,1,.25);
-}
-
-.metric-card {
-    border-radius: var(--border-radius);
-    padding: 1.5rem;
-    box-shadow: var(--shadow-soft);
-    transition: all 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.metric-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-medium);
-}
-
-.data-table-container {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow-medium);
-    overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.form-control-modern {
-    border-radius: 12px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    padding: 0.75rem 1rem;
-    transition: all 0.3s ease;
-}
-
-.form-control-modern:focus {
-    border-color: var(--gold-start, #f09701);
-    box-shadow: 0 0 0 0.2rem rgba(240, 151, 1, 0.25);
-}
-
-.btn-modern {
-    border-radius: 12px;
-    padding: 0.75rem 1.5rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    border: none;
-}
-
-.btn-modern:hover {
-    transform: translateY(-1px);
-}
-
-.btn-primary-modern {
-    background: var(--gradient-primary);
-}
-
-.btn-secondary-modern {
-    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
-    color: white;
-}
-</style>
+ 
 
 <div class="container-fluid py-4" style="min-height: 100vh;">
     <div class="performance-header">
@@ -130,7 +45,7 @@
                 <button class="btn btn-modern btn-primary-modern flex-fill">
                     <i class="fas fa-search me-2"></i>Filtrele
                 </button>
-                <a class="btn btn-modern" href="@Url.Action("ExportCsv", new { minProgram = Model.MinProgram, days = Model.Days, maxProgramHours = Model.MaxProgramHours })" style="background: rgba(255, 255, 255, 0.95); color: var(--gold-start, #f09701); border: 1px solid rgba(240,151,1,.3);">
+                <a class="btn btn-modern btn-outline-gold" href="@Url.Action("ExportCsv", new { minProgram = Model.MinProgram, days = Model.Days, maxProgramHours = Model.MaxProgramHours })">
                     <i class="fas fa-download me-2"></i>CSV
                 </a>
             </div>
@@ -139,7 +54,7 @@
 
     <div class="row g-4 mb-5">
         <div class="col-6 col-lg-2-4">
-            <div class="metric-card" style="background: var(--gradient-warning);">
+            <div class="metric-card bg-gradient-warning">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-white opacity-75 mb-1" style="font-size: 0.9rem; font-weight: 500;">Toplam Program</div>
@@ -152,7 +67,7 @@
             </div>
         </div>
         <div class="col-6 col-lg-2-4">
-            <div class="metric-card" style="background: var(--gradient-success);">
+            <div class="metric-card bg-gradient-success">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-white opacity-75 mb-1" style="font-size: 0.9rem; font-weight: 500;">Toplam Kaynak</div>
@@ -165,7 +80,7 @@
             </div>
         </div>
         <div class="col-6 col-lg-2-4">
-            <div class="metric-card" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+            <div class="metric-card bg-gradient-green">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-white opacity-75 mb-1" style="font-size: 0.9rem; font-weight: 500;">Başarılı</div>
@@ -178,7 +93,7 @@
             </div>
         </div>
         <div class="col-6 col-lg-2-4">
-            <div class="metric-card" style="background: var(--gradient-danger);">
+            <div class="metric-card bg-gradient-danger">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-white opacity-75 mb-1" style="font-size: 0.9rem; font-weight: 500;">Hata</div>
@@ -191,7 +106,7 @@
             </div>
         </div>
         <div class="col-6 col-lg-2-4">
-            <div class="metric-card" style="background: var(--gradient-info);">
+            <div class="metric-card bg-gradient-info">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div style="color: #2d3748; opacity: 0.75; font-size: 0.9rem; font-weight: 500; margin-bottom: 0.25rem;">Genel Başarı</div>
@@ -221,13 +136,13 @@
 
     <div class="comparison-section mb-5">
         <div class="d-flex align-items-center justify-content-between mb-4">
-            <h2 class="m-0" style="font-weight:800; color:#ffffff; font-size:1.8rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
-                <span class="me-3" style="display:inline-block; width:6px; height:32px; background:var(--brand-gradient); border-radius:8px; box-shadow: 0 2px 8px rgba(240,151,1,0.3);"></span>
+            <h2 class="m-0 comparison-title">
+                <span class="me-3 comparison-title-bar"></span>
                 Operatör Karşılaştırma
             </h2>
             @if (hasData)
             {
-                <span class="badge" style="background: var(--brand-gradient); color:#fff; border:2px solid rgba(240,151,1,.6); font-weight:700; font-size:0.9rem; padding:0.6rem 1.2rem; border-radius:25px; box-shadow: 0 4px 12px rgba(240,151,1,0.25);">
+                <span class="badge ops-badge">
                     <i class="fas fa-users me-2"></i>@ops.Count() Operatör
                 </span>
             }
@@ -235,7 +150,7 @@
 
         @if (!hasData)
         {
-            <div class="alert alert-light" role="alert" style="border:1px solid rgba(240,151,1,.25);">
+            <div class="alert alert-light alert-gold-border" role="alert">
                 Karşılaştırma için veri bulunamadı.
             </div>
         }
@@ -243,15 +158,15 @@
         {
         <div class="row g-4">
             <div class="col-lg-4">
-                <div class="leaders-card p-4" style="background: linear-gradient(135deg, rgba(240,151,1,.12) 0%, rgba(250,206,0,.12) 100%), rgba(255,255,255,0.97); border:2px solid rgba(240,151,1,.35); border-radius:20px; box-shadow: 0 8px 25px rgba(240,151,1,0.15);">
-                    <div class="mb-4" style="font-weight:800; color:#1a202c; font-size:1.3rem; text-align:center; padding-bottom:0.8rem; border-bottom:2px solid rgba(240,151,1,.25);">
-                        <i class="fas fa-trophy me-2" style="color:var(--gold-start);"></i>Liderler
+                <div class="leaders-card p-4 gold-card">
+                    <div class="mb-4 section-card-title" style="font-size:1.3rem;">
+                        <i class="fas fa-trophy me-2"></i>Liderler
                     </div>
 
                     <div class="d-grid gap-3">
                         @if (topPrograms != null)
                         {
-                            <div class="leader-item p-3" style="background: linear-gradient(135deg, rgba(240,151,1,.1) 0%, rgba(250,206,0,.1) 100%), rgba(255,255,255,0.98); border-radius:15px; border:1px solid rgba(240,151,1,.35); box-shadow: 0 4px 12px rgba(240,151,1,0.1); transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(240,151,1,0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(240,151,1,0.1)'">
+                            <div class="leader-item p-3">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <div style="font-size:.9rem; font-weight:600; color:var(--gold-start); text-transform:uppercase; letter-spacing:0.5px;">
@@ -268,7 +183,7 @@
                         }
                         @if (topKaynak != null)
                         {
-                            <div class="leader-item p-3" style="background: linear-gradient(135deg, rgba(240,151,1,.1) 0%, rgba(250,206,0,.1) 100%), rgba(255,255,255,0.98); border-radius:15px; border:1px solid rgba(240,151,1,.35); box-shadow: 0 4px 12px rgba(240,151,1,0.1); transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(240,151,1,0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(240,151,1,0.1)'">
+                            <div class="leader-item p-3">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <div style="font-size:.9rem; font-weight:600; color:var(--gold-start); text-transform:uppercase; letter-spacing:0.5px;">
@@ -285,7 +200,7 @@
                         }
                         @if (topSuccess != null)
                         {
-                            <div class="leader-item p-3" style="background: linear-gradient(135deg, rgba(240,151,1,.1) 0%, rgba(250,206,0,.1) 100%), rgba(255,255,255,0.98); border-radius:15px; border:1px solid rgba(240,151,1,.35); box-shadow: 0 4px 12px rgba(240,151,1,0.1); transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(240,151,1,0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(240,151,1,0.1)'">
+                            <div class="leader-item p-3">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <div style="font-size:.9rem; font-weight:600; color:var(--gold-start); text-transform:uppercase; letter-spacing:0.5px;">
@@ -302,7 +217,7 @@
                         }
                         @if (minHataEligible != null)
                         {
-                            <div class="leader-item p-3" style="background: linear-gradient(135deg, rgba(240,151,1,.1) 0%, rgba(250,206,0,.1) 100%), rgba(255,255,255,0.98); border-radius:15px; border:1px solid rgba(240,151,1,.35); box-shadow: 0 4px 12px rgba(240,151,1,0.1); transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(240,151,1,0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(240,151,1,0.1)'">
+                            <div class="leader-item p-3">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <div style="font-size:.9rem; font-weight:600; color:var(--gold-start); text-transform:uppercase; letter-spacing:0.5px;">
@@ -324,23 +239,25 @@
             <div class="col-lg-8">
                 <div class="row g-4">
                     <div class="col-md-6">
-                        <div class="p-4 ranking-card" style="background: linear-gradient(135deg, rgba(240,151,1,.12) 0%, rgba(250,206,0,.12) 100%), rgba(255,255,255,0.97); border:2px solid rgba(240,151,1,.35); border-radius:20px; box-shadow: 0 8px 25px rgba(240,151,1,0.15);">
-                            <div class="mb-4" style="font-weight:800; color:#1a202c; font-size:1.2rem; text-align:center; padding-bottom:0.8rem; border-bottom:2px solid rgba(240,151,1,.25);">
-                                <i class="fas fa-percentage me-2" style="color:var(--gold-start);"></i>Başarı Yüzdesi (Top 5)
+                        <div class="p-4 ranking-card gold-card">
+                            <div class="mb-4 section-card-title">
+                                <i class="fas fa-percentage me-2"></i>Başarı Yüzdesi (Top 5)
                             </div>
                             <ol class="list-unstyled m-0">
                                 @foreach (var (item, idx) in topSuccessList.Select((x,i)=>(x,i+1)))
                                 {
-                                    <li class="d-flex align-items-center justify-content-between py-3 px-3" style="border-radius:12px; background: rgba(255,255,255,0.6); margin-bottom:0.5rem; border:1px solid rgba(240,151,1,0.15); transition: all 0.3s ease;" onmouseover="this.style.background='rgba(240,151,1,0.08)'; this.style.transform='translateX(3px)'" onmouseout="this.style.background='rgba(255,255,255,0.6)'; this.style.transform='translateX(0)'">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <span class="badge" style="background: var(--brand-gradient); color:#fff; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.9rem; border-radius:50%; box-shadow: 0 2px 8px rgba(240,151,1,0.3);">@idx</span>
-                                            <div style="color:#1a202c; font-weight:700; font-size:1.05rem;">@item.AdSoyad</div>
-                                        </div>
-                                        <div class="d-flex align-items-center gap-3">
-                                            <div class="progress" style="width: 100px; height:10px; background: rgba(0,0,0,0.08); border-radius:10px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
-                                                <div class="progress-bar" style="width:@item.BasariYuzdesi%; background: var(--brand-gradient); border-radius:10px; transition: width 0.3s ease;"></div>
+                                    <li class="ranking-item mb-2">
+                                        <div class="ranking-item-content">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <span class="badge badge-rank-gold">@idx</span>
+                                                <div style="color:#1a202c; font-weight:700; font-size:1.05rem;">@item.AdSoyad</div>
                                             </div>
-                                            <span style="color:#1a202c; font-weight:800; min-width:45px; text-align:right; font-size:1.1rem;">@item.BasariYuzdesi%</span>
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div class="progress" style="width: 100px; height:10px; background: rgba(0,0,0,0.08); border-radius:10px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
+                                                    <div class="progress-bar pb-success" style="width:@item.BasariYuzdesi%; transition: width 0.3s ease;"></div>
+                                                </div>
+                                                <span style="color:#1a202c; font-weight:800; min-width:45px; text-align:right; font-size:1.1rem;">@item.BasariYuzdesi%</span>
+                                            </div>
                                         </div>
                                     </li>
                                 }
@@ -348,57 +265,63 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="p-4 ranking-card" style="background: linear-gradient(135deg, rgba(240,151,1,.12) 0%, rgba(250,206,0,.12) 100%), rgba(255,255,255,0.97); border:2px solid rgba(240,151,1,.35); border-radius:20px; box-shadow: 0 8px 25px rgba(240,151,1,0.15);">
-                            <div class="mb-4" style="font-weight:800; color:#1a202c; font-size:1.2rem; text-align:center; padding-bottom:0.8rem; border-bottom:2px solid rgba(240,151,1,.25);">
-                                <i class="fas fa-code me-2" style="color:var(--gold-start);"></i>Program Sayısı (Top 5)
+                        <div class="p-4 ranking-card gold-card">
+                            <div class="mb-4 section-card-title">
+                                <i class="fas fa-code me-2"></i>Program Sayısı (Top 5)
                             </div>
                             <ol class="list-unstyled m-0">
                                 @foreach (var (item, idx) in topProgramList.Select((x,i)=>(x,i+1)))
                                 {
-                                    <li class="d-flex align-items-center justify-content-between py-3 px-3" style="border-radius:12px; background: rgba(255,255,255,0.6); margin-bottom:0.5rem; border:1px solid rgba(240,151,1,0.15); transition: all 0.3s ease;" onmouseover="this.style.background='rgba(240,151,1,0.08)'; this.style.transform='translateX(3px)'" onmouseout="this.style.background='rgba(255,255,255,0.6)'; this.style.transform='translateX(0)'">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <span class="badge" style="background: var(--brand-gradient); color:#fff; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.9rem; border-radius:50%; box-shadow: 0 2px 8px rgba(240,151,1,0.3);">@idx</span>
-                                            <div style="color:#1a202c; font-weight:700; font-size:1.05rem;">@item.AdSoyad</div>
+                                    <li class="ranking-item mb-2">
+                                        <div class="ranking-item-content">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <span class="badge badge-rank-gold">@idx</span>
+                                                <div style="color:#1a202c; font-weight:700; font-size:1.05rem;">@item.AdSoyad</div>
+                                            </div>
+                                            <span style="color:#1a202c; font-weight:800; font-size:1.3rem;">@item.ProgramSayisi</span>
                                         </div>
-                                        <span style="color:#1a202c; font-weight:800; font-size:1.3rem;">@item.ProgramSayisi</span>
                                     </li>
                                 }
                             </ol>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="p-4 ranking-card" style="background: linear-gradient(135deg, rgba(240,151,1,.12) 0%, rgba(250,206,0,.12) 100%), rgba(255,255,255,0.97); border:2px solid rgba(240,151,1,.35); border-radius:20px; box-shadow: 0 8px 25px rgba(240,151,1,0.15);">
-                            <div class="mb-4" style="font-weight:800; color:#1a202c; font-size:1.2rem; text-align:center; padding-bottom:0.8rem; border-bottom:2px solid rgba(240,151,1,.25);">
-                                <i class="fas fa-database me-2" style="color:var(--gold-start);"></i>Kaynak Adedi (Top 5)
+                        <div class="p-4 ranking-card gold-card">
+                            <div class="mb-4 section-card-title">
+                                <i class="fas fa-database me-2"></i>Kaynak Adedi (Top 5)
                             </div>
                             <ol class="list-unstyled m-0">
                                 @foreach (var (item, idx) in topKaynakList.Select((x,i)=>(x,i+1)))
                                 {
-                                    <li class="d-flex align-items-center justify-content-between py-3 px-3" style="border-radius:12px; background: rgba(255,255,255,0.6); margin-bottom:0.5rem; border:1px solid rgba(240,151,1,0.15); transition: all 0.3s ease;" onmouseover="this.style.background='rgba(240,151,1,0.08)'; this.style.transform='translateX(3px)'" onmouseout="this.style.background='rgba(255,255,255,0.6)'; this.style.transform='translateX(0)'">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <span class="badge" style="background: var(--brand-gradient); color:#fff; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.9rem; border-radius:50%; box-shadow: 0 2px 8px rgba(240,151,1,0.3);">@idx</span>
-                                            <div style="color:#1a202c; font-weight:700; font-size:1.05rem;">@item.AdSoyad</div>
+                                    <li class="ranking-item mb-2">
+                                        <div class="ranking-item-content">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <span class="badge badge-rank-gold">@idx</span>
+                                                <div style="color:#1a202c; font-weight:700; font-size:1.05rem;">@item.AdSoyad</div>
+                                            </div>
+                                            <span style="color:#1a202c; font-weight:800; font-size:1.3rem;">@item.ToplamKaynak</span>
                                         </div>
-                                        <span style="color:#1a202c; font-weight:800; font-size:1.3rem;">@item.ToplamKaynak</span>
                                     </li>
                                 }
                             </ol>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="p-4 ranking-card" style="background: linear-gradient(135deg, rgba(240,151,1,.12) 0%, rgba(250,206,0,.12) 100%), rgba(255,255,255,0.97); border:2px solid rgba(240,151,1,.35); border-radius:20px; box-shadow: 0 8px 25px rgba(240,151,1,0.15);">
-                            <div class="mb-4" style="font-weight:800; color:#1a202c; font-size:1.2rem; text-align:center; padding-bottom:0.8rem; border-bottom:2px solid rgba(240,151,1,.25);">
+                        <div class="p-4 ranking-card gold-card">
+                            <div class="mb-4 section-card-title">
                                 <i class="fas fa-exclamation-triangle me-2" style="color:#dc3545;"></i>Hata Sayısı (En Çok 5)
                             </div>
                             <ol class="list-unstyled m-0">
                                 @foreach (var (item, idx) in topHataList.Select((x,i)=>(x,i+1)))
                                 {
-                                    <li class="d-flex align-items-center justify-content-between py-3 px-3" style="border-radius:12px; background: rgba(255,255,255,0.6); margin-bottom:0.5rem; border:1px solid rgba(220,53,69,0.15); transition: all 0.3s ease;" onmouseover="this.style.background='rgba(220,53,69,0.08)'; this.style.transform='translateX(3px)'" onmouseout="this.style.background='rgba(255,255,255,0.6)'; this.style.transform='translateX(0)'">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <span class="badge" style="background: linear-gradient(135deg,#ff416c 0%,#ff4b2b 100%); color:#fff; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.9rem; border-radius:50%; box-shadow: 0 2px 8px rgba(220,53,69,0.3);">@idx</span>
-                                            <div style="color:#1a202c; font-weight:700; font-size:1.05rem;">@item.AdSoyad</div>
+                                    <li class="ranking-item ranking-item-danger mb-2">
+                                        <div class="ranking-item-content">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <span class="badge badge-rank-danger">@idx</span>
+                                                <div style="color:#1a202c; font-weight:700; font-size:1.05rem;">@item.AdSoyad</div>
+                                            </div>
+                                            <span style="color:#dc3545; font-weight:800; font-size:1.3rem;">@item.HataSayisi</span>
                                         </div>
-                                        <span style="color:#dc3545; font-weight:800; font-size:1.3rem;">@item.HataSayisi</span>
                                     </li>
                                 }
                             </ol>
@@ -413,7 +336,7 @@
     <div class="data-table-container">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0" id="tbl-operator">
-                <thead style="background: var(--brand-gradient); position: sticky; top: 0; z-index: 10;">
+                <thead>
                     <tr>
                         <th class="text-white fw-bold border-0 py-3 px-4" style="font-size: 0.95rem;">
                             <i class="fas fa-user me-2"></i>Operatör
@@ -454,13 +377,10 @@
                 @foreach (var op in ops)
                 {
                     var badgeClass = op.BasariYuzdesi >= 90 ? "success" : op.BasariYuzdesi >= 70 ? "warning" : "danger";
-                    var progressColor = op.BasariYuzdesi >= 90 ? "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)" : 
-                                       op.BasariYuzdesi >= 70 ? "linear-gradient(135deg, #fa709a 0%, #fee140 100%)" : 
-                                                                "linear-gradient(135deg, #ff6b6b 0%, #feca57 100%)";
-                    <tr style="transition: all 0.3s ease;" onmouseover="this.style.background='rgba(240, 151, 1, 0.08)'" onmouseout="this.style.background='transparent'">
+                    <tr>
                         <td class="px-4 py-3 border-0">
                             <div class="d-flex align-items-center">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px; background: var(--gradient-primary); color: white; font-weight: bold; font-size: 1.1rem;">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center me-3 avatar-initials brand-gradient-bg">
                                     @(op.AdSoyad.Split(' ').Take(2).Select(n => n.FirstOrDefault()).Aggregate("", (acc, c) => acc + c))
                                 </div>
                                 <div>
@@ -469,7 +389,7 @@
                             </div>
                         </td>
                         <td class="px-3 py-3 border-0">
-                            <span class="badge" style="background: rgba(240, 151, 1, 0.14); color: var(--gold-start, #f09701); padding: 0.5rem 1rem; border-radius: 20px; font-weight: 500;">
+                            <span class="badge badge-pill-gold">
                                 @op.KullaniciAdi
                             </span>
                         </td>
@@ -487,8 +407,8 @@
                         </td>
                         <td class="px-3 py-3 border-0 text-end">
                             <div class="d-flex align-items-center justify-content-end">
-                                <div class="progress" style="width: 80px; height: 8px; background: rgba(0,0,0,0.05); border-radius: 10px;">
-                                    <div class="progress-bar" role="progressbar" style="width: @op.BasariYuzdesi%; background: @progressColor; border-radius: 10px;"></div>
+                                <div class="progress progress-thin">
+                                    <div class="progress-bar pb-@badgeClass" role="progressbar" style="width: @op.BasariYuzdesi%;"></div>
                                 </div>
                                 <span class="ms-2 fw-bold" style="color: #2d3748; font-size: 0.9rem; min-width: 35px;">@op.BasariYuzdesi%</span>
                             </div>
@@ -503,10 +423,8 @@
                             <span style="color: #4a5568; font-weight: 500; font-size: 0.9rem;">@op.SonProgramZamanText</span>
                         </td>
                         <td class="px-3 py-3 border-0 text-center">
-                                     <a class="btn btn-sm" href="@Url.Action("Operator", new { id = op.OperatorId, days = Model.Days, maxProgramHours = Model.MaxProgramHours })" 
-                                         style="background: var(--gradient-primary); color: white; border-radius: 10px; padding: 0.5rem 1rem; font-weight: 600; text-decoration: none; transition: all 0.3s ease;"
-                                         onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(240, 151, 1, 0.45)'"
-                               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                     <a class="btn btn-sm btn-modern btn-primary-modern" href="@Url.Action("Operator", new { id = op.OperatorId, days = Model.Days, maxProgramHours = Model.MaxProgramHours })" 
+                                         style="border-radius: 10px; padding: 0.5rem 1rem; font-weight: 600; text-decoration: none;">
                                 <i class="fas fa-eye me-1"></i>Detay
                             </a>
                         </td>
@@ -530,88 +448,7 @@
 </div>
 </div>
 
-<style>
-/* 5 kolonlu grid için özel CSS */
-.col-lg-2-4 {
-    flex: 0 0 auto;
-    width: 20%;
-}
-
-@@media (max-width: 991.98px) {
-    .col-lg-2-4 {
-        width: 50%;
-    }
-}
-
-@@media (max-width: 575.98px) {
-    .col-lg-2-4 {
-        width: 100%;
-    }
-}
-
-/* Tablo sıralama */
-#tbl-operator th { 
-    cursor: pointer; 
-    user-select: none; 
-    transition: all 0.3s ease;
-}
-
-#tbl-operator th:hover { 
-    background: rgba(255, 255, 255, 0.1) !important;
-}
-
-#tbl-operator th.sorted-asc::after { 
-    content: ' ▲'; 
-    font-size: 0.7rem; 
-    opacity: 0.8;
-}
-
-#tbl-operator th.sorted-desc::after { 
-    content: ' ▼'; 
-    font-size: 0.7rem; 
-    opacity: 0.8;
-}
-
-/* Animasyonlar */
-@@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.metric-card, .filter-card, .data-table-container {
-    animation: fadeInUp 0.6s ease forwards;
-}
-
-/* Responsive improvements */
-@@media (max-width: 768px) {
-    .performance-header {
-        padding: 1.5rem;
-        text-align: center;
-    }
-    
-    .performance-header h1 {
-        font-size: 2rem !important;
-    }
-    
-    .performance-header .d-flex {
-        flex-direction: column;
-    }
-    
-    .filter-card {
-        padding: 1rem;
-    }
-    
-    .metric-card {
-        padding: 1rem;
-    }
-}
-</style>
+ 
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
