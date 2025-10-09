@@ -2,148 +2,454 @@
 @{
     ViewData["Title"] = "Operatör Detayı";
 }
-<div class="container-fluid py-4">
-    <div class="d-flex align-items-center mb-3">
-        <div>
-            <h2 class="mb-0" style="font-weight:600;">@Model.AdSoyad <small class="text-muted" style="font-size:0.65em;">@Model.KullaniciAdi</small></h2>
-            <div class="small text-muted">Oluşturma: @Model.OlusturmaZamani.ToString("yyyy-MM-dd HH:mm:ss")</div>
-        </div>
-        <div class="ms-auto d-flex gap-2">
-            <a class="btn btn-sm btn-secondary" href="@Url.Action("Index", new { days = Model.Days, maxProgramHours = Model.MaxProgramHours })">&larr; Geri</a>
-            <a class="btn btn-sm btn-outline-primary" href="@Url.Action("OperatorCsv", new { id = Model.OperatorId, days = Model.Days, maxProgramHours = Model.MaxProgramHours })">CSV</a>
+
+@section Head {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<style>
+:root {
+    /* Use brand gold gradient on this page */
+    --gradient-primary: var(--brand-gradient, linear-gradient(90deg, #f09701, #face00));
+    --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    --gradient-warning: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    --gradient-danger: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+    --gradient-info: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-medium: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --border-radius: 16px;
+}
+
+.operator-header {
+    background: var(--gradient-primary);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    color: white;
+    box-shadow: var(--shadow-medium);
+}
+
+.filter-card {
+    background: linear-gradient(135deg, rgba(240,151,1,.14) 0%, rgba(250,206,0,.14) 100%), rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(20px);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid rgba(240,151,1,.25);
+}
+
+.metric-card {
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-soft);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+
+.data-table-container {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-medium);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.form-control-modern {
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control-modern:focus {
+    border-color: var(--gold-start, #f09701);
+    box-shadow: 0 0 0 0.2rem rgba(240, 151, 1, 0.25);
+}
+
+.btn-modern {
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn-modern:hover {
+    transform: translateY(-1px);
+}
+
+.btn-primary-modern {
+    background: var(--gradient-primary);
+    color: white;
+}
+
+.btn-secondary-modern {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    color: white;
+}
+</style>
+
+<div class="container-fluid py-4" style="min-height: 100vh;">
+    <div class="operator-header">
+        <div class="d-flex align-items-center justify-content-between flex-wrap">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle d-flex align-items-center justify-content-center me-4" style="width: 80px; height: 80px; background: rgba(255, 255, 255, 0.2); color: white; font-weight: bold; font-size: 1.8rem;">
+                    @(Model.AdSoyad.Split(' ').Take(2).Select(n => n.FirstOrDefault()).Aggregate("", (acc, c) => acc + c))
+                </div>
+                <div>
+                    <h1 class="mb-1" style="font-weight: 700; font-size: 2.2rem;">@Model.AdSoyad</h1>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="badge" style="background: rgba(255, 255, 255, 0.2); color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem;">
+                            <i class="fas fa-at me-1"></i>@Model.KullaniciAdi
+                        </span>
+                        <span class="opacity-75" style="font-size: 0.95rem;">
+                            <i class="fas fa-clock me-1"></i>@Model.OlusturmaZamani.ToString("dd.MM.yyyy HH:mm")
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex gap-3 mt-3 mt-md-0">
+                <a class="btn btn-modern" href="@Url.Action("Index", new { days = Model.Days, maxProgramHours = Model.MaxProgramHours })" style="background: rgba(255, 255, 255, 0.2); color: white; border: 1px solid rgba(255, 255, 255, 0.3);">
+                    <i class="fas fa-arrow-left me-2"></i>Geri
+                </a>
+                <a class="btn btn-modern" href="@Url.Action("OperatorCsv", new { id = Model.OperatorId, days = Model.Days, maxProgramHours = Model.MaxProgramHours })" style="background: rgba(255, 255, 255, 0.95); color: var(--gold-start, #f09701); border: 1px solid rgba(240,151,1,.3);">
+                    <i class="fas fa-download me-2"></i>CSV
+                </a>
+            </div>
         </div>
     </div>
-    <form method="get" class="row row-cols-lg-auto g-2 align-items-end mb-3">
-        <input type="hidden" name="id" value="@Model.OperatorId" />
-        <div class="col">
-            <label class="form-label m-0 small">Son (gün)</label>
-            <input type="number" name="days" value="@Model.Days" class="form-control form-control-sm" style="width:100px" />
-        </div>
-        <div class="col">
-            <label class="form-label m-0 small">Max Süre (saat)</label>
-            <input type="number" step="0.1" name="maxProgramHours" value="@(Model.MaxProgramHours?.ToString("0.0"))" class="form-control form-control-sm" style="width:120px" />
-        </div>
-        <div class="col">
-            <button class="btn btn-sm btn-primary">Filtrele</button>
-        </div>
-    </form>
+    <div class="filter-card mb-4">
+        <form method="get" class="row g-3 align-items-end">
+            <input type="hidden" name="id" value="@Model.OperatorId" />
+            <div class="col-md-4">
+                <label class="form-label fw-semibold text-dark">📅 Son (gün)</label>
+                <input type="number" name="days" value="@Model.Days" class="form-control form-control-modern" placeholder="Tümü" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-semibold text-dark">⏱️ Max Süre (saat)</label>
+                <input type="number" step="0.1" name="maxProgramHours" value="@(Model.MaxProgramHours?.ToString("0.0"))" class="form-control form-control-modern" placeholder="Sınır yok" />
+            </div>
+            <div class="col-md-4">
+                <button class="btn btn-modern btn-primary-modern w-100">
+                    <i class="fas fa-search me-2"></i>Filtrele
+                </button>
+            </div>
+        </form>
+    </div>
 
-    <div class="row g-3 mb-4">
-        <div class="col-6 col-md-3">
-            <div class="p-3 rounded shadow-sm" style="background:linear-gradient(135deg,#f8d778,#f1c232);">
-                <div class="small text-muted">Program</div>
-                <div class="fs-5 fw-semibold">@Model.ToplamProgram</div>
+    <div class="row g-4 mb-5">
+        <div class="col-6 col-lg-2-4">
+            <div class="metric-card" style="background: var(--gradient-warning);">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-white opacity-75 mb-1" style="font-size: 0.9rem; font-weight: 500;">Program</div>
+                        <div class="text-white" style="font-size: 2.2rem; font-weight: 700; line-height: 1;">@Model.ToplamProgram</div>
+                    </div>
+                    <div class="text-white opacity-50">
+                        <i class="fas fa-code" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="p-3 rounded shadow-sm" style="background:linear-gradient(135deg,#d6e4ff,#91b4f8);">
-                <div class="small text-muted">Kaynak</div>
-                <div class="fs-5 fw-semibold">@Model.ToplamKaynak</div>
+        <div class="col-6 col-lg-2-4">
+            <div class="metric-card" style="background: var(--gradient-success);">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-white opacity-75 mb-1" style="font-size: 0.9rem; font-weight: 500;">Kaynak</div>
+                        <div class="text-white" style="font-size: 2.2rem; font-weight: 700; line-height: 1;">@Model.ToplamKaynak</div>
+                    </div>
+                    <div class="text-white opacity-50">
+                        <i class="fas fa-database" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="p-3 rounded shadow-sm" style="background:linear-gradient(135deg,#c9f7d5,#6ecf85);">
-                <div class="small text-muted">Başarılı</div>
-                <div class="fs-5 fw-semibold text-success">@Model.ToplamBasarili</div>
+        <div class="col-6 col-lg-2-4">
+            <div class="metric-card" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-white opacity-75 mb-1" style="font-size: 0.9rem; font-weight: 500;">Başarılı</div>
+                        <div class="text-white" style="font-size: 2.2rem; font-weight: 700; line-height: 1;">@Model.ToplamBasarili</div>
+                    </div>
+                    <div class="text-white opacity-50">
+                        <i class="fas fa-check-circle" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="p-3 rounded shadow-sm" style="background:linear-gradient(135deg,#ffd4d4,#f88989);">
-                <div class="small text-muted">Hata</div>
-                <div class="fs-5 fw-semibold text-danger">@Model.ToplamHata</div>
+        <div class="col-6 col-lg-2-4">
+            <div class="metric-card" style="background: var(--gradient-danger);">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-white opacity-75 mb-1" style="font-size: 0.9rem; font-weight: 500;">Hata</div>
+                        <div class="text-white" style="font-size: 2.2rem; font-weight: 700; line-height: 1;">@Model.ToplamHata</div>
+                    </div>
+                    <div class="text-white opacity-50">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="p-3 rounded shadow-sm" style="background:linear-gradient(135deg,#e0d4ff,#b292ff);">
-                <div class="small text-muted">Başarı %</div>
-                <div class="fs-5 fw-semibold">@Model.GenelBasariYuzdesi%</div>
+        <div class="col-6 col-lg-2-4">
+            <div class="metric-card" style="background: var(--gradient-info);">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div style="color: #2d3748; opacity: 0.75; font-size: 0.9rem; font-weight: 500; margin-bottom: 0.25rem;">Başarı %</div>
+                        <div style="color: #2d3748; font-size: 2.2rem; font-weight: 700; line-height: 1;">@Model.GenelBasariYuzdesi<span style="font-size: 1.4rem;">%</span></div>
+                    </div>
+                    <div style="color: #2d3748; opacity: 0.4;">
+                        <i class="fas fa-chart-pie" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="table-responsive shadow rounded" style="background:rgba(255,255,255,0.85);backdrop-filter:blur(4px);">
-        <table class="table table-sm align-middle mb-0" id="tbl-program">
-            <thead class="table-light" style="position:sticky;top:0;z-index:10;">
-                <tr>
-                    <th>Program</th>
-                    <th class="text-end">Kaynak</th>
-                    <th class="text-end text-success">Başarılı</th>
-                    <th class="text-end text-danger">Başarısız</th>
-                    <th class="text-end">Başarı %</th>
-                    <th class="text-end">Hata</th>
-                    <th class="text-end">Süre</th>
-                    <th class="text-end">Bitiş</th>
-                </tr>
-            </thead>
-            <tbody>
-            @foreach (var pr in Model.Programlar)
-            {
-                var badgeClass = pr.BasariYuzdesi >= 90 ? "bg-success" : pr.BasariYuzdesi >= 70 ? "bg-warning" : "bg-danger";
-                <tr>
-                    <td>@pr.ProgramAdi</td>
-                    <td class="text-end fw-semibold">@pr.KaynakToplam</td>
-                    <td class="text-end text-success">@pr.BasariliKaynak</td>
-                    <td class="text-end text-danger">@pr.BasarisizKaynak</td>
-                    <td class="text-end">
-                        <div class="progress" style="height:14px; background:rgba(0,0,0,0.08);">
-                            <div class="progress-bar @badgeClass" role="progressbar" style="width:@pr.BasariYuzdesi%; font-size:0.65rem;">@pr.BasariYuzdesi%</div>
-                        </div>
-                    </td>
-                    <td class="text-end">@pr.HataSayisi</td>
-                    <td class="text-end">@pr.ProgramSureText</td>
-                    <td class="text-end">@pr.BitisZamani.ToString("yyyy-MM-dd HH:mm")</td>
-                </tr>
-            }
-            @if (!Model.Programlar.Any())
-            {
-                <tr><td colspan="8" class="text-center text-muted py-4">Kayıt bulunamadı.</td></tr>
-            }
-            </tbody>
-        </table>
+    <div class="data-table-container">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="tbl-program">
+                <thead style="background: var(--brand-gradient); position: sticky; top: 0; z-index: 10;">
+                    <tr>
+                        <th class="text-white fw-bold border-0 py-3 px-4" style="font-size: 0.95rem;">
+                            <i class="fas fa-code me-2"></i>Program
+                        </th>
+                        <th class="text-white fw-bold border-0 py-3 px-3 text-end" style="font-size: 0.95rem;">
+                            <i class="fas fa-database me-2"></i>Kaynak
+                        </th>
+                        <th class="text-white fw-bold border-0 py-3 px-3 text-end" style="font-size: 0.95rem;">
+                            <i class="fas fa-check me-2 text-success"></i>Başarılı
+                        </th>
+                        <th class="text-white fw-bold border-0 py-3 px-3 text-end" style="font-size: 0.95rem;">
+                            <i class="fas fa-times me-2 text-danger"></i>Başarısız
+                        </th>
+                        <th class="text-white fw-bold border-0 py-3 px-3 text-end" style="font-size: 0.95rem;">
+                            <i class="fas fa-percentage me-2"></i>Başarı %
+                        </th>
+                        <th class="text-white fw-bold border-0 py-3 px-3 text-end" style="font-size: 0.95rem;">
+                            <i class="fas fa-bug me-2"></i>Hata
+                        </th>
+                        <th class="text-white fw-bold border-0 py-3 px-3 text-end" style="font-size: 0.95rem;">
+                            <i class="fas fa-clock me-2"></i>Süre
+                        </th>
+                        <th class="text-white fw-bold border-0 py-3 px-3 text-end" style="font-size: 0.95rem;">
+                            <i class="fas fa-calendar me-2"></i>Bitiş
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var pr in Model.Programlar)
+                {
+                    var progressColor = pr.BasariYuzdesi >= 90 ? "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)" : 
+                                       pr.BasariYuzdesi >= 70 ? "linear-gradient(135deg, #fa709a 0%, #fee140 100%)" : 
+                                                                "linear-gradient(135deg, #ff6b6b 0%, #feca57 100%)";
+                    <tr style="transition: all 0.3s ease;" onmouseover="this.style.background='rgba(240, 151, 1, 0.08)'" onmouseout="this.style.background='transparent'">
+                        <td class="px-4 py-3 border-0">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 35px; height: 35px; background: var(--gradient-primary); color: white; font-weight: bold; font-size: 0.9rem;">
+                                    <i class="fas fa-file-code"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold" style="color: #2d3748; font-size: 1rem;">@pr.ProgramAdi</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-3 py-3 border-0 text-end">
+                            <span class="fw-bold" style="color: #2d3748; font-size: 1.1rem;">@pr.KaynakToplam</span>
+                        </td>
+                        <td class="px-3 py-3 border-0 text-end">
+                            <span class="fw-bold" style="color: #38a169;">@pr.BasariliKaynak</span>
+                        </td>
+                        <td class="px-3 py-3 border-0 text-end">
+                            <span class="fw-bold" style="color: #e53e3e;">@pr.BasarisizKaynak</span>
+                        </td>
+                        <td class="px-3 py-3 border-0 text-end">
+                            <div class="d-flex align-items-center justify-content-end">
+                                <div class="progress" style="width: 80px; height: 8px; background: rgba(0,0,0,0.05); border-radius: 10px;">
+                                    <div class="progress-bar" role="progressbar" style="width: @pr.BasariYuzdesi%; background: @progressColor; border-radius: 10px;"></div>
+                                </div>
+                                <span class="ms-2 fw-bold" style="color: #2d3748; font-size: 0.9rem; min-width: 35px;">@pr.BasariYuzdesi%</span>
+                            </div>
+                        </td>
+                        <td class="px-3 py-3 border-0 text-end">
+                            <span class="fw-bold" style="color: #e53e3e;">@pr.HataSayisi</span>
+                        </td>
+                        <td class="px-3 py-3 border-0 text-end">
+                            <span style="color: #4a5568; font-weight: 500; font-size: 0.9rem;">@pr.ProgramSureText</span>
+                        </td>
+                        <td class="px-3 py-3 border-0 text-end">
+                            <span style="color: #4a5568; font-weight: 500; font-size: 0.9rem;">@pr.BitisZamani.ToString("dd.MM.yyyy HH:mm")</span>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Programlar.Any())
+                {
+                    <tr>
+                        <td colspan="8" class="text-center py-5 border-0">
+                            <div style="color: #a0aec0; font-size: 1.1rem;">
+                                <i class="fas fa-search mb-3" style="font-size: 3rem;"></i>
+                                <div>Kayıt bulunamadı.</div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
+</div>
+
+<style>
+/* 5 kolonlu grid için özel CSS */
+.col-lg-2-4 {
+    flex: 0 0 auto;
+    width: 20%;
+}
+
+@@media (max-width: 991.98px) {
+    .col-lg-2-4 {
+        width: 50%;
+    }
+}
+
+@@media (max-width: 575.98px) {
+    .col-lg-2-4 {
+        width: 100%;
+    }
+}
+
+/* Tablo sıralama */
+#tbl-program th { 
+    cursor: pointer; 
+    user-select: none; 
+    transition: all 0.3s ease;
+}
+
+#tbl-program th:hover { 
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+#tbl-program th.sorted-asc::after { 
+    content: ' ▲'; 
+    font-size: 0.7rem; 
+    opacity: 0.8;
+}
+
+#tbl-program th.sorted-desc::after { 
+    content: ' ▼'; 
+    font-size: 0.7rem; 
+    opacity: 0.8;
+}
+
+/* Animasyonlar */
+@@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.metric-card, .filter-card, .data-table-container {
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+/* Responsive improvements */
+@@media (max-width: 768px) {
+    .operator-header {
+        padding: 1.5rem;
+        text-align: center;
+    }
+    
+    .operator-header h1 {
+        font-size: 1.8rem !important;
+    }
+    
+    .operator-header .d-flex {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .filter-card {
+        padding: 1rem;
+    }
+    
+    .metric-card {
+        padding: 1rem;
+    }
+}
+</style>
+
 <script>
-    (function(){
-        const tbl = document.getElementById('tbl-program');
-        if(!tbl) return;
-        const thead = tbl.querySelector('thead');
-        if(!thead) return;
-        let sortState = {};
-        function getCellValue(tr, idx){
-            const td = tr.children[idx];
-            if(!td) return '';
-            const text = td.innerText.trim();
-            const num = text.replace(/[%]/g,'').replace(',', '.');
-            return isNaN(num) || num === '' ? text : parseFloat(num);
+document.addEventListener('DOMContentLoaded', function() {
+    // Tablo sıralama fonksiyonalitesi
+    const tbl = document.getElementById('tbl-program');
+    if(!tbl) return;
+    
+    const thead = tbl.querySelector('thead');
+    if(!thead) return;
+    
+    let sortState = {};
+    
+    function getCellValue(tr, idx) {
+        const td = tr.children[idx];
+        if(!td) return '';
+        const text = td.innerText.trim();
+        const num = text.replace(/[%]/g,'').replace(',', '.');
+        return isNaN(num) || num === '' ? text : parseFloat(num);
+    }
+    
+    function comparer(idx) {
+        return function(a, b) {
+            const v1 = getCellValue(a, idx);
+            const v2 = getCellValue(b, idx);
+            if(typeof v1 === 'number' && typeof v2 === 'number') return v1 - v2;
+            return v1.toString().localeCompare(v2.toString(), 'tr');
         }
-        function comparer(idx){
-            return function(a,b){
-                const v1 = getCellValue(a, idx);
-                const v2 = getCellValue(b, idx);
-                if(typeof v1 === 'number' && typeof v2 === 'number') return v1 - v2;
-                return v1.toString().localeCompare(v2.toString(),'tr');
-            }
-        }
-        thead.addEventListener('click', e => {
-            const th = e.target.closest('th');
-            if(!th) return;
-            const ths = Array.from(thead.querySelectorAll('th'));
-            const idx = ths.indexOf(th);
-            if(idx < 0) return;
-            const tbody = tbl.querySelector('tbody');
-            const rows = Array.from(tbody.querySelectorAll('tr')).filter(r=>r.children.length>1);
-            const asc = !(sortState[idx] === true);
+    }
+    
+    thead.addEventListener('click', e => {
+        const th = e.target.closest('th');
+        if(!th) return;
+        
+        const ths = Array.from(thead.querySelectorAll('th'));
+        const idx = ths.indexOf(th);
+        if(idx < 0) return;
+        
+        const tbody = tbl.querySelector('tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr')).filter(r => r.children.length > 1);
+        const asc = !(sortState[idx] === true);
+        
+        // Sıralama animasyonu
+        tbody.style.opacity = '0.7';
+        tbody.style.transition = 'opacity 0.3s ease';
+        
+        setTimeout(() => {
             rows.sort(comparer(idx));
             if(!asc) rows.reverse();
-            rows.forEach(r=>tbody.appendChild(r));
+            rows.forEach(r => tbody.appendChild(r));
+            
             sortState = {[idx]: asc};
-            ths.forEach(h=>h.classList.remove('sorted-asc','sorted-desc'));
-            th.classList.add(asc? 'sorted-asc':'sorted-desc');
-        });
-    })();
+            ths.forEach(h => h.classList.remove('sorted-asc', 'sorted-desc'));
+            th.classList.add(asc ? 'sorted-asc' : 'sorted-desc');
+            
+            tbody.style.opacity = '1';
+        }, 150);
+    });
+    
+    // Metrik kartları animasyon gecikmesi
+    const metricCards = document.querySelectorAll('.metric-card');
+    metricCards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+    });
+});
 </script>
-<style>
-    #tbl-program th { cursor:pointer; user-select:none; }
-    #tbl-program th.sorted-asc::after { content:' \25B2'; font-size:0.65rem; }
-    #tbl-program th.sorted-desc::after { content:' \25BC'; font-size:0.65rem; }
-</style>
