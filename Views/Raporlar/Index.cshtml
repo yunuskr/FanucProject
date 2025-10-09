@@ -38,24 +38,28 @@
             <div class="gold-card p-3 text-white bg-gradient-warning">
                 <div class="small text-white-50">Toplam Program</div>
                 <div class="fs-3 fw-semibold">@Model.ToplamProgram</div>
+                <div class="small">Önceki: @Model.OncekiToplamProgram • Delta: @Model.DeltaProgram</div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="gold-card p-3 text-white bg-gradient-success">
                 <div class="small text-white-50">Toplam Kaynak</div>
                 <div class="fs-3 fw-semibold">@Model.ToplamKaynak</div>
+                <div class="small">Önceki: @Model.OncekiToplamKaynak • Delta: @Model.DeltaKaynak</div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="gold-card p-3 text-white bg-gradient-info">
                 <div class="small text-white-50">Başarı Oranı</div>
                 <div class="fs-3 fw-semibold">@Model.BasariYuzdesi%</div>
+                <div class="small">Önceki: @Model.OncekiBasariYuzdesi% • Delta: @Model.DeltaBasariYuzdesi%</div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="gold-card p-3 text-white bg-gradient-danger">
                 <div class="small text-white-50">Toplam Hata</div>
                 <div class="fs-3 fw-semibold">@Model.ToplamHata</div>
+                <div class="small">Önceki: @Model.OncekiToplamHata • Delta: @Model.DeltaHata</div>
             </div>
         </div>
     </div>
@@ -199,6 +203,64 @@
                     <div><span class="badge badge-pill-gold">@Model.ToplamDurusSuresi</span> toplam süre</div>
                 </div>
                 <div class="small text-muted mt-2">Detaylı duruş raporları için altyapı hazırlanıyor.</div>
+            </div>
+        </div>
+
+        <!-- Daily Trend -->
+        <div class="col-12">
+            <div class="gold-card p-3">
+                <div class="section-card-title">Günlük Trend</div>
+                <div class="table-responsive mt-2">
+                    <table class="table table-sm align-middle">
+                        <thead>
+                            <tr>
+                                <th>Tarih</th>
+                                <th class="text-end">Program</th>
+                                <th class="text-end">Kaynak</th>
+                                <th class="text-end">Başarı</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var d in Model.GunlukTrend)
+                            {
+                                <tr>
+                                    <td>@d.Date.ToString("dd.MM.yyyy")</td>
+                                    <td class="text-end">@d.Program</td>
+                                    <td class="text-end">@d.Kaynak</td>
+                                    <td class="text-end">@d.BasariYuzdesi%</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Errors -->
+        <div class="col-12">
+            <div class="gold-card p-3">
+                <div class="section-card-title">En Sık Hatalar</div>
+                <div class="table-responsive mt-2">
+                    <table class="table table-sm align-middle">
+                        <thead>
+                            <tr>
+                                <th>Kod</th>
+                                <th>Açıklama</th>
+                                <th class="text-end">Adet</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var h in Model.TopHatalar)
+                            {
+                                <tr>
+                                    <td>@h.Kod</td>
+                                    <td>@h.Aciklama</td>
+                                    <td class="text-end">@h.Adet</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

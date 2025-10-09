@@ -30,5 +30,23 @@ namespace FanucRelease.ViewModels
         // Downtime (placeholder for future)
         public int ToplamDurusAdet { get; set; }
         public TimeSpan ToplamDurusSuresi { get; set; }
+
+        // Executive KPIs: Current vs Previous period
+        public int OncekiToplamProgram { get; set; }
+        public int OncekiToplamKaynak { get; set; }
+        public int OncekiBasariliKaynak { get; set; }
+        public int OncekiToplamHata { get; set; }
+        public int OncekiBasariYuzdesi => OncekiToplamKaynak > 0 ? (int)Math.Round(OncekiBasariliKaynak * 100.0 / OncekiToplamKaynak) : 0;
+
+        public int DeltaProgram => ToplamProgram - OncekiToplamProgram;
+        public int DeltaKaynak => ToplamKaynak - OncekiToplamKaynak;
+        public int DeltaHata => ToplamHata - OncekiToplamHata;
+        public int DeltaBasariYuzdesi => BasariYuzdesi - OncekiBasariYuzdesi;
+
+        // Daily trend: program and success per day
+        public List<(DateTime Date, int Program, int Kaynak, int BasariYuzdesi)> GunlukTrend { get; set; } = new();
+
+        // Top Errors by code/description
+        public List<(string Kod, string Aciklama, int Adet)> TopHatalar { get; set; } = new();
     }
 }

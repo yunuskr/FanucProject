@@ -31,6 +31,9 @@ namespace FanucRelease.Controllers
             // Varsayılan: son 30 gün
             var start = startDate ?? DateTime.Today.AddDays(-30);
             var end = endDate?.Date.AddDays(1).AddTicks(-1) ?? DateTime.Today.AddDays(1).AddTicks(-1);
+            var periodDays = Math.Max(1, (int)Math.Ceiling((end - start).TotalDays));
+            var prevStart = start.AddDays(-periodDays);
+            var prevEnd = start.AddTicks(-1);
 
             // Programlar filtreli
             var progQuery = _db.ProgramVerileri.AsNoTracking();
@@ -116,6 +119,45 @@ namespace FanucRelease.Controllers
             // Durus placeholder (ileride MakineDurus üzerinden hesaplanacak)
             vm.ToplamDurusAdet = 0;
             vm.ToplamDurusSuresi = TimeSpan.Zero;
+
+            // Previous period metrics for delta comparisons
+            var prevQuery = _db.ProgramVerileri.AsNoTracking()
+                .Where(p => (p.BitisZamani > DateTime.MinValue ? p.BitisZamani : p.Tarih) >= prevStart
+                         && (p.BitisZamani > DateTime.MinValue ? p.BitisZamani : p.Tarih) <= prevEnd);
+            if (operatorId.HasValue)
+                prevQuery = prevQuery.Where(p => p.OperatorId == operatorId.Value);
+            var prevPrograms = await prevQuery
+                .Include(p => p.Kaynaklar)
+                .Include(p => p.Hatalar)
+                .ToListAsync();
+
+            vm.OncekiToplamProgram = prevPrograms.Count;
+            vm.OncekiToplamKaynak = prevPrograms.Sum(p => p.Kaynaklar?.Count ?? 0);
+            vm.OncekiBasariliKaynak = prevPrograms.Sum(p => p.Kaynaklar?.Count(k => k.basarili_mi) ?? 0);
+            vm.OncekiToplamHata = prevPrograms.Sum(p => p.Hatalar?.Count ?? 0);
+
+            // Daily trend for current period
+            vm.GunlukTrend = programs
+                .GroupBy(p => (p.BitisZamani > DateTime.MinValue ? p.BitisZamani.Date : p.Tarih.Date))
+                .OrderBy(g => g.Key)
+                .Select(g => (
+                    Date: g.Key,
+                    Program: g.Count(),
+                    Kaynak: g.Sum(p => p.Kaynaklar?.Count ?? 0),
+                    BasariYuzdesi: (g.Sum(p => p.Kaynaklar?.Count ?? 0) > 0)
+                        ? (int)Math.Round((g.Sum(p => p.Kaynaklar!.Count(k => k.basarili_mi)) * 100.0) / (g.Sum(p => p.Kaynaklar!.Count)))
+                        : 0
+                ))
+                .ToList();
+
+            // Top errors by code/description in current period
+            vm.TopHatalar = programs
+                .SelectMany(p => p.Hatalar ?? new List<Models.Hata>())
+                .GroupBy(h => new { h.Kod, h.Aciklama })
+                .OrderByDescending(g => g.Count())
+                .Take(10)
+                .Select(g => (g.Key.Kod, g.Key.Aciklama, g.Count()))
+                .ToList();
 
             return View(vm);
         }
