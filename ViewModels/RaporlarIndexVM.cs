@@ -48,5 +48,22 @@ namespace FanucRelease.ViewModels
 
         // Top Errors by code/description
         public List<(string Kod, string Aciklama, int Adet)> TopHatalar { get; set; } = new();
+
+        // Compare section (Durus Ozeti replacement)
+        public string CompareMode { get; set; } = "weekly"; // daily | weekly | monthly | yearly
+        public DateTime? CompareABase { get; set; }
+        public DateTime? CompareBBase { get; set; }
+    public (string Label, int Program, int Kaynak, int Hata, int SureDakika) CompareA { get; set; }
+    public (string Label, int Program, int Kaynak, int Hata, int SureDakika) CompareB { get; set; }
+    public (int Program, int Kaynak, int Hata, int SureDakika) CompareDelta { get; set; }
+
+        // Weekly selection UI (Year/Month/Week-of-month) for A and B
+        public int AYear { get; set; }
+        public int AMonth { get; set; }
+        public int AWeek { get; set; } // 1..4
+
+        public int BYear { get; set; }
+        public int BMonth { get; set; }
+        public int BWeek { get; set; } // 1..4
     }
 }

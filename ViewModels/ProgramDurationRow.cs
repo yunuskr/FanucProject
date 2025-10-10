@@ -6,6 +6,7 @@ namespace FanucRelease.ViewModels
     {
         public int ProgramId { get; set; }
         public string ProgramAdi { get; set; } = "—";
+        public string TarihText { get; set; } = "—";
         public string? OperatorAdSoyad { get; set; }
         public int KaynakSayisi { get; set; }
         public int BasariYuzdesi { get; set; }

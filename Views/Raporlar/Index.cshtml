@@ -6,12 +6,13 @@
 @section Head {
     <link rel="stylesheet" href="~/css/performance.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <script src="~/libs/chart.js/Chart.min.js"></script>
 }
 
 <div class="container-fluid">
-    <!-- Header + Enhanced Filters -->
+    <!-- Header (filters removed) -->
     <div class="row align-items-center mb-4">
-        <div class="col-lg-4">
+        <div class="col-12">
             <div class="d-flex align-items-center">
                 <div class="stat-icon primary me-3" style="width: 60px; height: 60px; font-size: 1.5rem;">
                     <i class="fas fa-chart-bar"></i>
@@ -22,56 +23,6 @@
                     </h2>
                     <p class="mb-0 text-white-50 small">Performans analizi ve KPI takibi</p>
                 </div>
-            </div>
-        </div>
-        <div class="col-lg-8">
-            <div class="gold-card p-3">
-                <form method="get" class="row g-3 align-items-end">
-                    <div class="col-md-3">
-                        <label class="form-label small fw-semibold text-dark mb-1">
-                            <i class="fas fa-calendar-alt me-1 text-primary"></i>Başlangıç Tarihi
-                        </label>
-                        <input type="date" name="startDate" value="@Model.StartDate?.ToString("yyyy-MM-dd")" 
-                               class="form-control form-control-sm border-2 shadow-sm" />
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label small fw-semibold text-dark mb-1">
-                            <i class="fas fa-calendar-check me-1 text-success"></i>Bitiş Tarihi
-                        </label>
-                        <input type="date" name="endDate" value="@Model.EndDate?.ToString("yyyy-MM-dd")" 
-                               class="form-control form-control-sm border-2 shadow-sm" />
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label small fw-semibold text-dark mb-1">
-                            <i class="fas fa-user me-1 text-warning"></i>Operatör ID <span class="text-muted">(opsiyonel)</span>
-                        </label>
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-text border-2 bg-light">
-                                <i class="fas fa-hashtag text-muted"></i>
-                            </span>
-                            <input type="number" name="operatorId" value="@(Model.OperatorId?.ToString() ?? "")" 
-                                   class="form-control border-2 shadow-sm" placeholder="Tüm operatörler" min="1" />
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary btn-sm shadow-sm flex-grow-1">
-                                <i class="fas fa-search me-1"></i> Filtrele
-                            </button>
-                            <a class="btn btn-outline-secondary btn-sm shadow-sm" asp-action="Index" title="Filtreleri temizle">
-                                <i class="fas fa-eraser"></i>
-                            </a>
-                        </div>
-                        <div class="d-flex gap-1 mt-1">
-                            <button type="button" class="btn btn-outline-info btn-xs" onclick="setLastWeek()" title="Son 7 gün">
-                                <i class="fas fa-calendar-week"></i>
-                            </button>
-                            <button type="button" class="btn btn-outline-info btn-xs" onclick="setLastMonth()" title="Son 30 gün">
-                                <i class="fas fa-calendar-day"></i>
-                            </button>
-                        </div>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
@@ -169,15 +120,345 @@
     </div>
 
     <!-- Content Rows -->
-    <div class="row g-4">
-        <!-- Top Operators -->
-        <div class="col-lg-6">
+    <div class="row g-4 align-items-stretch">
+        <!-- Karşılaştırma (Program/Kaynak/Hata) moved to top -->
+        <div class="col-12">
             <div class="gold-card p-4">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="stat-icon primary me-3">
-                        <i class="fas fa-users"></i>
+                <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon info me-3">
+                            <i class="fas fa-balance-scale"></i>
+                        </div>
+                        <div class="section-card-title mb-0">Karşılaştırma (Program/Kaynak/Hata)</div>
                     </div>
-                    <div class="section-card-title mb-0">En İyi Operatörler</div>
+                    <form method="get" class="d-flex align-items-end flex-wrap gap-2">
+                        <div class="me-2">
+                            <label class="small text-muted">Zaman Aralığı</label>
+                            <select name="compareMode" id="compareMode" class="form-select form-select-sm">
+                                @if (Model.CompareMode == "daily")
+                                {
+                                    <option value="daily" selected>Günlük</option>
+                                }
+                                else
+                                {
+                                    <option value="daily">Günlük</option>
+                                }
+                                @if (Model.CompareMode == "weekly")
+                                {
+                                    <option value="weekly" selected>Haftalık (Pzt-Cmt)</option>
+                                }
+                                else
+                                {
+                                    <option value="weekly">Haftalık (Pzt-Cmt)</option>
+                                }
+                                @if (Model.CompareMode == "monthly")
+                                {
+                                    <option value="monthly" selected>Aylık</option>
+                                }
+                                else
+                                {
+                                    <option value="monthly">Aylık</option>
+                                }
+                                @if (Model.CompareMode == "yearly")
+                                {
+                                    <option value="yearly" selected>Yıllık</option>
+                                }
+                                else
+                                {
+                                    <option value="yearly">Yıllık</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Weekly selectors (A) -->
+                        <div class="d-flex align-items-end gap-2 weekly-only">
+                            <div>
+                                <label class="small text-muted">Dönem A - Yıl</label>
+                                <select name="AYear" class="form-select form-select-sm">
+                                    @{
+                                        var years = new[] { DateTime.Today.Year - 1, DateTime.Today.Year, DateTime.Today.Year + 1 };
+                                    }
+                                    @foreach (var y in years)
+                                    {
+                                        if (Model.AYear == y) { <option value="@y" selected>@y</option>; } else { <option value="@y">@y</option>; }
+                                    }
+                                </select>
+                            </div>
+                            <div>
+                                <label class="small text-muted">Ay</label>
+                                <select name="AMonth" class="form-select form-select-sm">
+                                    @{
+                                        var monthNames = System.Globalization.CultureInfo.GetCultureInfo("tr-TR").DateTimeFormat.MonthNames;
+                                    }
+                                    @for (int i = 1; i <= 12; i++)
+                                    {
+                                        var name = monthNames[i - 1];
+                                        if (string.IsNullOrEmpty(name)) { name = i.ToString(); }
+                                        if (Model.AMonth == i) { <option value="@i" selected>@name</option>; } else { <option value="@i">@name</option>; }
+                                    }
+                                </select>
+                            </div>
+                            <div>
+                                <label class="small text-muted">Hafta</label>
+                                <select name="AWeek" class="form-select form-select-sm">
+                                    @for (int i = 1; i <= 4; i++)
+                                    {
+                                        if (Model.AWeek == i) { <option value="@i" selected>@i</option>; } else { <option value="@i">@i</option>; }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Weekly selectors (B) -->
+                        <div class="d-flex align-items-end gap-2 weekly-only">
+                            <div>
+                                <label class="small text-muted">Dönem B - Yıl</label>
+                                <select name="BYear" class="form-select form-select-sm">
+                                    @foreach (var y in years)
+                                    {
+                                        if (Model.BYear == y) { <option value="@y" selected>@y</option>; } else { <option value="@y">@y</option>; }
+                                    }
+                                </select>
+                            </div>
+                            <div>
+                                <label class="small text-muted">Ay</label>
+                                <select name="BMonth" class="form-select form-select-sm">
+                                    @for (int i = 1; i <= 12; i++)
+                                    {
+                                        var name = monthNames[i - 1];
+                                        if (string.IsNullOrEmpty(name)) { name = i.ToString(); }
+        
+                                        if (Model.BMonth == i) { <option value="@i" selected>@name</option>; } else { <option value="@i">@name</option>; }
+                                    }
+                                </select>
+                            </div>
+                            <div>
+                                <label class="small text-muted">Hafta</label>
+                                <select name="BWeek" class="form-select form-select-sm">
+                                    @for (int i = 1; i <= 4; i++)
+                                    {
+                                        if (Model.BWeek == i) { <option value="@i" selected>@i</option>; } else { <option value="@i">@i</option>; }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Non-weekly date bases (fallback) -->
+                        <div class="non-weekly-only">
+                            <div>
+                                <label class="small text-muted">Dönem A</label>
+                                <input type="date" name="compareABase" class="form-control form-control-sm" value="@Model.CompareABase?.ToString("yyyy-MM-dd")" />
+                            </div>
+                        </div>
+                        <div class="non-weekly-only">
+                            <div>
+                                <label class="small text-muted">Dönem B</label>
+                                <input type="date" name="compareBBase" class="form-control form-control-sm" value="@Model.CompareBBase?.ToString("yyyy-MM-dd")" />
+                            </div>
+                        </div>
+                        @if (Model.StartDate.HasValue)
+                        {
+                            <input type="hidden" name="startDate" value="@Model.StartDate.Value.ToString("yyyy-MM-dd")" />
+                        }
+                        @if (Model.EndDate.HasValue)
+                        {
+                            <input type="hidden" name="endDate" value="@Model.EndDate.Value.ToString("yyyy-MM-dd")" />
+                        }
+                        @if (Model.OperatorId.HasValue)
+                        {
+                            <input type="hidden" name="operatorId" value="@Model.OperatorId" />
+                        }
+                        <button class="btn btn-primary btn-sm"><i class="fas fa-sync-alt me-1"></i> Karşılaştır</button>
+                    </form>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="gold-card p-3 h-100">
+                            <div class="small text-muted mb-1">Dönem A</div>
+                            <div class="fw-semibold">@Model.CompareA.Label</div>
+                            <div class="d-flex justify-content-between mt-2">
+                                <div><i class="fas fa-file-code me-1 text-primary"></i> @Model.CompareA.Program Program</div>
+                                <div><i class="fas fa-bolt me-1 text-success"></i> @Model.CompareA.Kaynak Kaynak</div>
+                                <div><i class="fas fa-exclamation-circle me-1 text-danger"></i> @Model.CompareA.Hata Hata</div>
+                            </div>
+                            <div class="mt-2 small text-muted"><i class="fas fa-clock me-1"></i> Toplam Süre: @((Model.CompareA.SureDakika/60) > 0 ? ($"{Model.CompareA.SureDakika/60} sa {Model.CompareA.SureDakika%60} dk") : ($"{Model.CompareA.SureDakika} dk"))</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="gold-card p-3 h-100">
+                            <div class="small text-muted mb-1">Dönem B</div>
+                            <div class="fw-semibold">@Model.CompareB.Label</div>
+                            <div class="d-flex justify-content-between mt-2">
+                                <div><i class="fas fa-file-code me-1 text-primary"></i> @Model.CompareB.Program Program</div>
+                                <div><i class="fas fa-bolt me-1 text-success"></i> @Model.CompareB.Kaynak Kaynak</div>
+                                <div><i class="fas fa-exclamation-circle me-1 text-danger"></i> @Model.CompareB.Hata Hata</div>
+                            </div>
+                            <div class="mt-2 small text-muted"><i class="fas fa-clock me-1"></i> Toplam Süre: @((Model.CompareB.SureDakika/60) > 0 ? ($"{Model.CompareB.SureDakika/60} sa {Model.CompareB.SureDakika%60} dk") : ($"{Model.CompareB.SureDakika} dk"))</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="gold-card p-3 h-100">
+                            <div class="small text-muted mb-1">Fark</div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="small">Program</div>
+                                    <div class="fw-bold @(Model.CompareDelta.Program >= 0 ? "text-success" : "text-danger")">
+                                        <i class="fas @(Model.CompareDelta.Program >= 0 ? "fa-arrow-up" : "fa-arrow-down") me-1"></i>@Math.Abs(Model.CompareDelta.Program)
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="small">Kaynak</div>
+                                    <div class="fw-bold @(Model.CompareDelta.Kaynak >= 0 ? "text-success" : "text-danger")">
+                                        <i class="fas @(Model.CompareDelta.Kaynak >= 0 ? "fa-arrow-up" : "fa-arrow-down") me-1"></i>@Math.Abs(Model.CompareDelta.Kaynak)
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="small">Hata</div>
+                                    <div class="fw-bold @(Model.CompareDelta.Hata <= 0 ? "text-success" : "text-danger")">
+                                        <i class="fas @(Model.CompareDelta.Hata <= 0 ? "fa-arrow-down" : "fa-arrow-up") me-1"></i>@Math.Abs(Model.CompareDelta.Hata)
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <div class="small">Süre</div>
+                                <div class="fw-bold @(Model.CompareDelta.SureDakika >= 0 ? "text-success" : "text-danger")">
+                                    <i class="fas @(Model.CompareDelta.SureDakika >= 0 ? "fa-arrow-up" : "fa-arrow-down") me-1"></i>
+                                    @{
+                                        var dd = Math.Abs(Model.CompareDelta.SureDakika);
+                                        if ((dd/60) > 0) {<text>@(dd/60) sa @(dd%60) dk</text>} else {<text>@dd dk</text>}
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <canvas id="compareVsChart" height="200"></canvas>
+                </div>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        // Toggle weekly vs non-weekly inputs
+                        function toggleInputs() {
+                            var mode = document.getElementById('compareMode').value;
+                            document.querySelectorAll('.weekly-only').forEach(function (el) { el.style.display = (mode === 'weekly') ? 'flex' : 'none'; });
+                            document.querySelectorAll('.non-weekly-only').forEach(function (el) { el.style.display = (mode === 'weekly') ? 'none' : 'block'; });
+                        }
+                        document.getElementById('compareMode').addEventListener('change', toggleInputs);
+                        toggleInputs();
+
+                        var ctxVs = document.getElementById('compareVsChart');
+                        if (!ctxVs || !window.Chart) return;
+                        var labels = ['Program', 'Kaynak', 'Hata', 'Süre (dk)'];
+                        var a = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new[] { Model.CompareA.Program, Model.CompareA.Kaynak, Model.CompareA.Hata, Model.CompareA.SureDakika }));
+                        var b = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new[] { Model.CompareB.Program, Model.CompareB.Kaynak, Model.CompareB.Hata, Model.CompareB.SureDakika }));
+                        var aNeg = a.map(function (v) { return -Math.max(0, v); });
+                        var maxVal = Math.max.apply(null, a.concat(b));
+                        var pad = Math.max(1, Math.ceil(maxVal * 0.15));
+                        var bound = maxVal + pad;
+                        new Chart(ctxVs.getContext('2d'), {
+                            type: 'horizontalBar',
+                            data: {
+                                labels: labels,
+                                datasets: [
+                                    {
+                                        label: 'Dönem A (@Model.CompareA.Label)',
+                                        data: aNeg,
+                                        backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                                        borderColor: 'rgba(255, 99, 132, 1)',
+                                        borderWidth: 1,
+                                        stack: 'vs'
+                                    },
+                                    {
+                                        label: 'Dönem B (@Model.CompareB.Label)',
+                                        data: b,
+                                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                                        borderColor: 'rgba(75, 192, 192, 1)',
+                                        borderWidth: 1,
+                                        stack: 'vs'
+                                    }
+                                ]
+                            },
+                            options: {
+                                maintainAspectRatio: false,
+                                responsive: true,
+                                legend: { display: true },
+                                scales: {
+                                    xAxes: [{
+                                        stacked: true,
+                                        ticks: {
+                                            min: -bound,
+                                            max: bound,
+                                            callback: function (value) { return Math.abs(value); }
+                                        },
+                                        gridLines: {
+                                            zeroLineColor: 'rgba(0,0,0,0.6)',
+                                            zeroLineWidth: 2
+                                        }
+                                    }],
+                                    yAxes: [{ stacked: true }]
+                                },
+                                tooltips: {
+                                    callbacks: {
+                                        label: function (tooltipItem, data) {
+                                            var ds = data.datasets[tooltipItem.datasetIndex];
+                                            var raw = tooltipItem.xLabel || tooltipItem.xValue || 0;
+                                            var val = Math.abs(raw);
+                                            var label = data.labels[tooltipItem.index] || '';
+                                            if (label && label.toString().toLowerCase().indexOf('süre') !== -1) {
+                                                var h = Math.floor(val / 60);
+                                                var m = val % 60;
+                                                var timeText = h > 0 ? (h + ' sa ' + m + ' dk') : (m + ' dk');
+                                                return ds.label + ': ' + timeText;
+                                            }
+                                            return ds.label + ': ' + val;
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    });
+                </script>
+            </div>
+        </div>
+        <style>
+            /* Fixed-height panels with internal scroll */
+            .equal-height-card.panel-fixed {
+                display: flex;
+                flex-direction: column;
+                height: 460px; /* set the fixed height for both panels */
+            }
+            .panel-scroll {
+                flex: 1 1 auto;
+                overflow: auto;
+                min-height: 0; /* required for flex children to allow overflow */
+            }
+            /* Sticky table header inside scroll containers */
+            .table-sticky thead th {
+                position: sticky;
+                top: 0;
+                z-index: 1;
+                background-color: #212529; /* match .table-dark background */
+                color: #fff;
+            }
+        </style>
+        <!-- Top Operators -->
+        <div class="col-lg-6 equal-height-col">
+            <div class="gold-card p-4 equal-height-card panel-fixed">
+                <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon primary me-3">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="section-card-title mb-0">En İyi Operatörler</div>
+                    </div>
+                    <div class="chart-toolbar d-flex align-items-center gap-2">
+                        <label class="small text-muted">Sırala</label>
+                        <select id="opSortBy" class="form-select form-select-sm w-auto">
+                            <option value="program" selected>Programa göre</option>
+                            <option value="kaynak">Kaynağa göre</option>
+                            <option value="basari">Başarıya göre</option>
+                        </select>
+                    </div>
                 </div>
                 @if (!Model.TopOperatorlar.Any())
                 {
@@ -187,10 +468,11 @@
                 }
                 else
                 {
-                    <div class="list-group list-group-flush">
-                        @foreach (var op in Model.TopOperatorlar.Take(5))
+                    <div id="op-list" class="list-group list-group-flush panel-scroll">
+                        @foreach (var op in Model.TopOperatorlar)
                         {
-                            <div class="list-group-item border-0 px-0 py-3 ranking-item">
+                            <div class="list-group-item border-0 px-0 py-3 ranking-item" data-program="@op.ProgramSayisi"
+                                data-kaynak="@op.ToplamKaynak" data-basari="@op.BasariYuzdesi">
                                 <div class="d-flex align-items-center">
                                     <div class="avatar-initials avatar-sm brand-gradient-bg text-white me-3">
                                         @op.AdSoyad.FirstOrDefault().ToString().ToUpper()
@@ -204,7 +486,8 @@
                                         </div>
                                     </div>
                                     <div class="text-end">
-                                        <span class="badge @(op.HataSayisi == 0 ? "bg-success" : op.HataSayisi < 5 ? "bg-warning" : "bg-danger") rounded-pill">
+                                        <span
+                                            class="badge @(op.HataSayisi == 0 ? "bg-success" : op.HataSayisi < 5 ? "bg-warning" : "bg-danger") rounded-pill">
                                             @op.HataSayisi hata
                                         </span>
                                     </div>
@@ -212,21 +495,37 @@
                             </div>
                         }
                     </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            const container = document.getElementById('op-list');
+                            const sortSelect = document.getElementById('opSortBy');
+                            if (!container || !sortSelect) return;
+                            function sortOperators() {
+                                const metric = sortSelect.value; // program | kaynak | basari
+                                const items = Array.from(container.querySelectorAll('.list-group-item'));
+                                items.sort((a, b) => parseFloat(b.dataset[metric] || 0) - parseFloat(a.dataset[metric] || 0));
+                                items.forEach(el => container.appendChild(el));
+                            }
+                            sortSelect.addEventListener('change', sortOperators);
+                            // initial sort
+                            sortOperators();
+                        });
+                    </script>
                 }
             </div>
         </div>
 
         <!-- Top Programs -->
-        <div class="col-lg-6">
-            <div class="gold-card p-4">
+        <div class="col-lg-6 equal-height-col">
+            <div class="gold-card p-4 equal-height-card panel-fixed">
                 <div class="d-flex align-items-center mb-3">
                     <div class="stat-icon warning me-3">
                         <i class="fas fa-trophy"></i>
                     </div>
                     <div class="section-card-title mb-0">En Yoğun Programlar</div>
                 </div>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0" id="tbl-rapor-program">
+                <div class="table-responsive panel-scroll">
+                    <table class="table table-hover align-middle mb-0 table-sticky" id="tbl-rapor-program">
                         <thead class="table-dark">
                             <tr>
                                 <th class="border-0 py-3">Program</th>
@@ -237,30 +536,32 @@
                             </tr>
                         </thead>
                         <tbody>
-                        @foreach (var p in Model.TopProgramlar.Take(8))
-                        {
-                            <tr class="border-bottom">
-                                <td class="py-3">
-                                    <div class="fw-semibold text-dark">@p.ProgramAdi</div>
-                                </td>
-                                <td class="py-3">
-                                    <span class="text-muted">@p.OperatorAdSoyad</span>
-                                </td>
-                                <td class="text-end py-3">
-                                    <span class="badge @(p.KaynakSayisi >= 25 ? "bg-success" : p.KaynakSayisi >= 15 ? "bg-warning" : "bg-danger") rounded-pill">
-                                        @p.KaynakSayisi
-                                    </span>
-                                </td>
-                                <td class="text-end py-3">
-                                    <span class="fw-semibold @(p.BasariYuzde >= 90 ? "text-success" : p.BasariYuzde >= 70 ? "text-warning" : "text-danger")">
-                                        @p.BasariYuzde%
-                                    </span>
-                                </td>
-                                <td class="py-3">
-                                    <small class="text-muted font-monospace">@p.TarihText</small>
-                                </td>
-                            </tr>
-                        }
+                            @foreach (var p in Model.TopProgramlar.Take(8))
+                            {
+                                <tr class="border-bottom">
+                                    <td class="py-3">
+                                        <div class="fw-semibold text-dark">@p.ProgramAdi</div>
+                                    </td>
+                                    <td class="py-3">
+                                        <span class="text-muted">@p.OperatorAdSoyad</span>
+                                    </td>
+                                    <td class="text-end py-3">
+                                        <span
+                                            class="badge @(p.KaynakSayisi >= 25 ? "bg-success" : p.KaynakSayisi >= 15 ? "bg-warning" : "bg-danger") rounded-pill">
+                                            @p.KaynakSayisi
+                                        </span>
+                                    </td>
+                                    <td class="text-end py-3">
+                                        <span
+                                            class="fw-semibold @(p.BasariYuzde >= 90 ? "text-success" : p.BasariYuzde >= 70 ? "text-warning" : "text-danger")">
+                                            @p.BasariYuzde%
+                                        </span>
+                                    </td>
+                                    <td class="py-3">
+                                        <small class="text-muted font-monospace">@p.TarihText</small>
+                                    </td>
+                                </tr>
+                            }
                         </tbody>
                     </table>
                 </div>
@@ -305,7 +606,7 @@
                                         @for (int i = 0; i < Model.HataTrend.Count; i++)
                                         {
                                             var (date, count) = Model.HataTrend[i];
-                                            var prevCount = i > 0 ? Model.HataTrend[i-1].Count : count;
+                                            var prevCount = i > 0 ? Model.HataTrend[i - 1].Count : count;
                                             var trend = count - prevCount;
                                             <tr class="border-bottom">
                                                 <td class="py-3">
@@ -313,7 +614,8 @@
                                                     <small class="text-muted">@date.ToString("dddd")</small>
                                                 </td>
                                                 <td class="text-end py-3">
-                                                    <span class="fw-bold @(count == 0 ? "text-success" : count < 5 ? "text-warning" : "text-danger")">
+                                                    <span
+                                                        class="fw-bold @(count == 0 ? "text-success" : count < 5 ? "text-warning" : "text-danger")">
                                                         @count
                                                     </span>
                                                 </td>
@@ -348,7 +650,8 @@
                                 <ul class="mb-0 small">
                                     <li>Toplam gün: @Model.HataTrend.Count</li>
                                     <li>Toplam hata: @Model.HataTrend.Sum(h => h.Count)</li>
-                                    <li>Günlük ort: @(Model.HataTrend.Any() ? Math.Round(Model.HataTrend.Average(h => h.Count), 1) : 0)</li>
+                                    <li>Günlük ort: @(Model.HataTrend.Any() ? Math.Round(Model.HataTrend.Average(h =>
+                                                                            h.Count), 1) : 0)</li>
                                     <li>En yüksek: @(Model.HataTrend.Any() ? Model.HataTrend.Max(h => h.Count) : 0)</li>
                                 </ul>
                             </div>
@@ -358,7 +661,7 @@
             </div>
         </div>
 
-        <!-- Longest Programs -->
+        <!-- Longest Programs (Horizontal Duration Chart) -->
         <div class="col-12">
             <div class="gold-card p-4">
                 <div class="d-flex align-items-center justify-content-between mb-3">
@@ -368,7 +671,7 @@
                         </div>
                         <div class="section-card-title mb-0">En Uzun Süren Programlar</div>
                     </div>
-                    <small class="text-muted">Süre optimizasyonu için inceleme önerileri</small>
+                    <small class="text-muted">Sadece süre (yatay), tarih etiketli</small>
                 </div>
                 @if (!Model.UzunSurenProgramlar.Any())
                 {
@@ -379,83 +682,66 @@
                 }
                 else
                 {
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th class="border-0 py-3">Program</th>
-                                    <th class="border-0 py-3">Operatör</th>
-                                    <th class="border-0 py-3 text-end">Kaynak</th>
-                                    <th class="border-0 py-3 text-end">Başarı</th>
-                                    <th class="border-0 py-3 text-end">Süre</th>
-                                    <th class="border-0 py-3 text-center">Önem</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var r in Model.UzunSurenProgramlar.Take(10))
-                                {
-                                    var isLongDuration = r.Sure.TotalHours > 2;
-                                    var hasLowSuccess = r.BasariYuzdesi < 80;
-                                    <tr class="border-bottom">
-                                        <td class="py-3">
-                                            <div class="fw-semibold text-dark">@r.ProgramAdi</div>
-                                        </td>
-                                        <td class="py-3">
-                                            <span class="text-muted">@(r.OperatorAdSoyad ?? "—")</span>
-                                        </td>
-                                        <td class="text-end py-3">
-                                            <span class="fw-semibold">@r.KaynakSayisi</span>
-                                        </td>
-                                        <td class="text-end py-3">
-                                            <span class="fw-semibold @(r.BasariYuzdesi >= 90 ? "text-success" : r.BasariYuzdesi >= 70 ? "text-warning" : "text-danger")">
-                                                @r.BasariYuzdesi%
-                                            </span>
-                                        </td>
-                                        <td class="text-end py-3">
-                                            <span class="fw-bold font-monospace @(isLongDuration ? "text-warning" : "text-muted")">
-                                                @r.SureText
-                                            </span>
-                                        </td>
-                                        <td class="text-center py-3">
-                                            @if (isLongDuration && hasLowSuccess)
-                                            {
-                                                <span class="badge bg-danger rounded-pill">
-                                                    <i class="fas fa-exclamation-triangle"></i> Yüksek
-                                                </span>
-                                            }
-                                            else if (isLongDuration || hasLowSuccess)
-                                            {
-                                                <span class="badge bg-warning rounded-pill">
-                                                    <i class="fas fa-exclamation-circle"></i> Orta
-                                                </span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge bg-success rounded-pill">
-                                                    <i class="fas fa-check"></i> Düşük
-                                                </span>
-                                            }
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+                    <div>
+                        <canvas id="longestProgramsChart"
+                            height="@((Model.UzunSurenProgramlar.Count() * 36) + 40)"></canvas>
                     </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            var ctx = document.getElementById('longestProgramsChart');
+                            if (!ctx || !window.Chart) return;
+                            var labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.UzunSurenProgramlar.Select(p => $"{(p.ProgramAdi ?? "—")} — {p.TarihText}").ToList()));
+                            var dataMinutes = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.UzunSurenProgramlar.Select(p => Math.Max(0, (int)Math.Round(p.Sure.TotalMinutes))).ToList()));
+                            var barColor = 'rgba(255, 193, 7, 0.6)';
+                            var borderColor = 'rgba(255, 193, 7, 1)';
+                            new Chart(ctx.getContext('2d'), {
+                                type: 'horizontalBar',
+                                data: {
+                                    labels: labels,
+                                    datasets: [{
+                                        label: 'Süre (dk)',
+                                        data: dataMinutes,
+                                        backgroundColor: barColor,
+                                        borderColor: borderColor,
+                                        borderWidth: 1,
+                                    }]
+                                },
+                                options: {
+                                    maintainAspectRatio: false,
+                                    responsive: true,
+                                    legend: { display: false },
+                                    scales: {
+                                        xAxes: [{
+                                            ticks: {
+                                                callback: function (value) { return value + ' dk'; }
+                                            },
+                                            gridLines: { color: 'rgba(0,0,0,0.05)' }
+                                        }],
+                                        yAxes: [{
+                                            barPercentage: 0.7,
+                                            categoryPercentage: 0.7,
+                                            gridLines: { display: false }
+                                        }]
+                                    },
+                                    tooltips: {
+                                        callbacks: {
+                                            label: function (tooltipItem, data) {
+                                                var minutes = tooltipItem.xLabel || 0;
+                                                var h = Math.floor(minutes / 60);
+                                                var m = minutes % 60;
+                                                var timeText = h > 0 ? (h + ' sa ' + m + ' dk') : (m + ' dk');
+                                                return 'Süre: ' + timeText;
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        });
+                    </script>
                 }
             </div>
         </div>
 
-        <!-- Downtime Placeholder -->
-        <div class="col-12">
-            <div class="gold-card p-3">
-                <div class="section-card-title">Duruş Özeti</div>
-                <div class="d-flex gap-3">
-                    <div><span class="badge badge-pill-gold">@Model.ToplamDurusAdet</span> duruş</div>
-                    <div><span class="badge badge-pill-gold">@Model.ToplamDurusSuresi</span> toplam süre</div>
-                </div>
-                <div class="small text-muted mt-2">Detaylı duruş raporları için altyapı hazırlanıyor.</div>
-            </div>
-        </div>
 
         <!-- Daily Trend -->
         <div class="col-lg-8">
@@ -493,7 +779,7 @@
                                 @for (int i = 0; i < Model.GunlukTrend.Count; i++)
                                 {
                                     var d = Model.GunlukTrend[i];
-                                    var prevDay = i > 0 ? Model.GunlukTrend[i-1] : d;
+                                    var prevDay = i > 0 ? Model.GunlukTrend[i - 1] : d;
                                     var successTrend = d.BasariYuzdesi - prevDay.BasariYuzdesi;
                                     <tr class="border-bottom">
                                         <td class="py-3">
@@ -507,7 +793,8 @@
                                             <span class="fw-semibold">@d.Kaynak</span>
                                         </td>
                                         <td class="text-end py-3">
-                                            <span class="fw-bold @(d.BasariYuzdesi >= 90 ? "text-success" : d.BasariYuzdesi >= 70 ? "text-warning" : "text-danger")">
+                                            <span
+                                                class="fw-bold @(d.BasariYuzdesi >= 90 ? "text-success" : d.BasariYuzdesi >= 70 ? "text-warning" : "text-danger")">
                                                 @d.BasariYuzdesi%
                                             </span>
                                         </td>
@@ -589,36 +876,67 @@
         font-size: 0.75rem;
         border-radius: 0.25rem;
     }
-    
+
     .gold-card .form-control:focus {
         border-color: #ffc107;
         box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
     }
-    
+
     .gold-card .input-group-text {
         background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
         border-color: #dee2e6;
     }
-    
+
     .filter-quick-buttons .btn:hover {
         transform: translateY(-1px);
         transition: all 0.2s ease;
     }
-    
+
     .stat-icon.primary {
         background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
         box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
     }
-    
-    .form-label .fa-calendar-alt { color: #007bff !important; }
-    .form-label .fa-calendar-check { color: #28a745 !important; }
-    .form-label .fa-user { color: #ffc107 !important; }
-    
+
+    .form-label .fa-calendar-alt {
+        color: #007bff !important;
+    }
+
+    .form-label .fa-calendar-check {
+        color: #28a745 !important;
+    }
+
+    .form-label .fa-user {
+        color: #ffc107 !important;
+    }
+
+    /* Equal-height helpers for side-by-side cards */
+    .equal-height-col {
+        display: flex;
+    }
+
+    .equal-height-card {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+        min-height: 100%;
+    }
+
+    /* Make primary content areas inside the card grow and scroll as needed */
+    .equal-height-card > #op-list,
+    .equal-height-card > .table-responsive {
+        flex: 1 1 auto;
+        min-height: 0; /* allows child to shrink inside flex parent */
+        overflow: auto; /* scroll inner content instead of stretching the card */
+    }
+
     @@media (max-width: 768px) {
-        .col-lg-4, .col-lg-8 {
+
+        .col-lg-4,
+        .col-lg-8 {
             text-align: center;
         }
-        
+
         .gold-card .row {
             justify-content: center;
         }
@@ -626,47 +944,14 @@
 </style>
 
 <script>
-    // Quick filter functions for date shortcuts
-    function setLastWeek() {
-        const today = new Date();
-        const lastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-        
-        document.querySelector('input[name="startDate"]').value = formatDate(lastWeek);
-        document.querySelector('input[name="endDate"]').value = formatDate(today);
-    }
-    
-    function setLastMonth() {
-        const today = new Date();
-        const lastMonth = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
-        
-        document.querySelector('input[name="startDate"]').value = formatDate(lastMonth);
-        document.querySelector('input[name="endDate"]').value = formatDate(today);
-    }
-    
-    function formatDate(date) {
-        return date.toISOString().split('T')[0];
-    }
-    
-    // Add some hover effects and animations
-    document.addEventListener('DOMContentLoaded', function() {
-        // Animate filter form on page load
-        const filterCard = document.querySelector('.gold-card');
-        if (filterCard) {
-            filterCard.style.opacity = '0';
-            filterCard.style.transform = 'translateY(-20px)';
-            setTimeout(() => {
-                filterCard.style.transition = 'all 0.5s ease-out';
-                filterCard.style.opacity = '1';
-                filterCard.style.transform = 'translateY(0)';
-            }, 200);
-        }
-        
+    // Page hover effects and tooltip initialization
+    document.addEventListener('DOMContentLoaded', function () {
         // Add tooltips to filter buttons
         const tooltips = document.querySelectorAll('[title]');
         tooltips.forEach(element => {
             element.setAttribute('data-bs-toggle', 'tooltip');
         });
-        
+
         // Initialize Bootstrap tooltips if available
         if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
