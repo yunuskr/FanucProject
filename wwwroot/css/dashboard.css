@@ -36,15 +36,15 @@
 /* Robot */
 .robot-status { background: var(--glass-bg); backdrop-filter: blur(20px); border-radius: var(--border-radius); border: 1px solid var(--glass-border); box-shadow: var(--shadow-glass); padding: 2rem; margin-bottom: 2rem; position: relative; overflow: hidden; transition: all .3s ease; }
 .robot-status::before { content:""; position:absolute; top:0; left:0; right:0; height:4px; background:var(--gradient-success); border-radius: var(--border-radius) var(--border-radius) 0 0; transition: all .3s ease; }
-.robot-status.stopped::before { background: linear-gradient(135deg,#dc3545 0%,#c82333 100%); }
+.robot-status.stopped::before { background: linear-gradient(135deg,#6b6b6b 0%,#ffffff 100%); }
 .robot-info{ display:flex; align-items:center; gap:2rem; }
-.robot-avatar{ width:100px; height:100px; background:var(--gradient-success); border-radius:20px; display:flex; align-items:center; justify-content:center; font-size:3rem; color:#fff; animation:pulse 2s infinite; transition: all .3s ease; }
-.robot-status.stopped .robot-avatar{ background: linear-gradient(135deg,#dc3545 0%,#c82333 100%); animation:none; }
+.robot-avatar{ width:100px; height:100px; background:var(--gradient-success); border-radius:20px; display:flex; align-items:center; justify-content:center; font-size:3rem; color:#535353; animation:pulse 2s infinite; transition: all .3s ease; }
+.robot-status.stopped .robot-avatar{ background: linear-gradient(45deg,#ffffff 0%,#bdbdbd 100%); animation:none; }
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
 .robot-details h3{ font-size:1.8rem; font-weight:700; color:#28a745; margin-bottom:.5rem; display:flex; align-items:center; gap:.5rem; transition: all .3s ease; }
-.robot-status.stopped .robot-details h3{ color:#dc3545; }
+.robot-status.stopped .robot-details h3{ color:#535353; }
 .status-indicator{ width:12px; height:12px; background:#28a745; border-radius:50%; animation: blink 1.5s infinite; transition: all .3s ease; }
-.robot-status.stopped .status-indicator{ background:#dc3545; animation:none; }
+.robot-status.stopped .status-indicator{ background:#bdbd; animation:none; }
 @keyframes blink{0%,50%{opacity:1}51%,100%{opacity:.3}}
 .robot-program{ color:#6c757d; font-size:1.1rem; margin-bottom:1rem; }
 .robot-actions{ display:flex; gap:1rem; flex-wrap:wrap; }
@@ -54,6 +54,18 @@
 .btn-modern.success{ background:var(--gradient-success); color:#fff; }
 .btn-modern.danger{ background:var(--gradient-danger); color:#fff; }
 .robot-status.stopped .btn-modern.success{ background: var(--gradient-danger); }
+
+/* Override: Canlı İzle button custom background */
+#btnLiveWatch{
+    background: #bdbdbd; /* solid gray */
+    color: #020202;      /* dark text for contrast */
+}
+
+#btnLiveWatch:hover,
+#btnLiveWatch:focus{
+    background: #747171; /* slightly darker on hover */
+    color: #f6f6fa;
+}
 
 /* Charts */
 .charts-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap:2rem; margin-bottom:2rem; }

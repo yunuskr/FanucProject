@@ -5,14 +5,16 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FanucRelease.Data;
+using FanucRelease.Services.Interfaces;
+using FanucRelease.Models;
 
 namespace FanucRelease.Controllers
 {
     [Route("[controller]")]
     public class CanliIzlemeController : Controller
     {
-        private readonly ApplicationDbContext _db;
-        public CanliIzlemeController(ApplicationDbContext db) => _db = db;
+    private readonly IAnlikKaynakService _anlikService;
+    public CanliIzlemeController(IAnlikKaynakService anlikService) => _anlikService = anlikService;
 
         // UI
         [HttpGet("")]
@@ -28,24 +30,20 @@ namespace FanucRelease.Controllers
         [HttpGet("api/son")]
         public async Task<IActionResult> Son(int count = 120, int? kaynakId = null)
         {
-            var q = _db.AnlikKaynaklar.AsNoTracking();
-            if (kaynakId.HasValue) q = q.Where(x => x.KaynakId == kaynakId.Value);
-
-            var items = await q
-                .OrderByDescending(x => x.OlcumZamani)
-                .Take(Math.Clamp(count, 10, 1000))
+            var list = await _anlikService.GetRecentAsync(count, kaynakId);
+            var items = list
                 .Select(x => new
                 {
-                    t = x.OlcumZamani, // ISO format client’ta parse edeceğiz
+                    t = x.OlcumZamani,
                     v = x.Voltaj,
                     a = x.Amper,
                     w = x.TelSurmeHizi,
-                    hiz = x.KaynakHizi,
-                    
+                    hiz = x.KaynakHizi
                 })
-                .ToListAsync();
+                .ToList();
 
-            items.Reverse(); // grafikte soldan sağa kronolojik aksın
+            // Service returns newest-first; reverse for ascending order in charts
+            items.Reverse();
 
             // ---- Basit durum çıkarımı ----
             // "Çalışıyor mu?" mantığı: son 10 sn içinde veri + akım > 5A veya hız > 0
