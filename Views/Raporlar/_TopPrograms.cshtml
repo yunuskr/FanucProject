@@ -1,0 +1,36 @@
+@model IEnumerable<FanucRelease.Models.ViewModels.GecmisProgramRow>
+<div class="table-responsive panel-scroll">
+    <table class="table table-hover align-middle mb-0 table-sticky" id="tbl-rapor-program">
+        <thead class="table-dark">
+            <tr>
+                <th class="border-0 py-3">Program</th>
+                <th class="border-0 py-3">Operatör</th>
+                <th class="border-0 py-3 text-end">Kaynak</th>
+                <th class="border-0 py-3 text-end">Başarı</th>
+                <th class="border-0 py-3">Tarih</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var p in Model.Take(8))
+        {
+            <tr class="border-bottom">
+                <td class="py-3">
+                    <div class="fw-semibold text-dark">@p.ProgramAdi</div>
+                </td>
+                <td class="py-3">
+                    <span class="text-muted">@p.OperatorAdSoyad</span>
+                </td>
+                <td class="text-end py-3">
+                    <span class="badge @(p.KaynakSayisi >= 25 ? "bg-success" : p.KaynakSayisi >= 15 ? "bg-warning" : "bg-danger") rounded-pill">@p.KaynakSayisi</span>
+                </td>
+                <td class="text-end py-3">
+                    <span class="fw-semibold @(p.BasariYuzde >= 90 ? "text-success" : p.BasariYuzde >= 70 ? "text-warning" : "text-danger")">@p.BasariYuzde%</span>
+                </td>
+                <td class="py-3">
+                    <small class="text-muted font-monospace">@p.TarihText</small>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

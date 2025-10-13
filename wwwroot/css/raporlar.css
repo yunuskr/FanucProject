@@ -1,0 +1,96 @@
+/* Raporlar page styles extracted from Index.cshtml */
+
+/* Fixed-height panels with internal scroll */
+.equal-height-card.panel-fixed {
+  display: flex;
+  flex-direction: column;
+  height: 460px; /* base fixed height for standard panels */
+}
+
+/* Taller variant for the Compare section */
+.equal-height-card.panel-fixed.panel-tall {
+  height: 700px; /* increased to provide more space for compare summary + chart */
+}
+
+/* Generic scroll helper for inner areas */
+.panel-scroll {
+  flex: 1 1 auto;
+  overflow: auto;
+  min-height: 0; /* required for flex children to allow overflow */
+}
+
+/* Ensure partial containers stretch and scroll inside the flex card */
+.equal-height-card > #op-container,
+.equal-height-card > #prog-container,
+.equal-height-card > #trend-container,
+.equal-height-card > #longest-container,
+.equal-height-card > #compare-container {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto; /* scroll inner content instead of stretching the card */
+}
+
+/* Sticky table header inside scroll containers */
+.table-sticky thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: #212529; /* match .table-dark background */
+  color: #fff;
+}
+
+/* Enhanced filter styling */
+.btn-xs {
+  padding: 0.2rem 0.4rem;
+  font-size: 0.75rem;
+  border-radius: 0.25rem;
+}
+
+.gold-card .form-control:focus {
+  border-color: #ffc107;
+  box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+}
+
+.gold-card .input-group-text {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-color: #dee2e6;
+}
+
+.filter-quick-buttons .btn:hover {
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+.stat-icon.primary {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+}
+
+.form-label .fa-calendar-alt { color: #007bff !important; }
+.form-label .fa-calendar-check { color: #28a745 !important; }
+.form-label .fa-user { color: #ffc107 !important; }
+
+/* Equal-height helpers for side-by-side cards */
+.equal-height-col { display: flex; }
+
+.equal-height-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+}
+
+/* Legacy helper kept for completeness (covered above too) */
+.equal-height-card > #op-container,
+.equal-height-card > #prog-container {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+@media (max-width: 768px) {
+  .col-lg-4,
+  .col-lg-8 { text-align: center; }
+  .gold-card .row { justify-content: center; }
+}

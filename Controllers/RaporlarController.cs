@@ -61,19 +61,95 @@ namespace FanucRelease.Controllers
             vm.BasariliKaynak = programs.Sum(p => p.Kaynaklar?.Count(k => k.basarili_mi) ?? 0);
             vm.ToplamHata = programs.Sum(p => p.Hatalar?.Count ?? 0);
 
-            // Top Operators (reuse OperatorService with days filter)
-            var days = (int)Math.Ceiling((end - start).TotalDays);
-            var opRows = await _operatorService.GetOperatorPerformanceAsync(minProgram: 0, days: days);
-            if (operatorId.HasValue)
-                opRows = opRows.Where(o => o.OperatorId == operatorId.Value).ToList();
-            vm.TopOperatorlar = opRows
-                .OrderByDescending(o => o.ProgramSayisi)
-                .ThenByDescending(o => o.BasariYuzdesi)
-                .Take(5)
-                .ToList();
+            // Per-section date ranges (defaults to global)
+            DateTime trendFrom = start, trendTo = end;
+            DateTime errorFrom = start, errorTo = end;
+            DateTime opFrom = start, opTo = end;
+            DateTime progFrom = start, progTo = end;
+            DateTime durFrom = start, durTo = end;
 
-            // Top Programs (by kaynak sayısı)
-            var gecmisRows = programs
+            if (DateTime.TryParse(HttpContext.Request.Query["trendStart"].FirstOrDefault(), out var tS)) trendFrom = tS;
+            if (DateTime.TryParse(HttpContext.Request.Query["trendEnd"].FirstOrDefault(), out var tE)) trendTo = tE.Date.AddDays(1).AddTicks(-1);
+            if (DateTime.TryParse(HttpContext.Request.Query["errorStart"].FirstOrDefault(), out var eS)) errorFrom = eS;
+            if (DateTime.TryParse(HttpContext.Request.Query["errorEnd"].FirstOrDefault(), out var eE)) errorTo = eE.Date.AddDays(1).AddTicks(-1);
+            if (DateTime.TryParse(HttpContext.Request.Query["opStart"].FirstOrDefault(), out var oS)) opFrom = oS;
+            if (DateTime.TryParse(HttpContext.Request.Query["opEnd"].FirstOrDefault(), out var oE)) opTo = oE.Date.AddDays(1).AddTicks(-1);
+            if (DateTime.TryParse(HttpContext.Request.Query["progStart"].FirstOrDefault(), out var pS)) progFrom = pS;
+            if (DateTime.TryParse(HttpContext.Request.Query["progEnd"].FirstOrDefault(), out var pE)) progTo = pE.Date.AddDays(1).AddTicks(-1);
+            if (DateTime.TryParse(HttpContext.Request.Query["durStart"].FirstOrDefault(), out var dS)) durFrom = dS;
+            if (DateTime.TryParse(HttpContext.Request.Query["durEnd"].FirstOrDefault(), out var dE)) durTo = dE.Date.AddDays(1).AddTicks(-1);
+
+            vm.TrendStartDate = trendFrom.Date;
+            vm.TrendEndDate = trendTo;
+            vm.ErrorStartDate = errorFrom.Date;
+            vm.ErrorEndDate = errorTo;
+            vm.OpStartDate = opFrom.Date;
+            vm.OpEndDate = opTo;
+            vm.ProgStartDate = progFrom.Date;
+            vm.ProgEndDate = progTo;
+            vm.DurStartDate = durFrom.Date;
+            vm.DurEndDate = durTo;
+
+            // Top Operators using explicit date range
+            var opRows = await _operatorService.GetOperatorPerformanceAsync(minProgram: 0, days: 0);
+            // Filter rows by explicit date range by recomputing from DB would be ideal; use service overload if available
+            // Fallback: recompute quickly over range
+            var opQuery = _db.ProgramVerileri.AsNoTracking()
+                .Where(p => p.OperatorId != null)
+                .Where(p => (p.BitisZamani > DateTime.MinValue ? p.BitisZamani : p.Tarih) >= opFrom && (p.BitisZamani > DateTime.MinValue ? p.BitisZamani : p.Tarih) <= opTo);
+            if (operatorId.HasValue) opQuery = opQuery.Where(p => p.OperatorId == operatorId.Value);
+            var opFlat = await opQuery
+                .Select(p => new
+                {
+                    p.OperatorId,
+                    OpAd = p.Operator!.Ad,
+                    OpSoyad = p.Operator.Soyad,
+                    OpUser = p.Operator.KullaniciAdi,
+                    KaynakToplam = p.Kaynaklar.Count,
+                    KaynakBasarili = p.Kaynaklar.Count(k => k.basarili_mi),
+                    HataSayisi = p.Hatalar.Count,
+                    BitisOrFallback = p.BitisZamani > DateTime.MinValue ? p.BitisZamani : p.Tarih,
+                    SureTicks = (p.BitisZamani > DateTime.MinValue && p.BaslangicZamani > DateTime.MinValue && p.BitisZamani > p.BaslangicZamani)
+                        ? (long?)(p.BitisZamani - p.BaslangicZamani).Ticks : null
+                })
+                .ToListAsync();
+            var opDict = new Dictionary<int, (string Ad,string Soyad,string Kullanici,int Program,int Kaynak,int Basarili,int Hata,DateTime? Son,long TopSure,int SureAdet)>();
+            foreach (var f in opFlat)
+            {
+                if (!f.OperatorId.HasValue) continue;
+                var id = f.OperatorId.Value;
+                if (!opDict.TryGetValue(id, out var acc)) acc = (f.OpAd ?? string.Empty, f.OpSoyad ?? string.Empty, f.OpUser ?? string.Empty,0,0,0,0,null,0L,0);
+                acc.Program += 1;
+                acc.Kaynak += f.KaynakToplam;
+                acc.Basarili += f.KaynakBasarili;
+                acc.Hata += f.HataSayisi;
+                if (acc.Son == null || f.BitisOrFallback > acc.Son) acc.Son = f.BitisOrFallback;
+                if (f.SureTicks.HasValue) { acc.TopSure += f.SureTicks.Value; acc.SureAdet += 1; }
+                opDict[id] = acc;
+            }
+            vm.TopOperatorlar = opDict.Select(kv => new FanucRelease.ViewModels.OperatorPerformanceRow
+            {
+                OperatorId = kv.Key,
+                KullaniciAdi = kv.Value.Kullanici,
+                AdSoyad = ($"{kv.Value.Ad} {kv.Value.Soyad}").Trim(),
+                ProgramSayisi = kv.Value.Program,
+                ToplamKaynak = kv.Value.Kaynak,
+                BasariliKaynak = kv.Value.Basarili,
+                HataSayisi = kv.Value.Hata,
+                SonProgramZamani = kv.Value.Son,
+                OrtalamaProgramSuresi = kv.Value.SureAdet > 0 ? TimeSpan.FromTicks(kv.Value.TopSure / kv.Value.SureAdet) : null
+            })
+            .OrderByDescending(o => o.ProgramSayisi)
+            .ThenByDescending(o => o.BasariYuzdesi)
+            .Take(5)
+            .ToList();
+
+            // Top Programs (by kaynak) for range
+            var progQuery2 = _db.ProgramVerileri.AsNoTracking()
+                .Where(p => (p.BitisZamani > DateTime.MinValue ? p.BitisZamani : p.Tarih) >= progFrom && (p.BitisZamani > DateTime.MinValue ? p.BitisZamani : p.Tarih) <= progTo);
+            if (operatorId.HasValue) progQuery2 = progQuery2.Where(p => p.OperatorId == operatorId.Value);
+            var progPrograms = await progQuery2.Include(p => p.Kaynaklar).Include(p => p.Hatalar).Include(p => p.Operator).ToListAsync();
+            vm.TopProgramlar = progPrograms
                 .OrderByDescending(p => p.Kaynaklar?.Count ?? 0)
                 .Take(10)
                 .Select(p => new FanucRelease.Models.ViewModels.GecmisProgramRow
@@ -89,18 +165,26 @@ namespace FanucRelease.Controllers
                                : (p.Kaynaklar?.Count ?? 0) >= 15 ? "badge badge-warning" : "badge badge-danger"
                 })
                 .ToList();
-            vm.TopProgramlar = gecmisRows;
 
-            // Hata trend (gün bazlı sayım)
-            vm.HataTrend = programs
+            // Hata trend over range
+            var errorPrograms = await _db.ProgramVerileri.AsNoTracking()
+                .Where(p => (p.BitisZamani > DateTime.MinValue ? p.BitisZamani : p.Tarih) >= errorFrom && (p.BitisZamani > DateTime.MinValue ? p.BitisZamani : p.Tarih) <= errorTo)
+                .Include(p => p.Hatalar)
+                .ToListAsync();
+            vm.HataTrend = errorPrograms
                 .SelectMany(p => p.Hatalar ?? new List<Models.Hata>())
                 .GroupBy(h => h.Zaman.Date)
                 .OrderBy(g => g.Key)
                 .Select(g => (g.Key, g.Count()))
                 .ToList();
 
-            // Uzun süren programlar (tahmini süre: Bitiş - Başlangıç veya 0)
-            vm.UzunSurenProgramlar = programs
+            // Uzun süren programlar over range
+            var durPrograms = await _db.ProgramVerileri.AsNoTracking()
+                .Where(p => (p.BitisZamani > DateTime.MinValue ? p.BitisZamani : p.Tarih) >= durFrom && (p.BitisZamani > DateTime.MinValue ? p.BitisZamani : p.Tarih) <= durTo)
+                .Include(p => p.Kaynaklar)
+                .Include(p => p.Operator)
+                .ToListAsync();
+            vm.UzunSurenProgramlar = durPrograms
                 .Select(p => new ViewModels.ProgramDurationRow
                 {
                     ProgramId = p.Id,
@@ -181,12 +265,26 @@ namespace FanucRelease.Controllers
             (DateTime curFrom, DateTime curTo, string curLabel) cur;
             (DateTime prevFrom, DateTime prevTo, string prevLabel) prev;
 
-            if (compareMode == "weekly" && aYear > 0 && aMonth > 0 && aWeek > 0)
+            // Helpers for explicit month/year picks
+            (DateTime from, DateTime to, string label) MonthRange(int year, int month)
             {
-                var aWeekRange = MonthWeek(aYear, aMonth, aWeek);
-                if (aWeekRange.HasValue)
+                var m0 = new DateTime(year, month, 1);
+                var m1 = m0.AddMonths(1).AddTicks(-1);
+                return (m0, m1, m0.ToString("MMMM yyyy"));
+            }
+            (DateTime from, DateTime to, string label) YearRange(int year)
+            {
+                var y0 = new DateTime(year, 1, 1);
+                var y1 = y0.AddYears(1).AddTicks(-1);
+                return (y0, y1, year.ToString());
+            }
+
+            if (compareMode == "weekly")
+            {
+                if (aYear > 0 && aMonth > 0 && aWeek > 0)
                 {
-                    cur = aWeekRange.Value;
+                    var aWeekRange = MonthWeek(aYear, aMonth, aWeek);
+                    cur = aWeekRange ?? ResolveWindow(compareABase ?? today);
                 }
                 else
                 {
@@ -200,23 +298,63 @@ namespace FanucRelease.Controllers
                 }
                 else
                 {
-                    prev = compareABase.HasValue
-                        ? ResolveWindow(compareBBase ?? today.AddDays(-7))
-                        : ResolveWindow(today.AddDays(-7));
+                    // If explicit A provided but not B, fallback to previous week
+                    prev = ResolveWindow((compareABase ?? today).AddDays(-7));
                 }
             }
-            else
+            else if (compareMode == "monthly")
+            {
+                if (aYear > 0 && aMonth > 0)
+                {
+                    cur = MonthRange(aYear, aMonth);
+                }
+                else
+                {
+                    cur = ResolveWindow(compareABase ?? today);
+                }
+
+                if (bYear > 0 && bMonth > 0)
+                {
+                    prev = MonthRange(bYear, bMonth);
+                }
+                else if (aYear > 0 && aMonth > 0)
+                {
+                    var prevMonthBase = new DateTime(aYear, aMonth, 1).AddMonths(-1);
+                    prev = MonthRange(prevMonthBase.Year, prevMonthBase.Month);
+                }
+                else
+                {
+                    prev = ResolveWindow((compareABase ?? today).AddMonths(-1));
+                }
+            }
+            else if (compareMode == "yearly")
+            {
+                if (aYear > 0)
+                {
+                    cur = YearRange(aYear);
+                }
+                else
+                {
+                    cur = ResolveWindow(compareABase ?? today);
+                }
+
+                if (bYear > 0)
+                {
+                    prev = YearRange(bYear);
+                }
+                else if (aYear > 0)
+                {
+                    prev = YearRange(aYear - 1);
+                }
+                else
+                {
+                    prev = ResolveWindow((compareABase ?? today).AddYears(-1));
+                }
+            }
+            else // daily
             {
                 var _cur = ResolveWindow(compareABase ?? today);
-                var _prev = compareABase.HasValue
-                    ? ResolveWindow(compareBBase ?? (compareMode == "weekly" ? today.AddDays(-7) : today))
-                    : compareMode switch
-                    {
-                        "daily" => ResolveWindow(today.AddDays(-1)),
-                        "monthly" => ResolveWindow(today.AddMonths(-1)),
-                        "yearly" => ResolveWindow(today.AddYears(-1)),
-                        _ => ResolveWindow(today.AddDays(-7))
-                    };
+                var _prev = ResolveWindow((compareBBase ?? (compareABase?.AddDays(-1) ?? today.AddDays(-1))));
                 cur = _cur; prev = _prev;
             }
 
@@ -269,8 +407,13 @@ namespace FanucRelease.Controllers
             vm.OncekiBasariliKaynak = prevPrograms.Sum(p => p.Kaynaklar?.Count(k => k.basarili_mi) ?? 0);
             vm.OncekiToplamHata = prevPrograms.Sum(p => p.Hatalar?.Count ?? 0);
 
-            // Daily trend for current period
-            vm.GunlukTrend = programs
+            // Daily trend using explicit trend date range
+            var trendPrograms = await _db.ProgramVerileri.AsNoTracking()
+                .Where(p => (p.BitisZamani > DateTime.MinValue ? p.BitisZamani : p.Tarih) >= trendFrom
+                         && (p.BitisZamani > DateTime.MinValue ? p.BitisZamani : p.Tarih) <= trendTo)
+                .Include(p => p.Kaynaklar)
+                .ToListAsync();
+            vm.GunlukTrend = trendPrograms
                 .GroupBy(p => (p.BitisZamani > DateTime.MinValue ? p.BitisZamani.Date : p.Tarih.Date))
                 .OrderBy(g => g.Key)
                 .Select(g => (
@@ -293,6 +436,167 @@ namespace FanucRelease.Controllers
                 .ToList();
 
             return View(vm);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DailyTrendPartial(DateTime? trendStart, DateTime? trendEnd, int? operatorId)
+        {
+            var from = trendStart ?? DateTime.Today.AddDays(-30);
+            var to = (trendEnd ?? DateTime.Today).Date.AddDays(1).AddTicks(-1);
+            var baseQuery = _db.ProgramVerileri.AsNoTracking()
+                .Where(p => (p.BitisZamani > DateTime.MinValue ? p.BitisZamani : p.Tarih) >= from
+                         && (p.BitisZamani > DateTime.MinValue ? p.BitisZamani : p.Tarih) <= to);
+            if (operatorId.HasValue) baseQuery = baseQuery.Where(p => p.OperatorId == operatorId.Value);
+            var list = await baseQuery.Include(p => p.Kaynaklar).ToListAsync();
+            var rows = list
+                .GroupBy(p => (p.BitisZamani > DateTime.MinValue ? p.BitisZamani.Date : p.Tarih.Date))
+                .OrderBy(g => g.Key)
+                .Select(g => (
+                    Date: g.Key,
+                    Program: g.Count(),
+                    Kaynak: g.Sum(p => p.Kaynaklar?.Count ?? 0),
+                    BasariYuzdesi: (g.Sum(p => p.Kaynaklar?.Count ?? 0) > 0)
+                        ? (int)Math.Round((g.Sum(p => p.Kaynaklar!.Count(k => k.basarili_mi)) * 100.0) / (g.Sum(p => p.Kaynaklar!.Count)))
+                        : 0
+                ))
+                .ToList();
+            return PartialView("_DailyTrend", rows);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> TopOperatorsPartial(DateTime? opStart, DateTime? opEnd, int? operatorId)
+        {
+            var from = opStart ?? DateTime.Today.AddDays(-30);
+            var to = (opEnd ?? DateTime.Today).Date.AddDays(1).AddTicks(-1);
+            var opQuery = _db.ProgramVerileri.AsNoTracking()
+                .Where(p => p.OperatorId != null)
+                .Where(p => (p.BitisZamani > DateTime.MinValue ? p.BitisZamani : p.Tarih) >= from
+                         && (p.BitisZamani > DateTime.MinValue ? p.BitisZamani : p.Tarih) <= to);
+            if (operatorId.HasValue) opQuery = opQuery.Where(p => p.OperatorId == operatorId.Value);
+            var flat = await opQuery
+                .Select(p => new
+                {
+                    p.OperatorId,
+                    OpAd = p.Operator!.Ad,
+                    OpSoyad = p.Operator.Soyad,
+                    OpUser = p.Operator.KullaniciAdi,
+                    KaynakToplam = p.Kaynaklar.Count,
+                    KaynakBasarili = p.Kaynaklar.Count(k => k.basarili_mi),
+                    HataSayisi = p.Hatalar.Count,
+                    BitisOrFallback = p.BitisZamani > DateTime.MinValue ? p.BitisZamani : p.Tarih,
+                    SureTicks = (p.BitisZamani > DateTime.MinValue && p.BaslangicZamani > DateTime.MinValue && p.BitisZamani > p.BaslangicZamani)
+                        ? (long?)(p.BitisZamani - p.BaslangicZamani).Ticks : null
+                })
+                .ToListAsync();
+            var dict = new Dictionary<int, (string Ad,string Soyad,string Kullanici,int Program,int Kaynak,int Basarili,int Hata,DateTime? Son,long TopSure,int SureAdet)>();
+            foreach (var f in flat)
+            {
+                if (!f.OperatorId.HasValue) continue;
+                var id = f.OperatorId.Value;
+                if (!dict.TryGetValue(id, out var acc)) acc = (f.OpAd ?? string.Empty, f.OpSoyad ?? string.Empty, f.OpUser ?? string.Empty,0,0,0,0,null,0L,0);
+                acc.Program += 1;
+                acc.Kaynak += f.KaynakToplam;
+                acc.Basarili += f.KaynakBasarili;
+                acc.Hata += f.HataSayisi;
+                if (acc.Son == null || f.BitisOrFallback > acc.Son) acc.Son = f.BitisOrFallback;
+                if (f.SureTicks.HasValue) { acc.TopSure += f.SureTicks.Value; acc.SureAdet += 1; }
+                dict[id] = acc;
+            }
+            var rows = dict.Select(kv => new FanucRelease.ViewModels.OperatorPerformanceRow
+            {
+                OperatorId = kv.Key,
+                KullaniciAdi = kv.Value.Kullanici,
+                AdSoyad = ($"{kv.Value.Ad} {kv.Value.Soyad}").Trim(),
+                ProgramSayisi = kv.Value.Program,
+                ToplamKaynak = kv.Value.Kaynak,
+                BasariliKaynak = kv.Value.Basarili,
+                HataSayisi = kv.Value.Hata,
+                SonProgramZamani = kv.Value.Son,
+                OrtalamaProgramSuresi = kv.Value.SureAdet > 0 ? TimeSpan.FromTicks(kv.Value.TopSure / kv.Value.SureAdet) : null
+            })
+            .OrderByDescending(o => o.ProgramSayisi)
+            .ThenByDescending(o => o.BasariYuzdesi)
+            .Take(5)
+            .ToList();
+            return PartialView("_TopOperators", rows);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> TopProgramsPartial(DateTime? progStart, DateTime? progEnd, int? operatorId)
+        {
+            var from = progStart ?? DateTime.Today.AddDays(-30);
+            var to = (progEnd ?? DateTime.Today).Date.AddDays(1).AddTicks(-1);
+            var query = _db.ProgramVerileri.AsNoTracking()
+                .Where(p => (p.BitisZamani > DateTime.MinValue ? p.BitisZamani : p.Tarih) >= from
+                         && (p.BitisZamani > DateTime.MinValue ? p.BitisZamani : p.Tarih) <= to);
+            if (operatorId.HasValue) query = query.Where(p => p.OperatorId == operatorId.Value);
+            var list = await query.Include(p => p.Kaynaklar).Include(p => p.Hatalar).Include(p => p.Operator).ToListAsync();
+            var rows = list
+                .OrderByDescending(p => p.Kaynaklar?.Count ?? 0)
+                .Take(10)
+                .Select(p => new FanucRelease.Models.ViewModels.GecmisProgramRow
+                {
+                    Id = p.Id,
+                    ProgramAdi = p.ProgramAdi ?? "—",
+                    KaynakSayisi = p.Kaynaklar?.Count ?? 0,
+                    OperatorAdSoyad = p.Operator is null ? "—" : ($"{p.Operator.Ad} {p.Operator.Soyad}").Trim(),
+                    ToplamSureText = "—",
+                    TarihText = (p.BitisZamani > DateTime.MinValue ? p.BitisZamani : p.Tarih).ToString("dd.MM.yyyy"),
+                    BasariYuzde = (p.Kaynaklar?.Count ?? 0) > 0 ? (int)Math.Round((p.Kaynaklar!.Count(k => k.basarili_mi) * 100.0) / (p.Kaynaklar!.Count)) : 0,
+                    BadgeClass = (p.Kaynaklar?.Count ?? 0) >= 25 ? "badge badge-success"
+                               : (p.Kaynaklar?.Count ?? 0) >= 15 ? "badge badge-warning" : "badge badge-danger"
+                })
+                .ToList();
+            return PartialView("_TopPrograms", rows);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> HataTrendPartial(DateTime? errorStart, DateTime? errorEnd, int? operatorId)
+        {
+            var from = errorStart ?? DateTime.Today.AddDays(-30);
+            var to = (errorEnd ?? DateTime.Today).Date.AddDays(1).AddTicks(-1);
+            var list = await _db.ProgramVerileri.AsNoTracking()
+                .Where(p => (p.BitisZamani > DateTime.MinValue ? p.BitisZamani : p.Tarih) >= from
+                         && (p.BitisZamani > DateTime.MinValue ? p.BitisZamani : p.Tarih) <= to)
+                .Include(p => p.Hatalar)
+                .ToListAsync();
+            var trend = list
+                .SelectMany(p => p.Hatalar ?? new List<Models.Hata>())
+                .GroupBy(h => h.Zaman.Date)
+                .OrderBy(g => g.Key)
+                .Select(g => (Date: g.Key, Count: g.Count()))
+                .ToList();
+            return PartialView("_HataTrend", trend);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> LongestProgramsPartial(DateTime? durStart, DateTime? durEnd, int? operatorId)
+        {
+            var from = durStart ?? DateTime.Today.AddDays(-30);
+            var to = (durEnd ?? DateTime.Today).Date.AddDays(1).AddTicks(-1);
+            var list = await _db.ProgramVerileri.AsNoTracking()
+                .Where(p => (p.BitisZamani > DateTime.MinValue ? p.BitisZamani : p.Tarih) >= from
+                         && (p.BitisZamani > DateTime.MinValue ? p.BitisZamani : p.Tarih) <= to)
+                .Include(p => p.Kaynaklar)
+                .Include(p => p.Operator)
+                .ToListAsync();
+            var rows = list
+                .Select(p => new ViewModels.ProgramDurationRow
+                {
+                    ProgramId = p.Id,
+                    ProgramAdi = p.ProgramAdi,
+                    TarihText = (p.BitisZamani > DateTime.MinValue ? p.BitisZamani : p.Tarih).ToString("dd.MM.yyyy"),
+                    OperatorAdSoyad = p.Operator == null ? null : ($"{p.Operator.Ad} {p.Operator.Soyad}").Trim(),
+                    KaynakSayisi = p.Kaynaklar?.Count ?? 0,
+                    BasariYuzdesi = (p.Kaynaklar?.Count ?? 0) > 0 ? (int)Math.Round((p.Kaynaklar!.Count(k => k.basarili_mi) * 100.0) / (p.Kaynaklar!.Count)) : 0,
+                    Sure = (p.BitisZamani > DateTime.MinValue && p.BaslangicZamani > DateTime.MinValue && p.BitisZamani > p.BaslangicZamani)
+                        ? (p.BitisZamani - p.BaslangicZamani)
+                        : TimeSpan.Zero
+                })
+                .OrderByDescending(x => x.Sure)
+                .Take(10)
+                .ToList();
+            return PartialView("_LongestPrograms", rows);
         }
     }
 }
