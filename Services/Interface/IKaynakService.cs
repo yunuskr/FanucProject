@@ -14,6 +14,7 @@ namespace FanucRelease.Services.Interfaces
         Task<int> GetBasariliKaynakCountAsync();
         Task<(int toplam, int basarili)> GetKaynakCountsAsync();
         Task<TimeSpan> GetBugunToplamSureAsync();
+    Task<TimeSpan> GetDunToplamSureAsync();
 
         // En son programa göre, o programın son başarılı kaynağını getirir
         Task<Kaynak?> GetLastSuccessfulKaynakOfLatestProgramAsync();

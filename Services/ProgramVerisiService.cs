@@ -110,6 +110,30 @@ namespace FanucRelease.Services
             return await _context.ProgramVerileri.AsNoTracking().CountAsync();
         }
 
+        public async Task<(int thisWeek, int lastWeek)> GetProgramCountsForThisAndLastWeekAsync()
+        {
+            // Define week as Monday 00:00 to next Monday 00:00 (local time)
+            DateTime now = DateTime.Now;
+            // get Monday of current week
+            int diffToMonday = ((int)now.DayOfWeek + 6) % 7; // Monday=0
+            DateTime thisWeekStart = now.Date.AddDays(-diffToMonday);
+            DateTime thisWeekEnd = thisWeekStart.AddDays(7);
+
+            DateTime lastWeekStart = thisWeekStart.AddDays(-7);
+            DateTime lastWeekEnd = thisWeekStart; // exclusive
+
+            // Use Tarih if available; if missing, fallback to BitisZamani or BaslangicZamani
+            var query = _context.ProgramVerileri.AsNoTracking().Select(p => new
+            {
+                Tarih = p.Tarih > DateTime.MinValue ? p.Tarih : (p.BitisZamani > DateTime.MinValue ? p.BitisZamani : p.BaslangicZamani)
+            });
+
+            int thisWeekCount = await query.CountAsync(x => x.Tarih >= thisWeekStart && x.Tarih < thisWeekEnd);
+            int lastWeekCount = await query.CountAsync(x => x.Tarih >= lastWeekStart && x.Tarih < lastWeekEnd);
+
+            return (thisWeekCount, lastWeekCount);
+        }
+
         /// <summary>
         /// Detay görünümü için son "take" adet programı Hatalar ile birlikte getirir.
         /// </summary>

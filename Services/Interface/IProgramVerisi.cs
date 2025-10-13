@@ -9,6 +9,7 @@ namespace FanucRelease.Services.Interfaces
         Task<List<FanucRelease.Models.ViewModels.GecmisProgramRow>> GetGecmisProgramlarRowsAsync(int take = 100);
         Task<ProgramVerisi?> GetLastProgramAsync();
         Task<int> GetTotalProgramCountAsync();
+        Task<(int thisWeek, int lastWeek)> GetProgramCountsForThisAndLastWeekAsync();
         // ProgramDetay sayfası için eklenen yardımcılar
         Task<List<ProgramVerisi>> GetRecentProgramsWithHatalarAsync(int take = 20);
         Task<ProgramVerisi?> GetProgramWithDetailsByIdAsync(int id);

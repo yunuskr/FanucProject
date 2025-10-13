@@ -90,6 +90,33 @@ public class HomeController : Controller
         vm.GecmisProgramlar = await _programService.GetGecmisProgramlarRowsAsync();
         vm.ProgramCount = await _programService.GetTotalProgramCountAsync();
 
+        // Weekly Program Count Trend (this week vs last week)
+        try
+        {
+            var (thisWeek, lastWeek) = await _programService.GetProgramCountsForThisAndLastWeekAsync();
+            vm.ThisWeekProgramCount = thisWeek;
+            vm.LastWeekProgramCount = lastWeek;
+            if (lastWeek <= 0)
+            {
+                // If there were no programs last week, define 100% increase when thisWeek>0, else 0%
+                vm.ProgramCountWoWPercent = thisWeek > 0 ? 100 : 0;
+            }
+            else
+            {
+                vm.ProgramCountWoWPercent = (int)Math.Round(((thisWeek - lastWeek) * 100.0) / lastWeek);
+            }
+
+            bool isUp = vm.ProgramCountWoWPercent >= 0;
+            vm.ProgramCountTrendClass = isUp ? "trend-up" : "trend-down";
+            vm.ProgramCountTrendIcon = isUp ? "fas fa-arrow-up" : "fas fa-arrow-down";
+            // Turkish label: e.g., "+12% bu hafta" or "-5% bu hafta"
+            vm.ProgramCountTrendText = $"{(isUp ? "+" : "")}{vm.ProgramCountWoWPercent}% bu hafta";
+        }
+        catch
+        {
+            // In case of any failure, keep defaults and continue
+        }
+
         // Latest program and latest successful kaynak
         vm.SonProgram = await _programService.GetLastProgramAsync();
         vm.SonBasariliKaynak = await _kaynakService.GetLastSuccessfulKaynakOfLatestProgramAsync();
@@ -103,10 +130,53 @@ public class HomeController : Controller
 
         // Total errors
         vm.HataToplam = await _hataService.GetToplamHataCountAsync();
+        try
+        {
+            var (thisWeekHata, lastWeekHata) = await _hataService.GetHataCountsForThisAndLastWeekAsync();
+            vm.ThisWeekHataCount = thisWeekHata;
+            vm.LastWeekHataCount = lastWeekHata;
+            if (lastWeekHata <= 0)
+            {
+                vm.HataWoWPercent = thisWeekHata > 0 ? 100 : 0;
+            }
+            else
+            {
+                vm.HataWoWPercent = (int)Math.Round(((thisWeekHata - lastWeekHata) * 100.0) / lastWeekHata);
+            }
+
+            // For errors, an increase is bad (down icon), a decrease is good (up icon) – but we keep red card style
+            bool decreased = vm.HataWoWPercent < 0; // negative percent => this week < last week
+            vm.HataTrendClass = decreased ? "trend-up" : "trend-down"; // show greenish up when decreased
+            vm.HataTrendIcon = decreased ? "fas fa-arrow-down" : "fas fa-arrow-up"; // if decreased, show arrow-down icon
+            // Label stays as signed percent
+            var sign = vm.HataWoWPercent > 0 ? "+" : "";
+            vm.HataTrendText = $"{sign}{vm.HataWoWPercent}% bu hafta";
+        }
+        catch { }
 
         // Today total time
         var bugunSure = await _kaynakService.GetBugunToplamSureAsync();
         vm.BugunToplamKaynakSureText = FormatTimeSpan(bugunSure);
+        try
+        {
+            var dunSure = await _kaynakService.GetDunToplamSureAsync();
+            // Percent change relative to yesterday (if yesterday is zero, treat as 100% if today>0 else 0)
+            int pct;
+            if (dunSure.TotalSeconds <= 0)
+            {
+                pct = bugunSure.TotalSeconds > 0 ? 100 : 0;
+            }
+            else
+            {
+                pct = (int)Math.Round(((bugunSure.TotalSeconds - dunSure.TotalSeconds) * 100.0) / dunSure.TotalSeconds);
+            }
+            vm.TodayTimePercent = pct;
+            bool up = pct >= 0;
+            vm.TodayTimeTrendClass = up ? "trend-up" : "trend-down";
+            vm.TodayTimeTrendIcon = up ? "fas fa-arrow-up" : "fas fa-arrow-down";
+            vm.TodayTimeTrendText = $"{(up ? "+" : "")}{pct}% bugün";
+        }
+        catch { }
 
         // Last program quick stats (avoid heavy Razor)
         if (vm.SonProgram != null)

@@ -29,7 +29,7 @@
 .stat-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
 .stat-icon{ width:60px; height:60px; border-radius:15px; display:flex; align-items:center; justify-content:center; font-size:1.8rem; color:#fff; }
 .stat-icon.primary{background:var(--gradient-primary);} .stat-icon.success{background:var(--gradient-success);} .stat-icon.danger{background:var(--gradient-danger);} .stat-icon.warning{background:var(--gradient-warning);} .stat-icon.info{background:var(--gradient-info);} 
-.stat-value{ font-size:2.2rem; font-weight:700; color:#2c3e50; margin:0; }
+.stat-value{ font-size:1.6rem; font-weight:700; color:#2c3e50; margin:0; }
 .stat-label{ font-size:.95rem; color:#6c757d; margin:0; font-weight:500; }
 .trend-up{ color:#28a745;} .trend-down{ color:#dc3545;}
 

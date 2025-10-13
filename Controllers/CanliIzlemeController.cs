@@ -16,9 +16,10 @@ namespace FanucRelease.Controllers
 
         // UI
         [HttpGet("")]
-        public IActionResult Index(int? kaynakId = null)
+        public IActionResult Index(int? kaynakId = null, int? programId = null)
         {
             ViewBag.KaynakId = kaynakId; // filtrelemek isterseniz
+            ViewBag.ProgramId = programId; // opsiyonel: URL'den gelen program id
             return View();
         }
 
