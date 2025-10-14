@@ -1,19 +1,10 @@
-using System;
-using System.IO;
-using System.Linq;
+
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using FanucRelease.Data;
 using FanucRelease.Models;
-using FanucRelease.Services.Interfaces;
 
 namespace FanucRelease.Services
 {
@@ -31,7 +22,7 @@ namespace FanucRelease.Services
         // Robot durumları
         private string _robotStatus = "Durdu";
         private string _aktifProgram = "";
-    private bool _hasFault = false; // sistem fault durum bayrağı
+        private bool _hasFault = false; // sistem fault durum bayrağı
 
         // Sabitler
         private const int RobotPort = 59002; // Karel ile aynı port
