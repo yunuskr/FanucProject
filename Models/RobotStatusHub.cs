@@ -13,17 +13,25 @@ public class RobotStatusHub : Hub
                 string filePath;
                 try
                 {
-                    var projectRoot = Path.GetFullPath(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "..", "..", ".."));
-                    filePath = Path.Combine(projectRoot, "robot_status.json");
+                    // Öncelik: bin/.../data/robot_status.json (service ile aynı)
+                    var baseDir = System.AppDomain.CurrentDomain.BaseDirectory;
+                    var dataDir = Path.Combine(baseDir, "data");
+                    filePath = Path.Combine(dataDir, "robot_status.json");
                     if (!File.Exists(filePath))
                     {
-                        var basePath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "robot_status.json");
-                        if (File.Exists(basePath)) filePath = basePath;
+                        // Geriye dönük uyumluluk için eski konumlar
+                        var projectRoot = Path.GetFullPath(Path.Combine(baseDir, "..", "..", ".."));
+                        var legacyProjectPath = Path.Combine(projectRoot, "robot_status.json");
+                        if (File.Exists(legacyProjectPath)) filePath = legacyProjectPath; else
+                        {
+                            var legacyBasePath = Path.Combine(baseDir, "robot_status.json");
+                            if (File.Exists(legacyBasePath)) filePath = legacyBasePath;
+                        }
                     }
                 }
                 catch
                 {
-                    filePath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "robot_status.json");
+                    filePath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "data", "robot_status.json");
                 }
             string status = "Durdu";
             string aktifProgram = string.Empty;

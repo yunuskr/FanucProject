@@ -22,8 +22,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script
-        src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 }
  
 
@@ -507,7 +505,7 @@
         }
     };
 
-    // Chart initialization will run after DOM is ready to ensure canvases exist
+    // DOM ready: init chart and handle loading animation
     document.addEventListener('DOMContentLoaded', function () {
         // Today Success Rate Pie Chart
         const todayPieCanvas = document.getElementById('todayPie');
@@ -525,28 +523,16 @@
                 },
                 options: {
                     ...chartDefaults,
-                    plugins: {
-                        ...chartDefaults.plugins,
-                        legend: { position: 'bottom' }
-                    }
+                    plugins: { ...chartDefaults.plugins, legend: { position: 'bottom' } }
                 }
             });
         }
 
-    });
-
-    // Page loading animation
-    document.addEventListener('DOMContentLoaded', function () {
+        // Page loading animation
         const loadingOverlay = document.getElementById('loadingOverlay');
-
-        // Show loading
         loadingOverlay.classList.add('show');
-
-        // Hide loading after 1.5 seconds
         setTimeout(() => {
             loadingOverlay.classList.remove('show');
-
-            // Add entrance animations
             const cards = document.querySelectorAll('.stat-card, .chart-card, .robot-status');
             cards.forEach((card, index) => {
                 card.style.opacity = '0';
@@ -558,7 +544,6 @@
                 }, index * 100);
             });
         }, 1500);
-
         // Otomatik artış kapatıldı: gerçek zamanlı güncelleme istenirse SignalR/gerçek veri ile bağlanılacak
     });
 
@@ -605,16 +590,7 @@
 `;
     document.head.appendChild(style);
 
-  
-
-    // Program Details Function
-    function viewProgramDetails(programId) {
-        // Program detay sayfasına yönlendirme
-        window.location.href = `/Home/ProgramDetails?id=${programId}`;
-    }
-
-    // Make function globally available
-    window.viewProgramDetails = viewProgramDetails;
+    // Removed unused viewProgramDetails helper
 </script>
 
 <!-- SignalR JavaScript Library -->

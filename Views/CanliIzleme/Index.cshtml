@@ -722,98 +722,89 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
     <script>
+        // --- Shared helpers (avoid duplication) ---
+        function setProgramPill(running, programText) {
+            const pill = document.getElementById('program-pill');
+            const progNameEl = document.getElementById('program-name');
+            const progDot = document.getElementById('program-status-dot');
+            const progState = document.getElementById('program-state-label');
+            if (!pill || !progDot || !progState) return;
+            if (running) {
+                progDot.classList.remove('inactive');
+                progDot.classList.add('active');
+                progDot.style.background = '#10B981';
+                progState.textContent = 'ÇALIŞIYOR';
+                progState.style.background = 'rgba(16,185,129,0.15)';
+                progState.style.color = '#059669';
+                if (progNameEl) progNameEl.textContent = (programText && programText.trim() !== '') ? programText : 'Program Bilgisi';
+            } else {
+                progDot.classList.remove('active');
+                progDot.classList.add('inactive');
+                progDot.style.background = '#DC2626';
+                progState.textContent = 'BEKLEME';
+                progState.style.background = 'rgba(107,114,128,0.15)';
+                progState.style.color = '#6B7280';
+                if (progNameEl) progNameEl.textContent = 'Program Yok';
+            }
+        }
+
+        function applyRobotStatusStyles(isRunning) {
+            const txtStatus = document.getElementById('txt-status');
+            const statusIcon = document.getElementById('status-icon');
+            const robotIconContainer = document.getElementById('robot-icon-container');
+            const statusBadge = document.getElementById('status-badge');
+            if (txtStatus) {
+                txtStatus.textContent = isRunning ? 'Robot çalışıyor' : 'Robot durdu';
+                txtStatus.style.color = isRunning ? '#10B981' : '#DC2626';
+            }
+            if (robotIconContainer) {
+                robotIconContainer.style.background = isRunning
+                    ? 'linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0.05) 100%)'
+                    : 'linear-gradient(135deg, rgba(220,38,38,0.15) 0%, rgba(220,38,38,0.05) 100%)';
+                robotIconContainer.style.color = isRunning ? '#10B981' : '#DC2626';
+            }
+            if (statusIcon) {
+                statusIcon.style.background = isRunning ? '#10B981' : '#DC2626';
+                statusIcon.classList.toggle('active', isRunning);
+            }
+            if (statusBadge) {
+                statusBadge.style.background = isRunning ? 'rgba(16,185,129,0.1)' : 'rgba(220,38,38,0.1)';
+                statusBadge.style.color = isRunning ? '#10B981' : '#DC2626';
+            }
+        }
+
+        function resetLiveData() {
+            dataPoints.labels = [];
+            dataPoints.amper = [];
+            dataPoints.voltaj = [];
+            dataPoints.telHizi = [];
+            updateCharts();
+            ['tbl-amper','tbl-voltaj','tbl-tel'].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = ''; });
+        }
+
+        function updateCharts() {
+            chA.data.labels = [...dataPoints.labels];
+            chA.data.datasets[0].data = [...dataPoints.amper];
+            chA.update('active');
+
+            chV.data.labels = [...dataPoints.labels];
+            chV.data.datasets[0].data = [...dataPoints.voltaj];
+            chV.update('active');
+
+            chW.data.labels = [...dataPoints.labels];
+            chW.data.datasets[0].data = [...dataPoints.telHizi];
+            chW.update('active');
+        }
+
         // Sayfa açıldığında robotun son durumunu API'den çek
         window.addEventListener('DOMContentLoaded', async () => {
             try {
                 const res = await fetch('/api/robot/status');
                 if (res.ok) {
                     const data = await res.json();
-                    const txtStatus = document.getElementById('txt-status');
-                    const statusIcon = document.getElementById('status-icon');
-                    const robotIconContainer = document.getElementById('robot-icon-container');
-                    const statusBadge = document.getElementById('status-badge');
-                    
-                    // Program pill element references
-                    const pill = document.getElementById('program-pill');
-                    const progNameEl = document.getElementById('program-name');
-                    const progIdEl = document.getElementById('program-id');
-                    const progDot = document.getElementById('program-status-dot');
-                    const progState = document.getElementById('program-state-label');
-
-                    function setProgramPill(running, programText) {
-                        if (!pill) return;
-                        if (running) {
-                            progDot.classList.remove('inactive');
-                            progDot.classList.add('active');
-                            if (progDot) { progDot.style.background = '#10B981'; }
-                            if (progState) {
-                                progState.textContent = 'ÇALIŞIYOR';
-                                progState.style.background = 'rgba(16,185,129,0.15)';
-                                progState.style.color = '#059669';
-                            }
-                            if (progNameEl) progNameEl.textContent = programText && programText.trim() !== '' ? programText : 'Program Bilgisi';
-                        } else {
-                            progDot.classList.remove('active');
-                            progDot.classList.add('inactive');
-                            if (progDot) { progDot.style.background = '#DC2626'; }
-                            if (progState) {
-                                progState.textContent = 'BEKLEME';
-                                progState.style.background = 'rgba(107,114,128,0.15)';
-                                progState.style.color = '#6B7280';
-                            }
-                            if (progNameEl) progNameEl.textContent = 'Program Yok';
-                        }
-                        if (progIdEl) {
-                            const kid = '@(ViewBag.KaynakId?.ToString() ?? "-")';
-                            progIdEl.textContent = 'ID: ' + (kid || '-');
-                        }
-                    }
-
-                    if (data.status === "Calisiyor") {
-                        txtStatus.textContent = "Robot çalışıyor";
-                        txtStatus.style.color = "#10B981"; // Yeşil
-                        setProgramPill(true, data.aktifProgram || '');
-                        
-                        // Robot icon container yeşil
-                        if (robotIconContainer) {
-                            robotIconContainer.style.background = "linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0.05) 100%)";
-                            robotIconContainer.style.color = "#10B981";
-                        }
-                        
-                        // Status indicator yeşil
-                        if (statusIcon) {
-                            statusIcon.style.background = "#10B981";
-                            statusIcon.classList.add('active');
-                        }
-                        
-                        // Badge yeşil
-                        if (statusBadge) {
-                            statusBadge.style.background = "rgba(16,185,129,0.1)";
-                            statusBadge.style.color = "#10B981";
-                        }
-                    } else {
-                        txtStatus.textContent = "Robot durdu";
-                        txtStatus.style.color = "#DC2626"; // Kırmızı
-                        setProgramPill(false, '');
-                        
-                        // Robot icon container kırmızı
-                        if (robotIconContainer) {
-                            robotIconContainer.style.background = "linear-gradient(135deg, rgba(220,38,38,0.15) 0%, rgba(220,38,38,0.05) 100%)";
-                            robotIconContainer.style.color = "#DC2626";
-                        }
-                        
-                        // Status indicator kırmızı
-                        if (statusIcon) {
-                            statusIcon.style.background = "#DC2626";
-                            statusIcon.classList.remove('active');
-                        }
-                        
-                        // Badge kırmızı
-                        if (statusBadge) {
-                            statusBadge.style.background = "rgba(220,38,38,0.1)";
-                            statusBadge.style.color = "#DC2626";
-                        }
-                    }
+                    const running = data.status === "Calisiyor";
+                    setProgramPill(running, data.aktifProgram || '');
+                    applyRobotStatusStyles(running);
                 }
             } catch {}
         });
@@ -826,104 +817,13 @@
 
         // Her yeni program başladığında grafik ve tablo verilerini sıfırla
         connection.on("ReceiveRobotStatus", (status, prog_baslat) => {
-            // Robot durumu alanını güncelle
-            const txtStatus = document.getElementById('txt-status');
-            const statusIcon = document.getElementById('status-icon');
-            const robotIconContainer = document.getElementById('robot-icon-container');
-            const statusBadge = document.getElementById('status-badge');
-            const progNameEl = document.getElementById('program-name');
-            const progIdEl = document.getElementById('program-id');
-            const progDot = document.getElementById('program-status-dot');
-            const progState = document.getElementById('program-state-label');
-
-            function updateProgramPill(running, programText) {
-                if (running) {
-                    progDot?.classList.add('active');
-                    progDot?.classList.remove('inactive');
-                    if (progDot) progDot.style.background = '#10B981';
-                    if (progState) { progState.textContent = 'ÇALIŞIYOR'; progState.style.background = 'rgba(16,185,129,0.15)'; progState.style.color = '#059669'; }
-                    if (progNameEl) progNameEl.textContent = (programText && programText.trim() !== '') ? programText : 'Program Bilgisi';
-                } else {
-                    progDot?.classList.add('inactive');
-                    progDot?.classList.remove('active');
-                    if (progDot) progDot.style.background = '#DC2626';
-                    if (progState) { progState.textContent = 'BEKLEME'; progState.style.background = 'rgba(107,114,128,0.15)'; progState.style.color = '#6B7280'; }
-                    if (progNameEl) progNameEl.textContent = 'Program Yok';
-                }
-                if (progIdEl) {
-                    const kid = '@(ViewBag.KaynakId?.ToString() ?? "-")';
-                    progIdEl.textContent = 'ID: ' + (kid || '-');
-                }
-            }
-            
             if (status === "Calisiyor") {
-                // Yeni program başladığında grafik ve tablo verilerini sıfırla
-                dataPoints.labels = [];
-                dataPoints.amper = [];
-                dataPoints.voltaj = [];
-                dataPoints.telHizi = [];
-
-                chA.data.labels = [];
-                chA.data.datasets[0].data = [];
-                chA.update('active');
-
-                chV.data.labels = [];
-                chV.data.datasets[0].data = [];
-                chV.update('active');
-
-                chW.data.labels = [];
-                chW.data.datasets[0].data = [];
-                chW.update('active');
-
-                updateProgramPill(true, prog_baslat);
-
-                document.getElementById('tbl-amper').innerHTML = '';
-                document.getElementById('tbl-voltaj').innerHTML = '';
-                document.getElementById('tbl-tel').innerHTML = '';
-
-                txtStatus.textContent = "Robot çalışıyor";
-                txtStatus.style.color = "#10B981"; // Yeşil
-                
-                // Robot icon container yeşil
-                if (robotIconContainer) {
-                    robotIconContainer.style.background = "linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0.05) 100%)";
-                    robotIconContainer.style.color = "#10B981";
-                }
-                
-                // Status indicator yeşil
-                if (statusIcon) {
-                    statusIcon.style.background = "#10B981";
-                    statusIcon.classList.add('active');
-                }
-                
-                // Badge yeşil
-                if (statusBadge) {
-                    statusBadge.style.background = "rgba(16,185,129,0.1)";
-                    statusBadge.style.color = "#10B981";
-                }
+                resetLiveData();
+                setProgramPill(true, prog_baslat);
+                applyRobotStatusStyles(true);
             } else {
-                // Robot durduğunda sadece durum metni güncellensin, veriler korunacak
-                txtStatus.textContent = "Robot durdu";
-                txtStatus.style.color = "#DC2626"; // Kırmızı
-                updateProgramPill(false, '');
-                
-                // Robot icon container kırmızı
-                if (robotIconContainer) {
-                    robotIconContainer.style.background = "linear-gradient(135deg, rgba(220,38,38,0.15) 0%, rgba(220,38,38,0.05) 100%)";
-                    robotIconContainer.style.color = "#DC2626";
-                }
-                
-                // Status indicator kırmızı
-                if (statusIcon) {
-                    statusIcon.style.background = "#DC2626";
-                    statusIcon.classList.remove('active');
-                }
-                
-                // Badge kırmızı
-                if (statusBadge) {
-                    statusBadge.style.background = "rgba(220,38,38,0.1)";
-                    statusBadge.style.color = "#DC2626";
-                }
+                setProgramPill(false, '');
+                applyRobotStatusStyles(false);
             }
         });
 
@@ -981,26 +881,14 @@
                 dataPoints.telHizi.shift();
             }
 
-            chA.data.labels = [...dataPoints.labels];
-            chA.data.datasets[0].data = [...dataPoints.amper];
-            chA.update('active');
-
-            chV.data.labels = [...dataPoints.labels];
-            chV.data.datasets[0].data = [...dataPoints.voltaj];
-            chV.update('active');
-
-            chW.data.labels = [...dataPoints.labels];
-            chW.data.datasets[0].data = [...dataPoints.telHizi];
-            chW.update('active');
+            updateCharts();
 
             updateTable('tbl-amper', amper, timeLabel, 'a');
             updateTable('tbl-voltaj', voltaj, timeLabel, 'v');
             updateTable('tbl-tel', telSurmeHizi, timeLabel, 'w');
         });
 
-        connection.start().catch(err => console.error(err.toString()));
-        const kaynakId = '@(ViewBag.KaynakId ?? "")';
-        const endpoint = `/CanliIzleme/api/son?count=120${kaynakId ? ('&kaynakId=' + kaynakId) : ''}`;
+    connection.start().catch(err => console.error(err.toString()));
 
         // Chart helpers
         const makeChart = (canvasId, label, color = '#007bff') => {
@@ -1105,71 +993,7 @@
             return d.toLocaleTimeString('tr-TR', { hour12: false });
         }
 
-        function setStatus(ok, speed, alarm, msg, lastTimeIso) {
-            const dot = document.getElementById('dot-status');
-            const txt = document.getElementById('txt-status');
-            const statusIcon = document.getElementById('status-icon');
-            const robotIconContainer = document.getElementById('robot-icon-container');
-            const statusBadge = document.getElementById('status-badge');
-            const spd = document.getElementById('val-speed');
-            const alm = document.getElementById('val-alarm');
-            const almMsg = document.getElementById('val-alarm-msg');
-            const upd = document.getElementById('last-upd');
-
-            // Robot durumu renkleri
-            if (dot) dot.style.background = ok ? '#10B981' : '#DC2626';
-            txt.textContent = ok ? 'Robot çalışıyor' : 'Robot durdu';
-            txt.style.color = ok ? '#10B981' : '#DC2626'; // Yeşil veya kırmızı
-            
-            // Robot icon container rengi
-            if (robotIconContainer) {
-                if (ok) {
-                    robotIconContainer.style.background = "linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0.05) 100%)";
-                    robotIconContainer.style.color = "#10B981";
-                } else {
-                    robotIconContainer.style.background = "linear-gradient(135deg, rgba(220,38,38,0.15) 0%, rgba(220,38,38,0.05) 100%)";
-                    robotIconContainer.style.color = "#DC2626";
-                }
-            }
-            
-            // Status icon rengi
-            if (statusIcon) {
-                statusIcon.style.background = ok ? '#10B981' : '#DC2626';
-                if (ok) {
-                    statusIcon.classList.add('active');
-                } else {
-                    statusIcon.classList.remove('active');
-                }
-            }
-            
-            // Badge rengi
-            if (statusBadge) {
-                if (ok) {
-                    statusBadge.style.background = "rgba(16,185,129,0.1)";
-                    statusBadge.style.color = "#10B981";
-                } else {
-                    statusBadge.style.background = "rgba(220,38,38,0.1)";
-                    statusBadge.style.color = "#DC2626";
-                }
-            }
-            
-            spd.textContent = speed ?? 0;
-            alm.textContent = alarm ? 'VAR' : 'Yok';
-            alm.className = alarm ? 'mb-0 text-danger' : 'mb-0 text-muted';
-            almMsg.textContent = alarm ? (msg || '') : '-';
-            upd.textContent = lastTimeIso ? fmtTime(lastTimeIso) : '-';
-        }
-
-        function fillTable(tbodyId, rows, valueKey) {
-            const tb = document.getElementById(tbodyId);
-            tb.innerHTML = '';
-            // son 12 satır
-            rows.slice(-12).reverse().forEach(r => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${fmtTime(r.t)}</td><td>${Number(r[valueKey]).toFixed(2)}</td>`;
-                tb.appendChild(tr);
-            });
-        }
+        // Removed unused setStatus and fillTable helpers
 
         // Tabloları güncelleme fonksiyonu
         function updateTable(tbodyId, value, time, valueKey) {
