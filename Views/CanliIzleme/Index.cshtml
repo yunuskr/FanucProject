@@ -245,10 +245,10 @@
 </div>
 
 @section Scripts {
-    <!-- SignalR JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- SignalR JS (local) -->
+    <script src="~/lib/microsoft-signalr/8.0.0/signalr.min.js" asp-append-version="true"></script>
+    <!-- Chart.js (local) -->
+    <script src="~/lib/chart.js/4.4.1/chart.umd.min.js" asp-append-version="true"></script>
 
     <script>
         // --- Shared helpers (avoid duplication) ---

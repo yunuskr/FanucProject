@@ -1,0 +1,42 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "font-awesome@6.4.0",
+      "destination": "wwwroot/lib/font-awesome/6.4.0",
+      "files": [
+        "css/all.min.css",
+        "webfonts/fa-solid-900.woff2",
+        "webfonts/fa-regular-400.woff2",
+        "webfonts/fa-brands-400.woff2",
+        "webfonts/fa-solid-900.ttf",
+        "webfonts/fa-regular-400.ttf",
+        "webfonts/fa-brands-400.ttf"
+      ]
+    },
+    {
+      "library": "Chart.js@4.4.1",
+      "destination": "wwwroot/lib/chart.js/4.4.1",
+      "files": [
+        "chart.umd.min.js",
+        "chart.umd.js.map"
+      ]
+    },
+    {
+      "library": "microsoft-signalr@8.0.0",
+      "destination": "wwwroot/lib/microsoft-signalr/8.0.0",
+      "files": [
+        "signalr.min.js"
+      ]
+    },
+    {
+      "library": "bootstrap@5.3.3",
+      "destination": "wwwroot/lib/bootstrap/5.3.3",
+      "files": [
+        "css/bootstrap.min.css",
+        "js/bootstrap.bundle.min.js"
+      ]
+    }
+  ]
+}
