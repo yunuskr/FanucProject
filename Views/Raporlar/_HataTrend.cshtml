@@ -1,0 +1,60 @@
+@model IEnumerable<(System.DateTime Date, int Count)>
+@{
+    var list = Model.ToList();
+}
+<div class="table-responsive panel-scroll">
+    <table class="table table-hover align-middle mb-0 table-sticky" id="tbl-rapor-hata-trend">
+        <thead class="table-dark">
+            <tr>
+                <th class="border-0 py-3">Tarih</th>
+                <th class="border-0 py-3 text-end">Hata Sayısı</th>
+                <th class="border-0 py-3 text-center">Trend</th>
+            </tr>
+        </thead>
+        <tbody>
+        @for (int i = 0; i < list.Count; i++)
+        {
+            var row = list[i];
+            var prevCount = i > 0 ? list[i - 1].Count : row.Count;
+            var trend = row.Count - prevCount;
+            <tr class="border-bottom">
+                <td class="py-3">
+                    <div class="fw-semibold">@row.Date.ToString("dd MMM")</div>
+                    <small class="text-muted">@row.Date.ToString("dddd")</small>
+                </td>
+                <td class="text-end py-3">
+                    <span class="fw-bold @(row.Count == 0 ? "text-success" : row.Count < 5 ? "text-warning" : "text-danger")">@row.Count</span>
+                </td>
+                <td class="text-center py-3">
+                    @if (i > 0 && trend != 0)
+                    {
+                        <span class="badge @(trend < 0 ? "bg-success" : "bg-danger") rounded-pill">
+                            <i class="fas @(trend < 0 ? "fa-arrow-down" : "fa-arrow-up")"></i>
+                            @Math.Abs(trend)
+                        </span>
+                    }
+                    else if (i == 0)
+                    {
+                        <small class="text-muted">—</small>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary rounded-pill">
+                            <i class="fas fa-minus"></i>
+                        </span>
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    <div class="alert alert-info border-0 mt-3">
+        <h6 class="mb-1"><i class="fas fa-info-circle me-2"></i>Özet</h6>
+        <ul class="mb-0 small">
+            <li>Toplam gün: @list.Count</li>
+            <li>Toplam hata: @list.Sum(h => h.Count)</li>
+            <li>Günlük ort: @(list.Any() ? Math.Round(list.Average(h => h.Count), 1) : 0)</li>
+            <li>En yüksek: @(list.Any() ? list.Max(h => h.Count) : 0)</li>
+        </ul>
+    </div>
+</div>

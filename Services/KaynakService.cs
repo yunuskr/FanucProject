@@ -74,6 +74,23 @@ namespace FanucRelease.Services
             return total;
         }
 
+        public async Task<TimeSpan> GetDunToplamSureAsync()
+        {
+            var yesterday = DateTime.Today.AddDays(-1);
+            var sureler = await _context.Kaynaklar
+                .AsNoTracking()
+                .Where(k => k.basarili_mi && EF.Functions.DateDiffDay(yesterday, k.BaslangicSaati) == 0)
+                .Select(k => k.ToplamSure)
+                .ToListAsync();
+
+            TimeSpan total = TimeSpan.Zero;
+            foreach (var t in sureler)
+            {
+                total += t.ToTimeSpan();
+            }
+            return total;
+        }
+
         public async Task<Kaynak?> GetLastSuccessfulKaynakOfLatestProgramAsync()
         {
             // Son programın Id'sini Tarih'e göre (eşitlikte Id) belirle

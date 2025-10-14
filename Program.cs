@@ -3,6 +3,8 @@ using FanucRelease.Services;
 using FanucRelease.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +22,7 @@ builder.Services.AddScoped<ISettingsService, SettingsService>();
 builder.Services.AddScoped<IKaynakService, KaynakService>();
 builder.Services.AddScoped<IHataService, HataService>();
 builder.Services.AddScoped<IOperatorService, OperatorService>();
+builder.Services.AddScoped<IAnlikKaynakService, AnlikKaynakService>();
 builder.Services.AddHostedService<RobotTcpListenerService>();
 
 // 🔐 AUTH
@@ -47,6 +50,13 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+// Serve icons folder from project root at /icons
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(builder.Environment.ContentRootPath, "icons")),
+    RequestPath = "/icons"
+});
 
 app.UseRouting();
 

@@ -1,0 +1,13 @@
+@using System.Text.Json
+@model IEnumerable<FanucRelease.ViewModels.ProgramDurationRow>
+@{
+    var rows = Model.Take(10).ToList();
+    var labels = rows.Select(p => $"{(p.ProgramAdi ?? "—")} — {p.TarihText}").ToList();
+    var data = rows.Select(p => Math.Max(0, (int)Math.Round(p.Sure.TotalMinutes))).ToList();
+    var h = (rows.Count * 36) + 40;
+}
+<div>
+    <canvas id="longestProgramsChart" height="@h"
+            data-labels='@JsonSerializer.Serialize(labels)'
+            data-values='@JsonSerializer.Serialize(data)'></canvas>
+</div>

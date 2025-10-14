@@ -1,0 +1,62 @@
+@model List<(System.DateTime Date, int Program, int Kaynak, int BasariYuzdesi)>
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-gold-border text-center py-5">
+        <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+        <p class="mb-0">Trend verileri bulunamadı.</p>
+    </div>
+}
+else
+{
+    <div class="table-responsive panel-scroll">
+        <table class="table table-hover align-middle mb-0 table-sticky">
+            <thead class="table-dark">
+                <tr>
+                    <th class="border-0 py-3">Tarih</th>
+                    <th class="border-0 py-3 text-end">Program</th>
+                    <th class="border-0 py-3 text-end">Kaynak</th>
+                    <th class="border-0 py-3 text-end">Başarı Oranı</th>
+                    <th class="border-0 py-3 text-center">Trend</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.Count; i++)
+                {
+                    var d = Model[i];
+                    var prevDay = i > 0 ? Model[i - 1] : d;
+                    var successTrend = d.BasariYuzdesi - prevDay.BasariYuzdesi;
+                    <tr class="border-bottom">
+                        <td class="py-3">
+                            <div class="fw-semibold">@d.Date.ToString("dd MMM")</div>
+                            <small class="text-muted">@d.Date.ToString("dddd")</small>
+                        </td>
+                        <td class="text-end py-3"><span class="fw-semibold">@d.Program</span></td>
+                        <td class="text-end py-3"><span class="fw-semibold">@d.Kaynak</span></td>
+                        <td class="text-end py-3">
+                            <span class="fw-bold @(d.BasariYuzdesi >= 90 ? "text-success" : d.BasariYuzdesi >= 70 ? "text-warning" : "text-danger")">
+                                @d.BasariYuzdesi%
+                            </span>
+                        </td>
+                        <td class="text-center py-3">
+                            @if (i > 0 && successTrend != 0)
+                            {
+                                <span class="badge @(successTrend > 0 ? "bg-success" : "bg-danger") rounded-pill">
+                                    <i class="fas @(successTrend > 0 ? "fa-arrow-up" : "fa-arrow-down")"></i>
+                                    @System.Math.Abs(successTrend)%
+                                </span>
+                            }
+                            else if (i == 0)
+                            {
+                                <small class="text-muted">—</small>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary rounded-pill"><i class="fas fa-minus"></i> 0%</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

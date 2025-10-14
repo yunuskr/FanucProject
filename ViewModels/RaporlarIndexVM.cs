@@ -65,5 +65,17 @@ namespace FanucRelease.ViewModels
         public int BYear { get; set; }
         public int BMonth { get; set; }
         public int BWeek { get; set; } // 1..4
+
+        // Independent date ranges per section
+        public DateTime? TrendStartDate { get; set; }
+        public DateTime? TrendEndDate { get; set; }
+        public DateTime? ErrorStartDate { get; set; }
+        public DateTime? ErrorEndDate { get; set; }
+        public DateTime? OpStartDate { get; set; }
+        public DateTime? OpEndDate { get; set; }
+        public DateTime? ProgStartDate { get; set; }
+        public DateTime? ProgEndDate { get; set; }
+        public DateTime? DurStartDate { get; set; }
+        public DateTime? DurEndDate { get; set; }
     }
 }

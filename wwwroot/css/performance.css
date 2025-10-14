@@ -95,20 +95,35 @@
 .alert-gold-border { border:1px solid rgba(240,151,1,.25); }
 
 /* Table styling */
-#tbl-operator thead { background: var(--brand-gradient); position: sticky; top: 0; z-index: 10; }
+/* Use a single gradient on THEAD, keep TH transparent so text stays readable over gradient */
+#tbl-operator thead { background: var(--brand-gradient); }
+#tbl-operator thead th {
+  background: transparent !important;
+  color: #fff !important;
+  position: sticky; /* sticky must be on cells for broad support */
+  top: 0;
+  z-index: 11; /* above body rows */
+}
+#tbl-operator thead th i { color: #fff !important; }
 #tbl-operator tbody tr { transition: all 0.3s ease; }
 #tbl-operator tbody tr:hover { background: rgba(240, 151, 1, 0.08); }
 #tbl-operator th { cursor: pointer; user-select: none; transition: all 0.3s ease; }
-#tbl-operator th:hover { background: rgba(255, 255, 255, 0.1) !important; }
 #tbl-operator th.sorted-asc::after { content: ' \25B2'; font-size: 0.7rem; opacity: 0.8; }
 #tbl-operator th.sorted-desc::after { content: ' \25BC'; font-size: 0.7rem; opacity: 0.8; }
 
-/* Table styling for Operator page */
-#tbl-program thead { background: var(--brand-gradient); position: sticky; top: 0; z-index: 10; }
+/* Table styling for Program list */
+#tbl-program thead { background: var(--brand-gradient); }
+#tbl-program thead th {
+  background: transparent !important;
+  color: #fff !important;
+  position: sticky;
+  top: 0;
+  z-index: 11;
+}
+#tbl-program thead th i { color: #fff !important; }
 #tbl-program tbody tr { transition: all 0.3s ease; }
 #tbl-program tbody tr:hover { background: rgba(240, 151, 1, 0.08); }
 #tbl-program th { cursor: pointer; user-select: none; transition: all 0.3s ease; }
-#tbl-program th:hover { background: rgba(255, 255, 255, 0.1) !important; }
 #tbl-program th.sorted-asc::after { content: ' \25B2'; font-size: 0.7rem; opacity: 0.8; }
 #tbl-program th.sorted-desc::after { content: ' \25BC'; font-size: 0.7rem; opacity: 0.8; }
 

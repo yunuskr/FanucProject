@@ -359,7 +359,7 @@
         <nav class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="sidebar-logo">
-                    <i class="fas fa-robot"></i>
+                    <img src="/icons/robot.png" alt="Robot" style="width:24px; height:24px; object-fit:contain; filter: drop-shadow(0 1px 1px rgba(0,0,0,.2));" />
                     RoboEye
                 </div>
                 <div class="sidebar-tagline">Robot Takip Sistemi</div>
@@ -372,7 +372,7 @@
                     <div class="nav-item">
                         <a class="nav-link @(IsActive("Home") ? "active" : "")" href="@Url.Action("Index", "Home")">
                             <i class="fas fa-tachometer-alt"></i>
-                            <span>Dashboard</span>
+                            <span>Anasayfa</span>
                         </a>
                     </div>
                     <div class="nav-item">
@@ -391,12 +391,12 @@
                                 <span>Geçmiş Programlar</span>
                         </a>
                     </div>
-                    <div class="nav-item">
+                    @* <div class="nav-item">
                         <a class="nav-link" href="#">
                             <i class="fas fa-bolt"></i>
                             <span>Geçmiş Kaynaklar</span>
                         </a>
-                    </div>
+                    </div> *@
                 </div>
 
                 <!-- Analiz & Raporlama -->
@@ -409,25 +409,25 @@
                             <span>Performans</span>
                         </a>
                     </div>
-                    <div class="nav-item">
+                    @* <div class="nav-item">
                         <a class="nav-link" href="#">
                             <i class="fas fa-exclamation-triangle"></i>
                             <span>Hata Takibi</span>
                             <span class="nav-badge">3</span>
                         </a>
-                    </div>
+                    </div> *@
                     <div class="nav-item">
                         <a class="nav-link @(IsActive("Raporlar") ? "active" : "")" asp-controller="Raporlar" asp-action="Index">
                             <i class="fas fa-file-alt"></i>
                             <span>Raporlar</span>
                         </a>
                     </div>
-                    <div class="nav-item">
+                    @* <div class="nav-item">
                         <a class="nav-link" href="#">
                             <i class="fas fa-history"></i>
                             <span>Geçmiş</span>
                         </a>
-                    </div>
+                    </div> *@
                 </div>
 
             </div>

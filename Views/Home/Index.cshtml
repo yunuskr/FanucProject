@@ -22,8 +22,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script
-        src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 }
  
 
@@ -36,31 +34,32 @@
     <div class="container-fluid">
         <!-- Dashboard Header -->
         <div class="dashboard-header">
-            <h1 class="dashboard-title">
-                 <i class="fas fa-robot brand-gold"></i> <span class="brand-gold">RoboEye</span>
-            </h1>
-            <p class="dashboard-subtitle">Gerçek zamanlı robot takip ve yönetim sistemi</p>
+          <h1 class="dashboard-title" style="display:flex; align-items:center; gap:.5rem;">
+              <img src="~/icons/robot.png" alt="Robot" style="width:45px; height:45px; object-fit:contain; filter: drop-shadow(0 1px 1px rgba(0,0,0,.2));" />
+              <span class="brand-gold">RoboEye</span>
+          </h1>
+            <p class="dashboard-subtitle" style="align-items:center; display:flex; gap:.5rem;">Gerçek zamanlı robot takip ve yönetim sistemi</p>
         </div>
 
         <!-- Stats Grid -->
         <div class="stats-grid">
-            <div class="stat-card primary">
+            <div class="stat-card success">
                 <div class="stat-header">
                     <div>
                         <h3 class="stat-value" id="programCount">@Model.ProgramCount</h3>
                         <p class="stat-label">Toplam Program</p>
-                        <div class="stat-trend trend-up">
-                            <i class="fas fa-arrow-up"></i>
-                            <span>+12% bu hafta</span>
+                        <div class="stat-trend @Model.ProgramCountTrendClass">
+                            <i class="@Model.ProgramCountTrendIcon"></i>
+                            <span>@Model.ProgramCountTrendText</span>
                         </div>
                     </div>
-                    <div class="stat-icon primary">
+                    <div class="stat-icon success">
                         <i class="fas fa-code"></i>
                     </div>
                 </div>
             </div>
 
-            <div class="stat-card success">
+            <div class="stat-card warning">
                 <div class="stat-header">
                     <div>
                         <h3 class="stat-value" id="kaynakCount">@toplamKaynak</h3>
@@ -71,7 +70,7 @@
                             <span>@basariOrani% başarılı</span>
                         </div>
                     </div>
-                    <div class="stat-icon success">
+                    <div class="stat-icon warning">
                         <i class="fas fa-bolt"></i>
                     </div>
                 </div>
@@ -82,9 +81,9 @@
                     <div>
                         <h3 class="stat-value" id="hataCount">@Model.HataToplam</h3>
                         <p class="stat-label">Toplam Hata</p>
-                        <div class="stat-trend trend-down">
-                            <i class="fas fa-arrow-down"></i>
-                            <span>-5% bu hafta</span>
+                        <div class="stat-trend @Model.HataTrendClass">
+                            <i class="@Model.HataTrendIcon"></i>
+                            <span>@Model.HataTrendText</span>
                         </div>
                     </div>
                     <div class="stat-icon danger">
@@ -97,10 +96,10 @@
                 <div class="stat-header">
                     <div>
                         <h3 class="stat-value" id="totalTime">@Model.BugunToplamKaynakSureText</h3>
-                        <p class="stat-label">Bugün Toplam Kaynak Süresi</p>
-                        <div class="stat-trend trend-up">
-                            <i class="fas fa-arrow-up"></i>
-                            <span>+15% bugün</span>
+                        <p class="stat-label">Günlük Kaynak Süresi</p>
+                        <div class="stat-trend @Model.TodayTimeTrendClass">
+                            <i class="@Model.TodayTimeTrendIcon"></i>
+                            <span>@Model.TodayTimeTrendText</span>
                         </div>
                     </div>
                     <div class="stat-icon info">
@@ -109,7 +108,7 @@
                 </div>
             </div>
 
-            <div class="stat-card warning">
+            <div class="stat-card primary">
                 <div class="stat-header">
                     <div>
                         <h3 class="stat-value" id="trafoCount">5</h3>
@@ -119,7 +118,7 @@
                             <span>Tümü çalışıyor</span>
                         </div>
                     </div>
-                    <div class="stat-icon warning">
+                    <div class="stat-icon primary">
                         <i class="fas fa-plug"></i>
                     </div>
                 </div>
@@ -130,7 +129,7 @@
         <div class="robot-status stopped" id="robotStatusCard">
             <div class="robot-info">
                 <div class="robot-avatar" id="robotAvatar">
-                    <i class="fas fa-robot"></i>
+                    <img src="/icons/robot.png" alt="Robot" style="width:60px; height:60px; object-fit:contain;" />
                 </div>
                 <div class="robot-details">
                     <h3>
@@ -142,7 +141,7 @@
                         Aktif Program: <strong id="activeProgramText">Bekleniyor...</strong>
                     </p>
                     <div class="robot-actions">
-                        <a href="#" class="btn-modern success">
+                        <a id="btnLiveWatch" asp-controller="CanliIzleme" asp-action="Index" class="btn-modern success" data-base-href="@Url.Action("Index","CanliIzleme")">
                             <i class="fas fa-eye"></i>
                             Canlı İzle
                         </a>
@@ -506,7 +505,7 @@
         }
     };
 
-    // Chart initialization will run after DOM is ready to ensure canvases exist
+    // DOM ready: init chart and handle loading animation
     document.addEventListener('DOMContentLoaded', function () {
         // Today Success Rate Pie Chart
         const todayPieCanvas = document.getElementById('todayPie');
@@ -524,28 +523,16 @@
                 },
                 options: {
                     ...chartDefaults,
-                    plugins: {
-                        ...chartDefaults.plugins,
-                        legend: { position: 'bottom' }
-                    }
+                    plugins: { ...chartDefaults.plugins, legend: { position: 'bottom' } }
                 }
             });
         }
 
-    });
-
-    // Page loading animation
-    document.addEventListener('DOMContentLoaded', function () {
+        // Page loading animation
         const loadingOverlay = document.getElementById('loadingOverlay');
-
-        // Show loading
         loadingOverlay.classList.add('show');
-
-        // Hide loading after 1.5 seconds
         setTimeout(() => {
             loadingOverlay.classList.remove('show');
-
-            // Add entrance animations
             const cards = document.querySelectorAll('.stat-card, .chart-card, .robot-status');
             cards.forEach((card, index) => {
                 card.style.opacity = '0';
@@ -557,7 +544,6 @@
                 }, index * 100);
             });
         }, 1500);
-
         // Otomatik artış kapatıldı: gerçek zamanlı güncelleme istenirse SignalR/gerçek veri ile bağlanılacak
     });
 
@@ -604,16 +590,7 @@
 `;
     document.head.appendChild(style);
 
-  
-
-    // Program Details Function
-    function viewProgramDetails(programId) {
-        // Program detay sayfasına yönlendirme
-        window.location.href = `/Home/ProgramDetails?id=${programId}`;
-    }
-
-    // Make function globally available
-    window.viewProgramDetails = viewProgramDetails;
+    // Removed unused viewProgramDetails helper
 </script>
 
 <!-- SignalR JavaScript Library -->
@@ -637,6 +614,17 @@
         }
         if (activeProgram) {
             activeProgramText.textContent = activeProgram;
+        }
+        // Update Canlı İzle button target
+        const liveBtn = document.getElementById('btnLiveWatch');
+        if (liveBtn) {
+            const baseHref = liveBtn.getAttribute('data-base-href') || '/CanliIzleme';
+            if (status === 'Calisiyor') {
+                const pid = @((Model.SonProgram?.Id ?? 0));
+                liveBtn.setAttribute('href', pid > 0 ? `${baseHref}?programId=${pid}` : baseHref);
+            } else {
+                liveBtn.setAttribute('href', baseHref);
+            }
         }
     // Debug log kaldırıldı
     }

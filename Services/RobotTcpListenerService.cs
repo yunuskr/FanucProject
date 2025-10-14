@@ -26,6 +26,7 @@ namespace FanucRelease.Services
         // Dosya yolları
         private readonly string _statusFilePath;
         private readonly string? _errorFilePath;
+        private readonly string _dataDirectory;
 
         // Robot durumları
         private string _robotStatus = "Durdu";
@@ -122,35 +123,42 @@ namespace FanucRelease.Services
 
             try
             {
-                var projectRoot = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", ".."));
-                _statusFilePath = Path.Combine(projectRoot, "robot_status.json");
-                // If the file is not present in project root but exists in base dir, fallback to that to avoid losing data
-                if (!File.Exists(_statusFilePath))
+                // Tüm runtime dosyalarını bin/.../data klasörüne alalım (dotnet watch/browser refresh tetiklenmesin)
+                var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                _dataDirectory = Path.Combine(baseDir, "data");
+                Directory.CreateDirectory(_dataDirectory);
+
+                _statusFilePath = Path.Combine(_dataDirectory, "robot_status.json");
+                _errorFilePath = Path.Combine(_dataDirectory, "Logs.txt");
+
+                // Var olan proje kökü dosyaları varsa ilk koşuda data klasörüne taşı/kopyala
+                var projectRoot = Path.GetFullPath(Path.Combine(baseDir, "..", "..", ".."));
+                try
                 {
-                    var basePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "robot_status.json");
-                    if (File.Exists(basePath))
+                    var legacyStatus = Path.Combine(projectRoot, "robot_status.json");
+                    if (File.Exists(legacyStatus) && !File.Exists(_statusFilePath))
                     {
-                        _statusFilePath = basePath;
+                        File.Copy(legacyStatus, _statusFilePath, true);
                     }
                 }
-
-                _errorFilePath = Path.Combine(projectRoot, "Logs.txt");
-                // Eğer dosya yoksa base directory'den kontrol et
-                if (!File.Exists(_errorFilePath))
+                catch { }
+                try
                 {
-                    var baseErrorPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs.txt");
-                    if (File.Exists(baseErrorPath))
+                    var legacyLogs = Path.Combine(projectRoot, "Logs.txt");
+                    if (File.Exists(legacyLogs) && !File.Exists(_errorFilePath))
                     {
-                        _errorFilePath = baseErrorPath;
+                        File.Copy(legacyLogs, _errorFilePath, true);
                     }
                 }
-
-
+                catch { }
             }
             catch
             {
-                // Fallback to base directory if path calculation fails
-                _statusFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "robot_status.json");
+                // Her durumda en azından bin/.../data içerisinde çalışmayı garantile
+                var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                _dataDirectory = Path.Combine(baseDir, "data");
+                try { Directory.CreateDirectory(_dataDirectory); } catch { }
+                _statusFilePath = Path.Combine(_dataDirectory, "robot_status.json");
             }
 
             LoadRobotStatusFromFile();

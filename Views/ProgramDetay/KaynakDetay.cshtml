@@ -26,121 +26,75 @@
     var telJson    = JsonSerializer.Serialize(tel);
     var hizJson    = JsonSerializer.Serialize(hiz);
 }
+
+@section Head {
+    <link rel="stylesheet" href="~/css/performance.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <script src="~/libs/chart.js/Chart.min.js"></script>
+}
+
 <style>
-/* === SAYFAYA ÖZEL ALTIN ARKAPLAN (login ile aynı) === */
-:root{
-  --gold:#face00;      /* parlak sarı */
-  --amber:#f09701;     /* sıcak turuncu */
-  --dark:#15120a;      /* çok koyu kahve/siyah */
-}
-
-/* Layout'taki body arkaplanını ez */
-body{
-  background-color:var(--dark) !important;
-  background-image:
-    /* merkez ışık */
-    radial-gradient(1200px 800px at 38% 35%,
-      rgba(250,206,0,.95) 0%,
-      rgba(240,151,1,.65) 34%,
-      rgba(240,151,1,.25) 50%,
-      rgba(21,18,10,0) 68%),
-    /* sağ üst sıcaklık */
-    radial-gradient(900px 600px at 88% 8%,
-      rgba(240,151,1,.35) 0%,
-      rgba(21,18,10,0) 60%),
-    /* sol alt karartma */
-    radial-gradient(1000px 700px at 0% 100%,
-      rgba(0,0,0,.55) 10%,
-      rgba(0,0,0,0) 60%),
-    /* zemin */
-    linear-gradient(180deg,#1c150a 0%, var(--dark) 100%);
-  background-attachment:fixed;
-  background-size:cover;
-}
-
-/* yumuşak vignette + hafif dither (banding azaltır) */
-body::after{
-  content:""; position:fixed; inset:0; pointer-events:none;
-  background: radial-gradient(150% 130% at 50% 50%,
-    rgba(0,0,0,0) 60%, rgba(0,0,0,.45) 100%);
-  mix-blend-mode:multiply;
-}
-body::before{
-  content:""; position:fixed; inset:-2px; pointer-events:none;
-  background: repeating-linear-gradient(0deg,
-    rgba(255,255,255,.015) 0 2px,
-    rgba(0,0,0,.02) 2px 4px);
-  opacity:.25; mix-blend-mode:overlay;
-}
-
-/* Layout'taki içerik katmanının beyaz film efektini kaldır */
-.content-area{ background: transparent !important; }
-/* === MOR -> ALTIN OVERRIDE'LAR === */
-:root{
-  --gold-start:#f09701;
-  --gold-end:#face00;
-  --gold-grad:linear-gradient(90deg, var(--gold-start), var(--gold-end));
-  /* sayfadaki tüm "primary" temayı altına çek */
+/* Golden theme background for the page */
+:root {
+  --gold-start: #f09701;
+  --gold-end: #face00;
+  --gold-grad: linear-gradient(90deg, var(--gold-start), var(--gold-end));
   --gradient-primary: var(--gold-grad);
 }
-.brand-gold {
-    color: #f5c518; /* altın sarısı */
+
+body {
+  background: 
+    radial-gradient(1200px 800px at 38% 35%, rgba(250,206,0,.95) 0%, rgba(240,151,1,.65) 34%, rgba(240,151,1,.25) 50%, rgba(21,18,10,0) 68%),
+    radial-gradient(900px 600px at 88% 8%, rgba(240,151,1,.35) 0%, rgba(21,18,10,0) 60%),
+    linear-gradient(180deg,#1c150a 0%, #15120a 100%);
+  background-attachment: fixed;
+  background-size: cover;
 }
 
-/* RoboEye başlık kartı ve başlık yazısı */
-.dashboard-header::before{ background: var(--gold-grad) !important; }
-.dashboard-title{
-  background: none !important;
-  -webkit-text-fill-color: initial !important;
-  color:#fff !important;
-  text-shadow: 0 2px 8px rgba(0,0,0,.35);
-}
+.content-area { background: transparent !important; }
 
-/* "En son Program" kartının mor başlığını altın yap */
-.program-header{ background: var(--gold-grad) !important; }
-.program-header::before{
-  background: rgba(255,255,255,.12) !important; /* cam efekti kalsın */
+/* Chart container styling for better integration */
+canvas {
+  border-radius: 8px;
 }
-
-/* Geçmiş Programlar tablosu başlığı */
-.history-table thead{ background: var(--gold-grad) !important; }
-
-/* Küçük altın vurgular */
-.operator-info i{ color: var(--gold-start) !important; }
-.program-version{
-  background: rgba(240,151,1,.12) !important;
-  color:#2c3e50;
-}
-
-/* Scrollbarları da altınla uyumlu yap */
-.history-table-container::-webkit-scrollbar-thumb,
-.kaynak-list::-webkit-scrollbar-thumb{
-  background: var(--gold-grad) !important;
-}
-.kaynak-list-title{ border-bottom:2px solid rgba(240,151,1,.25) !important; }
 </style>
 <div class="container-fluid">
 
-    <!-- Üst başlık -->
-    <div class="d-flex align-items-center justify-content-between mb-4">
-        <div>
-            <h2 class="mb-0" style="color:white;">
-                <i class="fas fa-bolt me-2" style="color:white;"></i>Kaynak Detayı
-            </h2>
-            <div style="color:white;">
-                Program: <strong>@programAdi</strong> • Kaynak ID: <strong>@Model.Kaynak.Id</strong>
+    <!-- Modern Header Section -->
+    <div class="row align-items-center mb-4">
+        <div class="col-12">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon warning me-3" style="width: 60px; height: 60px; font-size: 1.5rem;">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div>
+                        <h2 class="mb-0 text-white" style="text-shadow: 0 2px 8px rgba(0,0,0,.25)">
+                            Kaynak Detayı
+                        </h2>
+                        <p class="mb-0 text-white-50 small">
+                            Program: <strong>@programAdi</strong> • Kaynak ID: <strong>@Model.Kaynak.Id</strong>
+                        </p>
+                    </div>
+                </div>
+                <a asp-action="Index" asp-route-id="@programId" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-1"></i> Programa Dön
+                </a>
             </div>
-
         </div>
-        <a asp-action="Index" asp-route-id="@programId" class="btn btn-secondary">Programa Dön</a>
     </div>
 
     <!-- Zaman & Parametre kartları -->
     <div class="row g-3 mb-3">
         <div class="col-md-6">
-            <div class="card shadow-sm h-100">
-                <div class="card-header">Zaman Bilgileri</div>
-                <div class="card-body">
+            <div class="gold-card p-4 h-100">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="stat-icon info me-3" style="width: 45px; height: 45px; font-size: 1.1rem;">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="section-card-title mb-0">Zaman Bilgileri</div>
+                </div>
+                <div>
                     <dl class="row mb-0">
                         <dt class="col-sm-5">Başlangıç</dt>
                         <dd class="col-sm-7">@Model.Kaynak.BaslangicSaati.ToString("yyyy-MM-dd HH:mm:ss")</dd>
@@ -156,9 +110,14 @@ body::before{
         </div>
 
         <div class="col-md-6">
-            <div class="card shadow-sm h-100">
-                <div class="card-header">Parametreler</div>
-                <div class="card-body">
+            <div class="gold-card p-4 h-100">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="stat-icon primary me-3" style="width: 45px; height: 45px; font-size: 1.1rem;">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <div class="section-card-title mb-0">Parametreler</div>
+                </div>
+                <div>
                     <dl class="row mb-0">
                         <dt class="col-sm-5">PRC No</dt>
                         <dd class="col-sm-7">@Model.Kaynak.PrcNo</dd>
@@ -183,64 +142,93 @@ body::before{
         </div>
     </div>
 
-    <!-- Ortalama kartları -->
-    <div class="row g-3 mb-3">
-        <div class="col-md-3">
-            <div class="card shadow-sm h-100"><div class="card-body">
-                <div class="text-muted">Ø Voltaj (V)</div>
-                <div class="h4 mb-0">@Model.OrtalamaVoltaj</div>
-            </div></div>
+    <!-- Ortalama değerler - Modern Stat Cards -->
+    <div class="stats-grid mb-4">
+        <div class="stat-card primary">
+            <div class="stat-header">
+                <div class="stat-icon primary">
+                    <i class="fas fa-bolt"></i>
+                </div>
+            </div>
+            <div class="stat-value">@Model.OrtalamaVoltaj</div>
+            <div class="stat-label">Ortalama Voltaj (V)</div>
         </div>
-        <div class="col-md-3">
-            <div class="card shadow-sm h-100"><div class="card-body">
-                <div class="text-muted">Ø Amper (A)</div>
-                <div class="h4 mb-0">@Model.OrtalamaAmper</div>
-            </div></div>
+        <div class="stat-card success">
+            <div class="stat-header">
+                <div class="stat-icon success">
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+            </div>
+            <div class="stat-value">@Model.OrtalamaAmper</div>
+            <div class="stat-label">Ortalama Amper (A)</div>
         </div>
-        <div class="col-md-3">
-            <div class="card shadow-sm h-100"><div class="card-body">
-                <div class="text-muted">Ø Tel Sürme (m/dk)</div>
-                <div class="h4 mb-0">@Model.OrtalamaTelSurme</div>
-            </div></div>
+        <div class="stat-card info">
+            <div class="stat-header">
+                <div class="stat-icon info">
+                    <i class="fas fa-arrows-alt-h"></i>
+                </div>
+            </div>
+            <div class="stat-value">@Model.OrtalamaTelSurme</div>
+            <div class="stat-label">Ort. Tel Sürme (m/dk)</div>
         </div>
-        <div class="col-md-3">
-            <div class="card shadow-sm h-100"><div class="card-body">
-                <div class="text-muted">Ø Kaynak Hızı (mm/s)</div>
-                <div class="h4 mb-0">@Model.OrtalamaKaynakHizi</div>
-            </div></div>
+        <div class="stat-card warning">
+            <div class="stat-header">
+                <div class="stat-icon warning">
+                    <i class="fas fa-shipping-fast"></i>
+                </div>
+            </div>
+            <div class="stat-value">@Model.OrtalamaKaynakHizi</div>
+            <div class="stat-label">Ort. Kaynak Hızı (mm/s)</div>
         </div>
     </div>
 
     @if (!Model.Ornekler.Any())
     {
-        <div class="alert alert-warning">Bu kaynak için anlık ölçüm kaydı bulunamadı.</div>
+        <div class="gold-card p-4 text-center">
+            <div class="stat-icon warning mx-auto mb-3">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h5 class="text-muted mb-2">Veri Bulunamadı</h5>
+            <p class="text-muted mb-0">Bu kaynak için anlık ölçüm kaydı bulunmuyor.</p>
+        </div>
     }
     else
     {
         <!-- Zaman serisi (Voltaj, Amper, Tel Sürme) -->
-        <div class="card shadow-sm mb-4">
-            <div class="card-header">Zaman Serisi — Voltaj / Amper / Tel Sürme</div>
-            <div class="card-body">
-                <div style="height:320px">
-                    <canvas id="tsChart"></canvas>
+        <div class="gold-card p-4 mb-4">
+            <div class="d-flex align-items-center mb-3">
+                <div class="stat-icon primary me-3">
+                    <i class="fas fa-chart-line"></i>
                 </div>
+                <div class="section-card-title mb-0">Zaman Serisi — Voltaj / Amper / Tel Sürme</div>
+            </div>
+            <div style="height:320px">
+                <canvas id="tsChart"></canvas>
             </div>
         </div>
 
         <!-- Zaman serisi (Kaynak Hızı) -->
-        <div class="card shadow-sm mb-4">
-            <div class="card-header">Zaman Serisi — Kaynak Hızı</div>
-            <div class="card-body">
-                <div style="height:260px">
-                    <canvas id="speedChart"></canvas>
+        <div class="gold-card p-4 mb-4">
+            <div class="d-flex align-items-center mb-3">
+                <div class="stat-icon success me-3">
+                    <i class="fas fa-chart-area"></i>
                 </div>
+                <div class="section-card-title mb-0">Zaman Serisi — Kaynak Hızı</div>
+            </div>
+            <div style="height:260px">
+                <canvas id="speedChart"></canvas>
             </div>
         </div>
 
         <!-- Ortalama değerler bar chart + tablo -->
-        <div class="card shadow-sm">
-            <div class="card-header">Ortalama Değerler</div>
-            <div class="card-body">
+        <div class="gold-card p-4">
+            <div class="d-flex align-items-center mb-3">
+                <div class="stat-icon warning me-3">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <div class="section-card-title mb-0">Ortalama Değerler</div>
+            </div>
+            <div>
                 <div class="row g-3">
                     <div class="col-md-8">
                         <div style="height:280px">
@@ -248,15 +236,19 @@ body::before{
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <table class="table table-sm mb-0">
-                            <thead><tr><th>Metre</th><th>Ø</th></tr></thead>
-                            <tbody>
-                                <tr><td>Voltaj (V)</td><td>@Model.OrtalamaVoltaj</td></tr>
-                                <tr><td>Amper (A)</td><td>@Model.OrtalamaAmper</td></tr>
-                                <tr><td>Tel Sürme (m/dk)</td><td>@Model.OrtalamaTelSurme</td></tr>
-                                <tr><td>Kaynak Hızı (mm/s)</td><td>@Model.OrtalamaKaynakHizi</td></tr>
-                            </tbody>
-                        </table>
+                        <div class="gold-card p-3">
+                            <table class="table table-sm mb-0">
+                                <thead class="table-dark">
+                                    <tr><th>Parametre</th><th>Ortalama</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td><i class="fas fa-bolt me-2 text-primary"></i>Voltaj (V)</td><td><strong>@Model.OrtalamaVoltaj</strong></td></tr>
+                                    <tr><td><i class="fas fa-tachometer-alt me-2 text-success"></i>Amper (A)</td><td><strong>@Model.OrtalamaAmper</strong></td></tr>
+                                    <tr><td><i class="fas fa-arrows-alt-h me-2 text-info"></i>Tel Sürme (m/dk)</td><td><strong>@Model.OrtalamaTelSurme</strong></td></tr>
+                                    <tr><td><i class="fas fa-shipping-fast me-2 text-warning"></i>Kaynak Hızı (mm/s)</td><td><strong>@Model.OrtalamaKaynakHizi</strong></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -266,7 +258,6 @@ body::before{
 </div>
 
 @section Scripts{
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const labels = @Html.Raw(labelsJson);
         const voltaj = @Html.Raw(voltajJson);
@@ -282,21 +273,67 @@ body::before{
                 data: {
                     labels,
                     datasets: [
-                        { label: 'Voltaj (V)',      data: voltaj, borderWidth: 2, pointRadius: 0, tension: 0.2 },
-                        { label: 'Amper (A)',       data: amper,  borderWidth: 2, pointRadius: 0, tension: 0.2 },
-                        { label: 'Tel Sürme (m/dk)', data: tel,    borderWidth: 2, pointRadius: 0, tension: 0.2 }
+                        { 
+                            label: 'Voltaj (V)', 
+                            data: voltaj, 
+                            borderColor: '#ef4444', 
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)', 
+                            borderWidth: 3, 
+                            pointRadius: 2, 
+                            tension: 0.2,
+                            pointBackgroundColor: '#ef4444',
+                            pointBorderColor: '#dc2626'
+                        },
+                        { 
+                            label: 'Amper (A)', 
+                            data: amper, 
+                            borderColor: '#3b82f6', 
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)', 
+                            borderWidth: 3, 
+                            pointRadius: 2, 
+                            tension: 0.2,
+                            pointBackgroundColor: '#3b82f6',
+                            pointBorderColor: '#2563eb'
+                        },
+                        { 
+                            label: 'Tel Sürme (m/dk)', 
+                            data: tel, 
+                            borderColor: '#10b981', 
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)', 
+                            borderWidth: 3, 
+                            pointRadius: 2, 
+                            tension: 0.2,
+                            pointBackgroundColor: '#10b981',
+                            pointBorderColor: '#059669'
+                        }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     interaction: { mode: 'index', intersect: false },
-                    scales: {
-                        x: { title: { display: true, text: 'Zaman' } },
-                        y: { title: { display: true, text: 'Değer' }, beginAtZero: false }
-                    },
                     plugins: {
-                        legend: { position: 'top' }
+                        legend: { 
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20,
+                                font: { size: 12, weight: 'bold' }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { 
+                            title: { display: true, text: 'Zaman', font: { size: 14, weight: 'bold' } },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: '#ffffff' }
+                        },
+                        y: { 
+                            title: { display: true, text: 'Değer', font: { size: 14, weight: 'bold' } }, 
+                            beginAtZero: false,
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: '#ffffff' }
+                        }
                     }
                 }
             });
@@ -308,19 +345,46 @@ body::before{
                 data: {
                     labels,
                     datasets: [
-                        { label: 'Kaynak Hızı (mm/s)', data: hiz, borderWidth: 2, pointRadius: 0, tension: 0.2 }
+                        { 
+                            label: 'Kaynak Hızı (mm/s)', 
+                            data: hiz, 
+                            borderColor: '#f59e0b', 
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)', 
+                            borderWidth: 3, 
+                            pointRadius: 3, 
+                            tension: 0.2,
+                            pointBackgroundColor: '#f59e0b',
+                            pointBorderColor: '#d97706',
+                            fill: true
+                        }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     interaction: { mode: 'index', intersect: false },
-                    scales: {
-                        x: { title: { display: true, text: 'Zaman' } },
-                        y: { title: { display: true, text: 'mm/s' }, beginAtZero: true }
-                    },
                     plugins: {
-                        legend: { position: 'top' }
+                        legend: { 
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20,
+                                font: { size: 12, weight: 'bold' }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { 
+                            title: { display: true, text: 'Zaman', font: { size: 14, weight: 'bold' } },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: '#ffffff' }
+                        },
+                        y: { 
+                            title: { display: true, text: 'mm/s', font: { size: 14, weight: 'bold' } }, 
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: '#ffffff' }
+                        }
                     }
                 }
             });
@@ -334,14 +398,48 @@ body::before{
                 labels: ['Voltaj (V)', 'Amper (A)', 'Tel Sürme (m/dk)', 'Kaynak Hızı (mm/s)'],
                 datasets: [{
                     label: 'Ortalama',
-                    data: [@Model.OrtalamaVoltaj, @Model.OrtalamaAmper, @Model.OrtalamaTelSurme, @Model.OrtalamaKaynakHizi]
+                    data: [@Model.OrtalamaVoltaj, @Model.OrtalamaAmper, @Model.OrtalamaTelSurme, @Model.OrtalamaKaynakHizi],
+                    backgroundColor: [
+                        'rgba(239, 68, 68, 0.8)',   // Voltaj - Kırmızı
+                        'rgba(59, 130, 246, 0.8)',  // Amper - Mavi
+                        'rgba(16, 185, 129, 0.8)',  // Tel Sürme - Yeşil
+                        'rgba(245, 158, 11, 0.8)'   // Kaynak Hızı - Turuncu
+                    ],
+                    borderColor: [
+                        '#dc2626',  // Voltaj border
+                        '#2563eb',  // Amper border
+                        '#059669',  // Tel Sürme border
+                        '#d97706'   // Kaynak Hızı border
+                    ],
+                    borderWidth: 2,
+                    borderRadius: 6,
+                    borderSkipped: false
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                scales: { y: { beginAtZero: true } },
-                plugins: { legend: { display: false } }
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: 'rgba(240, 151, 1, 0.5)',
+                        borderWidth: 1
+                    }
+                },
+                scales: { 
+                    x: {
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                        ticks: { color: '#ffffff', font: { weight: 'bold' } }
+                    },
+                    y: { 
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                        ticks: { color: '#ffffff', font: { weight: 'bold' } }
+                    }
+                }
             }
         });
     </script>
