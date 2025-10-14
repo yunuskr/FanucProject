@@ -1,0 +1,165 @@
+@model IEnumerable<FanucRelease.Models.ProgramVerisi>
+@{
+    ViewData["Title"] = "Program Verileri";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+@section Styles{
+<style>
+  .table thead th{ white-space:nowrap; }
+  .dt-buttons .btn{ margin-right:.25rem; }
+  .select-col{ width:42px; }
+</style>
+}
+
+<div class="card">
+  <div class="card-body">
+
+    @* Bildirimler *@
+    @if (TempData["ok"] is string ok)
+    {
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @ok <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    }
+    @if (TempData["err"] is string err)
+    {
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @err <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="mb-0">Program Verileri</h4>
+
+      <!-- SADECE toplu silme butonunu saran form (tabloyu SARMASIN) -->
+    <form id="bulkDeleteForm"
+            action="~/Admin/ProgramVerileri/DeleteMany"
+            method="post" class="d-inline">
+        @Html.AntiForgeryToken()
+        <div id="bulkHiddenInputs"></div>
+        <button id="btnBulkDelete" type="submit" class="btn btn-danger" disabled>
+            Seçilenleri Sil
+        </button>
+    </form>
+    </div>
+
+    <div class="table-responsive">
+      <table id="tblPrograms" class="table table-striped table-bordered align-middle" style="width:100%">
+        <thead>
+          <tr>
+            <th class="select-col text-center">
+              <input type="checkbox" id="chkAll" />
+            </th>
+            <th>ID</th>
+            <th>Program Adı</th>
+            <th>Kaynak Sayısı</th>
+            <th>Tarih</th>
+            <th>Operatör</th>
+            <th>Başlangıç</th>
+            <th>Bitiş</th>
+            <th class="text-end">İşlem</th>
+          </tr>
+        </thead>
+        <tbody>
+        @foreach (var p in Model)
+        {
+          <tr data-id="@p.Id">
+            <td class="text-center">
+              <input type="checkbox" class="row-chk" value="@p.Id" />
+            </td>
+            <td>@p.Id</td>
+            <td>@p.ProgramAdi</td>
+            <td>@p.KaynakSayisi</td>
+            <td>@(p.Tarih == default ? "—" : p.Tarih.ToString("yyyy-MM-dd HH:mm"))</td>
+            <td>@(p.Operator is null ? "—" : $"{p.Operator.Ad} {p.Operator.Soyad}")</td>
+            <td>@(p.BaslangicZamani == default ? "—" : p.BaslangicZamani.ToString("yyyy-MM-dd HH:mm"))</td>
+            <td>@(p.BitisZamani == default ? "—" : p.BitisZamani.ToString("yyyy-MM-dd HH:mm"))</td>
+            <td class="text-end">
+              <!-- Tekil silme: explicit URL ile, dış formdan bağımsız -->
+              <form action="~/Admin/ProgramVerileri/Delete"
+                    method="post" class="d-inline"
+                    onsubmit="return confirm('Bu kaydı silmek istediğine emin misin?');">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@p.Id" />
+                <button type="submit" class="btn btn-outline-danger btn-sm">Sil</button>
+              </form>
+            </td>
+          </tr>
+        }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+@section Scripts{
+<script>
+  // DataTable
+  $(function () {
+    $("#tblPrograms").DataTable({
+      pageLength: 25,
+      order: [[1, "desc"]],
+      dom: 'Bfrtip',
+      buttons: [
+        { extend: 'excelHtml5', title: 'ProgramVerileri' },
+        { extend: 'print', title: 'Program Verileri' },
+        'colvis'
+      ],
+      language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json" },
+      columnDefs: [{ orderable: false, targets: [0, 8] }]
+    });
+  });
+
+  const chkAll     = document.getElementById('chkAll');
+  const bulkBtn    = document.getElementById('btnBulkDelete');
+  const hiddenZone = document.getElementById('bulkHiddenInputs');
+  const bulkForm   = document.getElementById('bulkDeleteForm');
+
+  function getSelectedIds(){
+    // Tüm sayfada DOM’da olan işaretlileri topla (DataTables başka sayfalardaki satırları DOM’dan çıkarır)
+    return Array.from(document.querySelectorAll('.row-chk:checked')).map(el => el.value);
+  }
+
+  function refreshBulkState(){
+    const ids = getSelectedIds();
+    bulkBtn.disabled = ids.length === 0;
+  }
+
+  // Checkbox değişimlerinde UI güncelle
+  document.addEventListener('change', function(e){
+    if(e.target.id === 'chkAll'){
+      document.querySelectorAll('.row-chk').forEach(c => c.checked = e.target.checked);
+      refreshBulkState();
+    }
+    if(e.target.classList.contains('row-chk')){
+      const all = document.querySelectorAll('.row-chk');
+      const checked = document.querySelectorAll('.row-chk:checked');
+      chkAll.checked = all.length > 0 && checked.length === all.length;
+      chkAll.indeterminate = checked.length > 0 && checked.length < all.length;
+      refreshBulkState();
+    }
+  });
+
+  // SUBMIT anında hidden inputları üret (en garanti yöntem)
+  bulkForm.addEventListener('submit', function(e){
+    hiddenZone.innerHTML = '';
+    const ids = getSelectedIds();
+    if(ids.length === 0){
+      e.preventDefault();
+      return;
+    }
+    ids.forEach(id => {
+      const i = document.createElement('input');
+      i.type = 'hidden';
+      i.name = 'ids';  // DeleteMany([FromForm] int[] ids) ile eşleşir
+      i.value = id;
+      hiddenZone.appendChild(i);
+    });
+    // İsteğe bağlı: son bir onay
+    if(!confirm('Seçilen kayıtlar silinsin mi?')){
+      e.preventDefault();
+    }
+  });
+</script>
+}

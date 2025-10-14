@@ -216,7 +216,21 @@
                                 <li><a asp-area="Admin" asp-controller="AdminTable" asp-action="Index">Admin</a></li>
                             </ul>
                         </li>
-
+                        <!-- Program Yönetimi -->
+                        <li>
+                            <a href="javascript:void(0);" class="has-arrow waves-effect">
+                                <i class="uil-database"></i>
+                                <span>Program Yönetimi</span>
+                            </a>
+                            <ul class="sub-menu" aria-expanded="false">
+                                <!-- Controller adını kendi projene göre düzenle -->
+                                <li>
+                                    <a asp-area="Admin" asp-controller="ProgramVerileri" asp-action="Index">
+                                        Program Verileri
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
                     </ul>
                 </div>
             </div>
