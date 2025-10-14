@@ -10,8 +10,8 @@ namespace FanucRelease.Areas.Admin.Controllers
     [Route("Admin/ProgramVerileri/[action]")]
     public class ProgramVerileriController : Controller
     {
-        private readonly IGenericService<ProgramVerisi> _programService; // listeleme için
-        private readonly ApplicationDbContext _ctx;                       // silmeler için ham SQL
+        private readonly IGenericService<ProgramVerisi> _programService; // liste
+        private readonly ApplicationDbContext _ctx;                       // silmeler
 
         public ProgramVerileriController(
             IGenericService<ProgramVerisi> programService,
@@ -29,36 +29,41 @@ namespace FanucRelease.Areas.Admin.Controllers
             return View(list);
         }
 
-        // ---- TEKLİ SİL ----
+        // === TEKLİ SİL ===
         [HttpPost("/Admin/ProgramVerileri/Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            if (id <= 0)
-            {
-                TempData["err"] = "Geçersiz id.";
-                return RedirectToAction(nameof(Index));
-            }
+            if (id <= 0) { TempData["err"] = "Geçersiz id."; return RedirectToAction(nameof(Index)); }
 
             await using var tx = await _ctx.Database.BeginTransactionAsync();
             try
             {
-                // Önce çocuk tablolar
-                await _ctx.Database.ExecuteSqlRawAsync(
-                    "DELETE FROM [Hatalar] WHERE [ProgramVerisiId] = {0}", id);
-                await _ctx.Database.ExecuteSqlRawAsync(
-                    "DELETE FROM [Kaynaklar] WHERE [ProgramVerisiId] = {0}", id);
+                // 1) Kaynağa bağlı AnlikKaynaklar
+                await _ctx.Database.ExecuteSqlRawAsync(@"
+                    DELETE AK
+                    FROM [AnlikKaynaklar] AK
+                    WHERE AK.[KaynakId] IN (
+                        SELECT K.[Id] FROM [Kaynaklar] K WHERE K.[ProgramVerisiId] = {0}
+                    );", id);
 
-                // Eğer ProgramVerisi'ne FK ile bağlı başka tabloların varsa, aynı kalıp:
-                // await _ctx.Database.ExecuteSqlRawAsync(
-                //     "DELETE FROM [KaynakParametreleri] WHERE [ProgramVerisiId] = {0}", id);
+                // 2) ProgramVerisi'ne bağlı Hatalar
+                await _ctx.Database.ExecuteSqlRawAsync(@"
+                    DELETE FROM [Hatalar] WHERE [ProgramVerisiId] = {0};", id);
 
-                // Sonra ebeveyn
-                await _ctx.Database.ExecuteSqlRawAsync(
-                    "DELETE FROM [ProgramVerileri] WHERE [Id] = {0}", id);
+                // 3) (Opsiyonel) ProgramVerisi'ne bağlı başka tablolar
+                // await _ctx.Database.ExecuteSqlRawAsync(@"DELETE FROM [KaynakParametreleri] WHERE [ProgramVerisiId] = {0};", id);
+
+                // 4) ProgramVerisi'ne bağlı Kaynaklar
+                await _ctx.Database.ExecuteSqlRawAsync(@"
+                    DELETE FROM [Kaynaklar] WHERE [ProgramVerisiId] = {0};", id);
+
+                // 5) Ebeveyn
+                await _ctx.Database.ExecuteSqlRawAsync(@"
+                    DELETE FROM [ProgramVerileri] WHERE [Id] = {0};", id);
 
                 await tx.CommitAsync();
-                TempData["ok"] = "Program ve bağlı kayıtları silindi.";
+                TempData["ok"] = "Program ve bağlı tüm kayıtlar silindi.";
             }
             catch (Exception ex)
             {
@@ -69,7 +74,7 @@ namespace FanucRelease.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // ---- TOPLU SİL ----
+        // === TOPLU SİL ===
         [HttpPost("/Admin/ProgramVerileri/DeleteMany")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteMany([FromForm] int[] ids)
@@ -85,20 +90,30 @@ namespace FanucRelease.Areas.Admin.Controllers
             await using var tx = await _ctx.Database.BeginTransactionAsync();
             try
             {
-                // İstersen performans için IN (...) ile toplu da silebiliriz (aşağıda not var)
+                // Güvenli ve net: id id ilerle (performans gerekirse IN(...)'e geçeriz)
                 foreach (var id in uniq)
                 {
-                    await _ctx.Database.ExecuteSqlRawAsync(
-                        "DELETE FROM [Hatalar] WHERE [ProgramVerisiId] = {0}", id);
-                    await _ctx.Database.ExecuteSqlRawAsync(
-                        "DELETE FROM [Kaynaklar] WHERE [ProgramVerisiId] = {0}", id);
-                    // Diğer bağlı tabloları da ekleyin…
-                    await _ctx.Database.ExecuteSqlRawAsync(
-                        "DELETE FROM [ProgramVerileri] WHERE [Id] = {0}", id);
+                    await _ctx.Database.ExecuteSqlRawAsync(@"
+                        DELETE AK
+                        FROM [AnlikKaynaklar] AK
+                        WHERE AK.[KaynakId] IN (
+                            SELECT K.[Id] FROM [Kaynaklar] K WHERE K.[ProgramVerisiId] = {0}
+                        );", id);
+
+                    await _ctx.Database.ExecuteSqlRawAsync(@"
+                        DELETE FROM [Hatalar] WHERE [ProgramVerisiId] = {0};", id);
+
+                    // await _ctx.Database.ExecuteSqlRawAsync(@"DELETE FROM [KaynakParametreleri] WHERE [ProgramVerisiId] = {0};", id);
+
+                    await _ctx.Database.ExecuteSqlRawAsync(@"
+                        DELETE FROM [Kaynaklar] WHERE [ProgramVerisiId] = {0};", id);
+
+                    await _ctx.Database.ExecuteSqlRawAsync(@"
+                        DELETE FROM [ProgramVerileri] WHERE [Id] = {0};", id);
                 }
 
                 await tx.CommitAsync();
-                TempData["ok"] = $"{uniq.Length} kayıt silindi.";
+                TempData["ok"] = $"{uniq.Length} program ve bağlı kayıtları silindi.";
             }
             catch (Exception ex)
             {
