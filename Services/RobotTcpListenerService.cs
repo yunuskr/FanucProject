@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.SignalR;
 using FanucRelease.Models;
+using FanucRelease.Data;
 
 namespace FanucRelease.Services
 {
@@ -68,7 +69,11 @@ namespace FanucRelease.Services
                 var tmpPath = _statusFilePath + ".tmp";
                 File.WriteAllText(tmpPath, json);
                 File.Copy(tmpPath, _statusFilePath, true);
-                try { File.Delete(tmpPath); } catch { }
+                try { File.Delete(tmpPath); }
+                catch (Exception ex)
+                {
+                    LogToFile("Beklenmeyen hata oluştu-1", ex);
+                }
             }
             catch (Exception ex)
             {
@@ -79,7 +84,10 @@ namespace FanucRelease.Services
                     var logMsg = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] robot_status.json dosyası güncellenemedi! Yol: {_statusFilePath}\n{ex}\n";
                     File.AppendAllText(logPath, logMsg);
                 }
-                catch { }
+                catch
+                {
+                    LogToFile("Beklenmeyen hata oluştu-2", ex);
+                }
             }
         }
 
@@ -132,7 +140,10 @@ namespace FanucRelease.Services
                         File.Copy(legacyStatus, _statusFilePath, true);
                     }
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    LogToFile("Beklenmeyen hata oluştu-3", ex);
+                }
                 try
                 {
                     var legacyLogs = Path.Combine(projectRoot, "Logs.txt");
@@ -141,14 +152,17 @@ namespace FanucRelease.Services
                         File.Copy(legacyLogs, _errorFilePath, true);
                     }
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    LogToFile("Beklenmeyen hata oluştu-4", ex);
+                }
             }
             catch
             {
                 // Her durumda en azından bin/.../data içerisinde çalışmayı garantile
                 var baseDir = AppDomain.CurrentDomain.BaseDirectory;
                 _dataDirectory = Path.Combine(baseDir, "data");
-                try { Directory.CreateDirectory(_dataDirectory); } catch { }
+                try { Directory.CreateDirectory(_dataDirectory); } catch (Exception ex) { LogToFile("Beklenmeyen hata oluştu-5", ex); }
                 _statusFilePath = Path.Combine(_dataDirectory, "robot_status.json");
             }
 
@@ -225,7 +239,10 @@ namespace FanucRelease.Services
                             if (!string.IsNullOrEmpty(_errorFilePath))
                                 File.WriteAllText(_errorFilePath, string.Empty);
                         }
-                        catch { }
+                        catch (Exception ex)
+                        {
+                            LogToFile("Beklenmeyen hata oluştu-6", ex);
+                        }
                         string prog_baslat = veri.ToString().Replace("RobotAktif", string.Empty) ?? string.Empty;
 
                         string[] veri_parca = prog_baslat.Split('/', StringSplitOptions.RemoveEmptyEntries);
@@ -244,7 +261,7 @@ namespace FanucRelease.Services
                         if (_hasFault)
                         {
                             _hasFault = false;
-                            try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Normal"); LogToFile("RobotAktif: Normal yayınlandı (fault reset)"); } catch { }
+                            try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Normal"); LogToFile("RobotAktif: Normal yayınlandı (fault reset)"); } catch (Exception ex) { LogToFile("Beklenmeyen hata oluştu-7", ex); }
                         }
                         programVerisi.ProgramAdi = prog_baslat ?? string.Empty;
                         programVerisi.BaslangicZamani = DateTime.Now;
@@ -257,7 +274,7 @@ namespace FanucRelease.Services
                         if (_hasFault)
                         {
                             _hasFault = false;
-                            try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Normal"); LogToFile("anlikveri: Normal yayınlandı (fault reset)"); } catch { }
+                            try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Normal"); LogToFile("anlikveri: Normal yayınlandı (fault reset)"); } catch (Exception ex) { LogToFile("Beklenmeyen hata oluştu-8", ex); }
                         }
 
                         // Program bittiğinde robot durdu bilgisini ve aktif programı kesin olarak temizle
@@ -298,7 +315,7 @@ namespace FanucRelease.Services
                         // Her anlık veri geldiğinde fault yoksa Normal'i tekrar gönder (UI kaybını tolere etmek için)
                         if (!_hasFault)
                         {
-                            try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Normal"); } catch { }
+                            try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Normal"); } catch (Exception ex) { LogToFile("Beklenmeyen hata oluştu-9", ex); }
                         }
                         veri.Clear();
 
@@ -382,11 +399,11 @@ namespace FanucRelease.Services
                         if (_hasFault)
                         {
                             _hasFault = false;
-                            try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Normal"); LogToFile("progbitti: Normal yayınlandı (fault reset)"); } catch { }
+                            try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Normal"); LogToFile("progbitti: Normal yayınlandı (fault reset)"); } catch (Exception ex) { LogToFile("Beklenmeyen hata oluştu-10", ex); }
                         }
                         else
                         {
-                            try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Normal"); } catch { }
+                            try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Normal"); } catch (Exception ex) { LogToFile("Beklenmeyen hata oluştu-11", ex); }
                         }
 
                         // Reset all temporary data for next program
@@ -422,7 +439,7 @@ namespace FanucRelease.Services
                         await _hubContext.Clients.All.SendAsync("ReceiveRobotStatus", _robotStatus, _aktifProgram);
 
                         _hasFault = true; // her hata durumunda set (üst üste gelse bile)
-                        try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Fault"); LogToFile("hataalindi: Fault yayınlandı"); } catch { }
+                        try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Fault"); LogToFile("hataalindi: Fault yayınlandı"); } catch (Exception ex) { LogToFile("Beklenmeyen hata oluştu-12", ex); }
 
                         veri.Clear();
                       
@@ -451,7 +468,7 @@ namespace FanucRelease.Services
         }
         public override Task StopAsync(CancellationToken cancellationToken)
         {
-            try { _server?.Stop(); } catch { }
+            try { _server?.Stop(); } catch (Exception ex) { LogToFile("RobotTcpListenerService stop error", ex); }
             LogToFile("RobotTcpListenerService stopped.");
             return base.StopAsync(cancellationToken);
         }
