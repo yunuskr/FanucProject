@@ -47,11 +47,15 @@
                 <div class="stat-header">
                     <div>
                         <h3 class="stat-value" id="programCount">@Model.ProgramCount</h3>
-                        <p class="stat-label">Toplam Program</p>
-                        <div class="stat-trend @Model.ProgramCountTrendClass">
-                            <i class="@Model.ProgramCountTrendIcon"></i>
+                        <p class="stat-label" style=>Toplam Program</p>
+                        <div  style="margin-top: .9rem;" class="stat-trend @Model.ProgramCountTrendClass">
+                            <i  class="@Model.ProgramCountTrendIcon"></i>
                             <span>@Model.ProgramCountTrendText</span>
                         </div>
+                      <div class="stat-trend" style="text-align:bottom; color:black; opacity:0.6; font-size:0.8rem;  font-weight:400;">
+                            <span> Haftalık program sayısı değişimi</span>
+                        </div>
+
                     </div>
                     <div class="stat-icon success">
                         <i class="fas fa-code"></i>
@@ -65,9 +69,12 @@
                         <h3 class="stat-value" id="kaynakCount">@toplamKaynak</h3>
                         <p class="stat-label">Toplam Kaynak</p>
 
-                         <div class="stat-trend trend-up">
-                            <i class="fas fa-arrow-up"></i>
+                        <div style="margin-top: .5rem;" class="stat-trend trend-up" >
+                            @* <i class="fas fa-arrow-up"></i> *@
                             <span>@basariOrani% başarılı</span>
+                        </div>
+                        <div class="stat-trend" style="text-align:bottom; color:black; opacity:0.6; font-size:0.8rem;  font-weight:400;">
+                            <span>Toplam başarılı kaynak yüzdesi</span>
                         </div>
                     </div>
                     <div class="stat-icon warning">
@@ -80,10 +87,13 @@
                 <div class="stat-header">
                     <div>
                         <h3 class="stat-value" id="hataCount">@Model.HataToplam</h3>
-                        <p class="stat-label">Toplam Hata</p>
-                        <div class="stat-trend @Model.HataTrendClass">
+                        <p  class="stat-label">Toplam Hata</p>
+                        <div  style="margin-top: .5rem;" class="stat-trend @Model.HataTrendClass">
                             <i class="@Model.HataTrendIcon"></i>
                             <span>@Model.HataTrendText</span>
+                            <div class="stat-trend" style="text-align:bottom; color:black; opacity:0.6; font-size:0.8rem;  font-weight:400;">
+                            <span>Toplam hata sayındaki değişim</span>
+                        </div>
                         </div>
                     </div>
                     <div class="stat-icon danger">
@@ -97,9 +107,12 @@
                     <div>
                         <h3 class="stat-value" id="totalTime">@Model.BugunToplamKaynakSureText</h3>
                         <p class="stat-label">Günlük Kaynak Süresi</p>
-                        <div class="stat-trend @Model.TodayTimeTrendClass">
+                        <div  style="margin-top: .5rem; "class="stat-trend @Model.TodayTimeTrendClass">
                             <i class="@Model.TodayTimeTrendIcon"></i>
                             <span>@Model.TodayTimeTrendText</span>
+                        </div>
+                        <div class="stat-trend" style="text-align:bottom; color:black; opacity:0.6; font-size:0.8rem;  font-weight:400;">
+                            <span> Günlük kaynak süresinde değişim</span>
                         </div>
                     </div>
                     <div class="stat-icon info">
@@ -113,7 +126,7 @@
                     <div>
                         <h3 class="stat-value" id="trafoCount">5</h3>
                         <p class="stat-label">Aktif Trafo</p>
-                        <div class="stat-trend trend-up">
+                        <div style="margin-top: .5rem;" class="stat-trend trend-up">
                             <i class="fas fa-arrow-up"></i>
                             <span>Tümü çalışıyor</span>
                         </div>
