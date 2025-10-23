@@ -90,7 +90,15 @@
         .rx-link{color:#fff;text-decoration:underline;opacity:.9}
         .rx-badge{background:rgba(255,255,255,.15);color:#fff;border-radius:999px;padding:.35rem .75rem;font-size:.85rem}
         
-        </style>
+        /* CSS */
+        .brand-icon {
+        width: 1em;          /* yazı boyutuna göre ölçeklenir (fs-2 ile büyür) */
+        height: 1em;
+        display: inline-block;
+        vertical-align: -0.125em; /* metin tabanına daha iyi oturması için küçük düzeltme */
+        object-fit: contain; 
+        }
+    </style>
 </head>
 <body class="d-flex align-items-center justify-content-center">
 
@@ -99,7 +107,7 @@
             <div class="col-lg-5 col-md-7">
 
                 <div class="text-center mb-4">
-                    <div class="brand fs-2">🤖 RoboEye</div>
+                    <div class="brand fs-2">  <img src="~/icons/robot.png" alt="RoboEye logosu" class="brand-icon" /> RoboEye</div>
                     <div class="text-white-50">Gerçek zamanlı robot takip ve yönetim sistemi</div>
                 </div>
 
