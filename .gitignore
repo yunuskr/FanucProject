@@ -399,7 +399,7 @@ FodyWeavers.xsd
 
 # Project-specific ignores
 /Logs.txt
-/robot_status.json
+
 
 # Windows Installer files from build outputs
 *.cab
