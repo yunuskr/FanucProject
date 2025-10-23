@@ -130,32 +130,7 @@ namespace FanucRelease.Services
                 _statusFilePath = Path.Combine(_dataDirectory, "robot_status.json");
                 _errorFilePath = Path.Combine(_dataDirectory, "Logs.txt");
 
-                // Var olan proje kökü dosyaları varsa ilk koşuda data klasörüne taşı/kopyala
-                var projectRoot = Path.GetFullPath(Path.Combine(baseDir, "..", "..", ".."));
-                try
-                {
-                    var legacyStatus = Path.Combine(projectRoot, "robot_status.json");
-                    if (File.Exists(legacyStatus) && !File.Exists(_statusFilePath))
-                    {
-                        File.Copy(legacyStatus, _statusFilePath, true);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LogToFile("Beklenmeyen hata oluştu-3", ex);
-                }
-                try
-                {
-                    var legacyLogs = Path.Combine(projectRoot, "Logs.txt");
-                    if (File.Exists(legacyLogs) && !File.Exists(_errorFilePath))
-                    {
-                        File.Copy(legacyLogs, _errorFilePath, true);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LogToFile("Beklenmeyen hata oluştu-4", ex);
-                }
+
             }
             catch
             {
@@ -287,7 +262,7 @@ namespace FanucRelease.Services
                             await _hubContext.Clients.All.SendAsync("ReceiveRobotStatus", _robotStatus, _aktifProgram);
 
                         }
-                      
+
                         string anlik_veriler = veri.ToString().Replace("anlikveri", string.Empty);
                         string[] anlik_parcalar = anlik_veriler.Split('/', StringSplitOptions.RemoveEmptyEntries);
                         anlikKaynak = new AnlikKaynak
@@ -442,7 +417,7 @@ namespace FanucRelease.Services
                         try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Fault"); LogToFile("hataalindi: Fault yayınlandı"); } catch (Exception ex) { LogToFile("Beklenmeyen hata oluştu-12", ex); }
 
                         veri.Clear();
-                      
+
                     }
 
                     else
@@ -463,6 +438,21 @@ namespace FanucRelease.Services
             finally
             {
                 try { client.Close(); } catch (Exception ex) { LogToFile("Client close error", ex); }
+
+                // 🔔 Bağlantı koptu → robotu durdu kabul et
+                _robotStatus = "Durdu";
+                _aktifProgram = "";
+                SaveRobotStatusToFile();
+                try
+                {
+                    await _hubContext.Clients.All.SendAsync("ReceiveRobotStatus", _robotStatus, _aktifProgram);
+                    
+                }
+                catch (Exception ex)
+                {
+                    LogToFile("Disconnect broadcast failed", ex);
+                }
+
                 LogToFile("Robot connection closed.");
             }
         }
