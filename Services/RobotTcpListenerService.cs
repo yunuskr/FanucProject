@@ -220,7 +220,7 @@ namespace FanucRelease.Services
                         }
                         string prog_baslat = veri.ToString().Replace("RobotAktif", string.Empty) ?? string.Empty;
 
-                        string[] veri_parca = prog_baslat.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                        string[] veri_parca = prog_baslat.Split('|', StringSplitOptions.RemoveEmptyEntries);
                         // Trim kontrolü
                         prog_baslat = veri_parca[0].Trim();
                         LogToFile($"RobotAktif sinyali alındı, ham veri: {veri.ToString()}, prog_baslat: '{prog_baslat}'");
@@ -240,6 +240,7 @@ namespace FanucRelease.Services
                         }
                         programVerisi.ProgramAdi = prog_baslat ?? string.Empty;
                         programVerisi.BaslangicZamani = DateTime.Now;
+                        
                         veri.Clear();
                     }
 
@@ -264,7 +265,7 @@ namespace FanucRelease.Services
                         }
 
                         string anlik_veriler = veri.ToString().Replace("anlikveri", string.Empty);
-                        string[] anlik_parcalar = anlik_veriler.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                        string[] anlik_parcalar = anlik_veriler.Split('|', StringSplitOptions.RemoveEmptyEntries);
                         anlikKaynak = new AnlikKaynak
                         {
                             OlcumZamani = anlik_parcalar.Length > 0 ? DateTime.Now : DateTime.MinValue,
@@ -299,7 +300,7 @@ namespace FanucRelease.Services
                     else if (veri.ToString().Contains("KayOFF"))
                     {
                         string kaynak_verileri = veri.ToString().Replace("KayOFF", string.Empty);
-                        string[] kaynak_parcalar = kaynak_verileri.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                        string[] kaynak_parcalar = kaynak_verileri.Split('|', StringSplitOptions.RemoveEmptyEntries);
                         kaynak = new Kaynak
                         {
                             BaslangicSaati = kaynak_parcalar.Length > 0 ? Hesaplayici.stringDateParse(kaynak_parcalar[0]) : DateTime.MinValue,
@@ -351,12 +352,12 @@ namespace FanucRelease.Services
                         {
                             using (var scope = _services.CreateScope())
                             {
-                                // var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                                // db.ProgramVerileri.Add(programVerisi);
-                                // db.Hatalar.AddRange(hatalar);
-                                // db.Kaynaklar.AddRange(kaynaklar);
-                                // db.AnlikKaynaklar.AddRange(anlikKaynaklar);
-                                // await db.SaveChangesAsync();
+                                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                                db.ProgramVerileri.Add(programVerisi);
+                                db.Hatalar.AddRange(hatalar);
+                                db.Kaynaklar.AddRange(kaynaklar);
+                                db.AnlikKaynaklar.AddRange(anlikKaynaklar);
+                                await db.SaveChangesAsync();
                             }
                         }
                         catch (Exception ex)
@@ -393,8 +394,10 @@ namespace FanucRelease.Services
                     {
 
                         string hata_verisi = veri.ToString().Replace("hataalindi", string.Empty);
-                        string[] hata_parcalar = hata_verisi.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                        string[] hata_parcalar = hata_verisi.Split('|', StringSplitOptions.RemoveEmptyEntries);
                         DateTime hata_zamani = Hesaplayici.stringDateParse(hata_parcalar[3]);
+                        bool kaynakAnindaMi = Convert.ToBoolean(int.Parse(hata_parcalar[4]));
+
                         int tip = hata_parcalar[1] == "1" ? 1 : 2;
                         Hata hata = new Hata
                         {
@@ -402,6 +405,7 @@ namespace FanucRelease.Services
                             Tip = tip,
                             Aciklama = hata_parcalar[2],
                             Zaman = hata_zamani,
+                            kaynakAnindaMi =kaynakAnindaMi,
                             ProgramVerisiId = programVerisi.Id
                         };
                         hatalar.Add(hata);
