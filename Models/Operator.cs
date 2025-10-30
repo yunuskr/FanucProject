@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations;
-
+using Microsoft.EntityFrameworkCore;
 namespace FanucRelease.Models
 {
+
+    [Index(nameof(KullaniciAdi), IsUnique = true)]  // 🔹 EKLE BUNU
     public class Operator
     {
         [Key]

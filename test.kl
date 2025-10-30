@@ -1,5 +1,5 @@
 PROGRAM  com_pc
-%STACKSIZE = 8000
+%STACKSIZE = 32000
 %NOPAUSE=ERROR+COMMAND+TPENABLE
 %NOLOCKGROUP
 %ENVIRONMENT ERRs
@@ -134,8 +134,7 @@ program_dongusu::
     weld_no = 0
     kaynak_aninda=0
 
-	WRITE('programa giriş yapıldı',CR)
-
+	WRITE('programa girişi',CR)
 
 	 -- Program başladı mı kontrolü
 	WHILE TRUE DO	
@@ -164,8 +163,6 @@ program_dongusu::
 program_calisiyor::  --program başladı  kaynak bekleme alanı 
 	WHILE TRUE DO
 		task_num = get_var_int_getir('$SHELL_WRK.$TASK_NUM')
-		WRITE('task no :  ',task_num,CR)
-		WRITE('hata VAR Mİ  :  ',UOUT[6] ,CR)
 		--Program başarılı bir şekilde tamamlandı  REGİON
 		IF 	(task_num = 0 ) AND (UOUT[6] = OFF ) THEN 
 			WRITE file_var(kaynak_sayisi)
@@ -180,13 +177,11 @@ program_calisiyor::  --program başladı  kaynak bekleme alanı
 		
 		--Kaynak işlemi başladı ise girecek REGİON
 		IF 	(DOUT[201] = ON) AND (UOUT[6] =OFF) THEN 
-			WRITE('weld baslangici ',CR)
 			GO TO weld_basladi
 		ENDIF
 		--Kaynak işlemi başladı ise girecek ENDREGİON
 
 		IF 	(UOUT[4] =ON)  OR (UOUT[5] =ON)  THEN -- eğer program pause olduysa
-			WRITE('weld baslangic2i ',CR)
 			DELAY 3000  --bekle pause'tan sonra hata var mı ,varsa hataya girdi yoksa durduruldu
 			IF UOUT[6] =ON THEN --hata varmış program durdurulmamış
 				kaynak_aninda = 0
@@ -203,12 +198,10 @@ program_calisiyor::  --program başladı  kaynak bekleme alanı
 				CNV_TIME_STR(t_int, t_str)
 				WRITE file_var(t_str,'|')
 				WRITE file_var(0,'|')
-				WRITE('kaynakrw',weld_no,CR)
 				WRITE file_var(weld_no,'|'::7) --kaynak no yollama işlemi
 				WRITE file_var('hataalindi'::10)
 				DELAY 200
 				--program durduruldu bilgisi yollama kısmı-- ENDREGİON
-				WRITE('weld baslangic3i ',CR)
 				
 				WAIT FOR (UOUT[4]=OFF) AND (UOUT[5]=OFF) --pausetan ve holdtan çıkana kadar bekle 
 				DELAY 100
@@ -263,7 +256,6 @@ weld_basladi::
 				CNV_TIME_STR(t_int, t_str)
 				WRITE file_var(t_str,'|')
 				WRITE file_var(1,'|')
-				WRITE('kaynaka',weld_no,CR)
 				WRITE file_var(weld_no,'|'::7) --kaynak no yollama işlemi
 				WRITE file_var('hataalindi'::10)
 				DELAY 400
@@ -291,7 +283,7 @@ weld_basladi::
 			ENDIF	
 
 		ENDIF
-	DELAY 2500
+	DELAY 1000
 	ENDWHILE
 
 weld_basarili_bitti::
@@ -312,10 +304,30 @@ weld_bitti::
 	bit_satiri = get_var_int_getir('$AWELOG[1].$AWCURLOG.$WELDSTAT.$AE_LINE') --bitiş satırı getir
 	prc_no = get_var_int_getir('$AWEPOR[1].$WLD_PRC_NUM') --prc no getir
 	sch_no = get_var_int_getir('$AWEPOR[1].$WLD_SCH_NUM') --sch no getir	
-
-
 	kaynak_sayisi = kaynak_sayisi + 1
+	
+	IF toplam_sure <= 0 THEN
+		   toplam_sure = 1
+	ENDIF
+	
+	IF bas_satiri <= 0 THEN
+		   bas_satiri = 1
+	ENDIF
+	
+	IF bit_satiri <= 0 THEN
+		   bit_satiri = 1
+	ENDIF
+	
+	IF prc_no <= 0 THEN
+		   prc_no = 1
+	ENDIF
+	
+	IF sch_no <= 0 THEN
+		   sch_no = 1
+	ENDIF
+	
 	DELAY 100
+	
 	IF kaynak_basari = 'True' THEN
 		WRITE('Kaynak basari  ile tamamlandi',CR)
 		WRITE file_var(kaynak_saati::20,'|'::3)
@@ -329,7 +341,6 @@ weld_bitti::
 		WRITE file_var(weld_no,'|') --kaynak no yollama işlemi
 		WRITE file_var('KayOFF'::6)
 		weld_no = weld_no + 1
-		WRITE ('kaynak_no: ',weld_no,CR)
 		GO TO program_calisiyor
 	ELSE
 		WRITE('Kaynak basarisiz  tamamlandi',CR)
@@ -360,7 +371,6 @@ hata_durumuna_dustu::
 	WRITE file_var(t_str,'|')
 	WRITE file_var(kaynak_aninda,'|'::4)
 	WRITE file_var(weld_no,'|'::7) --kaynak no yollama işlemi
-	WRITE('kaynak',weld_no,CR)
 	WRITE file_var('hataalindi'::10)
 	DELAY 500
 	WRITE('Sistemde hata algilandi',CR) 

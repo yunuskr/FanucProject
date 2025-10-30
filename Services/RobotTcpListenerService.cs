@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.SignalR;
 using FanucRelease.Models;
 using FanucRelease.Data;
 using FanucRelease.Services;
+using Microsoft.EntityFrameworkCore;
 namespace FanucRelease.Services
 {
     /// <summary>
@@ -338,7 +339,7 @@ namespace FanucRelease.Services
                         {
                             string prog_verisi = veri.ToString().Replace("progbitti", string.Empty);
                             programVerisi.KaynakSayisi = int.Parse(prog_verisi);
-                            programVerisi.Operator = new Operator { Ad = "Ahmet", Soyad = "Çakar", KullaniciAdi = "ahmet.cakar" };
+                            // programVerisi.Operator = new Operator { Ad = "Ahmet", Soyad = "Çakar", KullaniciAdi = "ahmet.cakar" };
                             programVerisi.BitisZamani = programVerisi.BitisZamani == default ? DateTime.Now : programVerisi.BitisZamani;
                             // Eğer başlangıç/bitiş zamanları ayarlanmamışsa, kaynaklardan türet
                             if (programVerisi.BaslangicZamani == default)
@@ -442,9 +443,27 @@ namespace FanucRelease.Services
 
                 try
                 {
+
                     using (var scope = _services.CreateScope())
                     {
                         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                        // 🟢 1. Login yapan operator’ü al
+                        var operatorKullaniciAdi = _currentUser.Username;
+                        Operator? mevcutOperator = null;
+
+                        if (!string.IsNullOrWhiteSpace(operatorKullaniciAdi))
+                        {
+                            mevcutOperator = await db.Operators.FirstOrDefaultAsync(o => o.KullaniciAdi == operatorKullaniciAdi);
+                        }
+                        
+
+                        // 🟢 3. Program verisine operator ID’yi bağla
+                        if (mevcutOperator != null)
+                        {
+                            programVerisi.Operator = mevcutOperator;
+                        }
+
+
                         db.ProgramVerileri.Add(programVerisi);
                         db.Hatalar.AddRange(hatalar);
                         db.Kaynaklar.AddRange(kaynaklar);
