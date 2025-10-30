@@ -6,7 +6,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.SignalR;
 using FanucRelease.Models;
 using FanucRelease.Data;
-
+using FanucRelease.Services;
 namespace FanucRelease.Services
 {
     /// <summary>
@@ -31,6 +31,7 @@ namespace FanucRelease.Services
 
         // Servisler
         private readonly IHubContext<RobotStatusHub> _hubContext;
+        private readonly ICurrentUserService _currentUser;
         private readonly IServiceProvider _services;
         private TcpListener? _server;
 
@@ -115,10 +116,14 @@ namespace FanucRelease.Services
             public string? aktifProgram { get; set; }
         }
 
-        public RobotTcpListenerService(IHubContext<RobotStatusHub> hubContext, IServiceProvider services)
+       public RobotTcpListenerService(
+        IHubContext<RobotStatusHub> hubContext,
+        IServiceProvider services,
+        ICurrentUserService currentUser)
         {
             _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
             _services = services ?? throw new ArgumentNullException(nameof(services));
+            _currentUser = currentUser;
 
             try
             {
