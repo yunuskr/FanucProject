@@ -180,6 +180,10 @@ namespace FanucRelease.Services
 
         private async Task RobotBaglantisiniIsle(TcpClient client, CancellationToken ct)
         {
+            ProgramVerisi programVerisi = new ProgramVerisi();
+            List<Kaynak> kaynaklar = new List<Kaynak>();
+            List<AnlikKaynak> anlikKaynaklar = new List<AnlikKaynak>();
+            List<Hata> hatalar = new List<Hata>();
             try
             {
                 NetworkStream stream = client.GetStream();
@@ -190,246 +194,233 @@ namespace FanucRelease.Services
                 StringBuilder veri = new StringBuilder();
                 Kaynak kaynak;
                 AnlikKaynak anlikKaynak;
-                ProgramVerisi programVerisi = new ProgramVerisi();
-                List<Kaynak> kaynaklar = new List<Kaynak>();
-                List<AnlikKaynak> anlikKaynaklar = new List<AnlikKaynak>();
-                List<Hata> hatalar = new List<Hata>();
 
-                // Sürekli veri bekle
-                while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, ct)) != 0)
+                try
                 {
-                    string receivedMsg = Encoding.ASCII.GetString(buffer, 0, bytesRead);
-                    veri.Append(receivedMsg.ToString().Replace(" ", string.Empty));
-
-                    // Karel'e ACK gönder
-                    string ack = "ACK";
-                    byte[] ackBytes = Encoding.ASCII.GetBytes(ack);
-                    await stream.WriteAsync(ackBytes, 0, ackBytes.Length, ct);
-
-                    if (veri.ToString().Contains("RobotAktif"))
+                    // Sürekli veri bekle
+                    while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, ct)) != 0)
                     {
-                        // RobotAktif dediğinde program başladı, Errors.txt dosyasını temizle
-                        try
-                        {
-                            if (!string.IsNullOrEmpty(_errorFilePath))
-                                File.WriteAllText(_errorFilePath, string.Empty);
-                        }
-                        catch (Exception ex)
-                        {
-                            LogToFile("Beklenmeyen hata oluştu-6", ex);
-                        }
-                        string prog_baslat = veri.ToString().Replace("RobotAktif", string.Empty) ?? string.Empty;
+                        string receivedMsg = Encoding.ASCII.GetString(buffer, 0, bytesRead);
+                        veri.Append(receivedMsg.ToString().Replace(" ", string.Empty));
 
-                        string[] veri_parca = prog_baslat.Split('|', StringSplitOptions.RemoveEmptyEntries);
-                        // Trim kontrolü
-                        prog_baslat = veri_parca[0].Trim();
-                        LogToFile($"RobotAktif sinyali alındı, ham veri: {veri.ToString()}, prog_baslat: '{prog_baslat}'");
-                        // Robotun son durumunu güncelle
-                        _robotStatus = "Calisiyor";
-                        _aktifProgram = prog_baslat ?? string.Empty;
-                        LogToFile($"{_aktifProgram} programı başlatıldı.");
-                        SaveRobotStatusToFile();
-                        // SignalR ile robot durumu gönder - Sinyal geldiğinde robot çalışıyor
-                        await _hubContext.Clients.All.SendAsync("ReceiveRobotStatus", _robotStatus, _aktifProgram);
+                        // Karel'e ACK gönder
+                        string ack = "ACK";
+                        byte[] ackBytes = Encoding.ASCII.GetBytes(ack);
+                        await stream.WriteAsync(ackBytes, 0, ackBytes.Length, ct);
 
-                        // Program yeniden başlarken aktif fault varsa sıfırla ve Normal yayınla
-                        if (_hasFault)
+                        if (veri.ToString().Contains("RobotAktif"))
                         {
-                            _hasFault = false;
-                            try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Normal"); LogToFile("RobotAktif: Normal yayınlandı (fault reset)"); } catch (Exception ex) { LogToFile("Beklenmeyen hata oluştu-7", ex); }
-                        }
-                        programVerisi.ProgramAdi = prog_baslat ?? string.Empty;
-                        programVerisi.BaslangicZamani = DateTime.Now;
-                        
-                        veri.Clear();
-                    }
 
-                    else if (veri.ToString().Contains("anlikveri"))
-                    {
-                        // Eğer hata modundan çıkıldıysa ilk gerçek zamanlı veriyle normal e dön
-                        if (_hasFault)
-                        {
-                            _hasFault = false;
-                            try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Normal"); LogToFile("anlikveri: Normal yayınlandı (fault reset)"); } catch (Exception ex) { LogToFile("Beklenmeyen hata oluştu-8", ex); }
-                        }
+                            // 🔹 Yeni program başladığında önce geçici verileri temizle
+                            kaynaklar = new List<Kaynak>();
+                            anlikKaynaklar = new List<AnlikKaynak>();
+                            hatalar = new List<Hata>();
+                            programVerisi = new ProgramVerisi();
+                            // RobotAktif dediğinde program başladı, Errors.txt dosyasını temizle
+                            try
+                            {
+                                if (!string.IsNullOrEmpty(_errorFilePath))
+                                    File.WriteAllText(_errorFilePath, string.Empty);
+                            }
+                            catch (Exception ex)
+                            {
+                                LogToFile("Beklenmeyen hata oluştu-6", ex);
+                            }
+                            string prog_baslat = veri.ToString().Replace("RobotAktif", string.Empty) ?? string.Empty;
 
-                        // Program bittiğinde robot durdu bilgisini ve aktif programı kesin olarak temizle
-                        if (_robotStatus == "Durdu")
-                        {
+                            string[] veri_parca = prog_baslat.Split('|', StringSplitOptions.RemoveEmptyEntries);
+                            // Trim kontrolü
+                            prog_baslat = veri_parca[0].Trim();
+                            LogToFile($"RobotAktif sinyali alındı, ham veri: {veri.ToString()}, prog_baslat: '{prog_baslat}'");
+                            // Robotun son durumunu güncelle
                             _robotStatus = "Calisiyor";
-                            LogToFile($" {_aktifProgram} programı hatadan sonra devam ediyor, robot durumu =  {_robotStatus}");
+                            _aktifProgram = prog_baslat ?? string.Empty;
+                            LogToFile($"{_aktifProgram} programı başlatıldı.");
                             SaveRobotStatusToFile();
                             // SignalR ile robot durumu gönder - Sinyal geldiğinde robot çalışıyor
                             await _hubContext.Clients.All.SendAsync("ReceiveRobotStatus", _robotStatus, _aktifProgram);
 
-                        }
-
-                        string anlik_veriler = veri.ToString().Replace("anlikveri", string.Empty);
-                        string[] anlik_parcalar = anlik_veriler.Split('|', StringSplitOptions.RemoveEmptyEntries);
-                        anlikKaynak = new AnlikKaynak
-                        {
-                            OlcumZamani = anlik_parcalar.Length > 0 ? DateTime.Now : DateTime.MinValue,
-                            Voltaj = anlik_parcalar.Length > 0 ? double.Parse(anlik_parcalar[0]) : 0,
-                            Amper = anlik_parcalar.Length > 1 ? double.Parse(anlik_parcalar[1]) : 0,
-                            TelSurmeHizi = anlik_parcalar.Length > 2 ? double.Parse(anlik_parcalar[2]) : 0,
-                            KaynakHizi = 10,
-
-
-                        };
-                        anlikKaynaklar.Add(anlikKaynak);
-                        // SignalR ile canlı veri gönder
-                        LogToFile($"SignalR veri gönderildi: Amper={anlikKaynak.Amper}, Voltaj={anlikKaynak.Voltaj}, TelSurmeHizi={anlikKaynak.TelSurmeHizi}, Zaman={anlikKaynak.OlcumZamani:yyyy-MM-dd HH:mm:ss}");
-                        await _hubContext.Clients.All.SendAsync(
-                            "ReceiveLiveData",
-                            anlikKaynak.Amper,
-                            anlikKaynak.Voltaj,
-                            anlikKaynak.TelSurmeHizi,
-                            anlikKaynak.OlcumZamani.ToString("yyyy-MM-dd HH:mm:ss")
-                        );
-
-                        // UI senkron değilse (örneğin Normal yayın kaçırıldıysa) Normal durumunu tekrar yayınla
-                        // Her anlık veri geldiğinde fault yoksa Normal'i tekrar gönder (UI kaybını tolere etmek için)
-                        if (!_hasFault)
-                        {
-                            try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Normal"); } catch (Exception ex) { LogToFile("Beklenmeyen hata oluştu-9", ex); }
-                        }
-                        veri.Clear();
-
-                    }
-
-                    else if (veri.ToString().Contains("KayOFF"))
-                    {
-                        string kaynak_verileri = veri.ToString().Replace("KayOFF", string.Empty);
-                        string[] kaynak_parcalar = kaynak_verileri.Split('|', StringSplitOptions.RemoveEmptyEntries);
-                        kaynak = new Kaynak
-                        {
-                            BaslangicSaati = kaynak_parcalar.Length > 0 ? Hesaplayici.stringDateParse(kaynak_parcalar[0]) : DateTime.MinValue,
-                            ToplamSure = Hesaplayici.milisaniyeyiTimeOnlyeCevir(kaynak_parcalar.Length > 1 ? int.Parse(kaynak_parcalar[1]) : 0),
-                            KaynakUzunlugu = kaynak_parcalar.Length > 2 ? int.Parse(kaynak_parcalar[2]) : 0,
-                            BaslangicSatiri = kaynak_parcalar.Length > 3 ? int.Parse(kaynak_parcalar[3]) : 0,
-                            BitisSatiri = kaynak_parcalar.Length > 4 ? int.Parse(kaynak_parcalar[4]) : 0,
-                            BitisSaati = Hesaplayici.BaslangicaSureEkle(kaynak_parcalar[0], kaynak_parcalar[1]),
-                            PrcNo = kaynak_parcalar.Length > 5 ? int.Parse(kaynak_parcalar[5]) : 0,
-                            SrcNo = kaynak_parcalar.Length > 6 ? int.Parse(kaynak_parcalar[6]) : 0,
-                            basarili_mi = kaynak_parcalar.Length > 6 ? bool.Parse(kaynak_parcalar[7]) : false,
-                            AnlikKaynaklar = anlikKaynaklar
-                        };
-                        kaynaklar.Add(kaynak);
-                        veri.Clear();
-
-                    }
-
-                    else if (veri.ToString().Contains("progbitti"))
-                    {
-                        string prog_verisi = veri.ToString().Replace("progbitti", string.Empty);
-                        programVerisi.KaynakSayisi = int.Parse(prog_verisi);
-                        programVerisi.Operator = new Operator { Ad = "Ahmet", Soyad = "Çakar", KullaniciAdi = "ahmet.cakar" };
-                        programVerisi.BitisZamani = programVerisi.BitisZamani == default ? DateTime.Now : programVerisi.BitisZamani;
-                        // Eğer başlangıç/bitiş zamanları ayarlanmamışsa, kaynaklardan türet
-                        if (programVerisi.BaslangicZamani == default)
-                        {
-                            var firstStart = kaynaklar
-                                .Where(k => k.BaslangicSaati != default && k.BaslangicSaati > DateTime.MinValue)
-                                .OrderBy(k => k.BaslangicSaati)
-                                .Select(k => k.BaslangicSaati)
-                                .FirstOrDefault();
-                            if (firstStart != default && firstStart > DateTime.MinValue)
-                                programVerisi.BaslangicZamani = firstStart;
-                        }
-                        if (programVerisi.BitisZamani == default)
-                        {
-                            var lastEnd = kaynaklar
-                                .Where(k => k.BitisSaati != default && k.BitisSaati > DateTime.MinValue)
-                                .OrderByDescending(k => k.BitisSaati)
-                                .Select(k => k.BitisSaati)
-                                .FirstOrDefault();
-                            if (lastEnd != default && lastEnd > DateTime.MinValue)
-                                programVerisi.BitisZamani = lastEnd;
-                        }
-                        programVerisi.Kaynaklar = kaynaklar;
-                        programVerisi.Hatalar = hatalar;
-                        try
-                        {
-                            using (var scope = _services.CreateScope())
+                            // Program yeniden başlarken aktif fault varsa sıfırla ve Normal yayınla
+                            if (_hasFault)
                             {
-                                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                                db.ProgramVerileri.Add(programVerisi);
-                                db.Hatalar.AddRange(hatalar);
-                                db.Kaynaklar.AddRange(kaynaklar);
-                                db.AnlikKaynaklar.AddRange(anlikKaynaklar);
-                                await db.SaveChangesAsync();
+                                _hasFault = false;
+                                try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Normal"); LogToFile("RobotAktif: Normal yayınlandı (fault reset)"); } catch (Exception ex) { LogToFile("Beklenmeyen hata oluştu-7", ex); }
                             }
-                        }
-                        catch (Exception ex)
-                        {
-                            LogToFile("ProgramVerisi kaydedilirken hata oluştu.", ex);
+                            programVerisi.ProgramAdi = prog_baslat ?? string.Empty;
+                            programVerisi.BaslangicZamani = DateTime.Now;
+
+                            veri.Clear();
                         }
 
-                        // Program bittiğinde robot durdu bilgisini ve aktif programı kesin olarak temizle
-                        _robotStatus = "Durdu";
-                        _aktifProgram = "";
-                        SaveRobotStatusToFile();
-                        await _hubContext.Clients.All.SendAsync("ReceiveRobotStatus", _robotStatus, _aktifProgram);
-
-                        // Program tamamen bittiğinde varsa aktif fault durumunu sıfırla
-                        if (_hasFault)
+                        else if (veri.ToString().Contains("anlikveri"))
                         {
-                            _hasFault = false;
-                            try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Normal"); LogToFile("progbitti: Normal yayınlandı (fault reset)"); } catch (Exception ex) { LogToFile("Beklenmeyen hata oluştu-10", ex); }
+                            // Eğer hata modundan çıkıldıysa ilk gerçek zamanlı veriyle normal e dön
+                            if (_hasFault)
+                            {
+                                _hasFault = false;
+                                try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Normal"); LogToFile("anlikveri: Normal yayınlandı (fault reset)"); } catch (Exception ex) { LogToFile("Beklenmeyen hata oluştu-8", ex); }
+                            }
+
+                            // Program bittiğinde robot durdu bilgisini ve aktif programı kesin olarak temizle
+                            if (_robotStatus == "Durdu")
+                            {
+                                _robotStatus = "Calisiyor";
+                                LogToFile($" {_aktifProgram} programı hatadan sonra devam ediyor, robot durumu =  {_robotStatus}");
+                                SaveRobotStatusToFile();
+                                // SignalR ile robot durumu gönder - Sinyal geldiğinde robot çalışıyor
+                                await _hubContext.Clients.All.SendAsync("ReceiveRobotStatus", _robotStatus, _aktifProgram);
+
+                            }
+
+                            string anlik_veriler = veri.ToString().Replace("anlikveri", string.Empty);
+                            string[] anlik_parcalar = anlik_veriler.Split('|', StringSplitOptions.RemoveEmptyEntries);
+                            anlikKaynak = new AnlikKaynak
+                            {
+                                OlcumZamani = anlik_parcalar.Length > 0 ? DateTime.Now : DateTime.MinValue,
+                                Voltaj = anlik_parcalar.Length > 0 ? double.Parse(anlik_parcalar[0]) : 0,
+                                Amper = anlik_parcalar.Length > 1 ? double.Parse(anlik_parcalar[1]) : 0,
+                                TelSurmeHizi = anlik_parcalar.Length > 2 ? double.Parse(anlik_parcalar[2]) : 0,
+                                KaynakHizi = 10,
+
+
+                            };
+                            anlikKaynaklar.Add(anlikKaynak);
+                            // SignalR ile canlı veri gönder
+                            LogToFile($"SignalR veri gönderildi: Amper={anlikKaynak.Amper}, Voltaj={anlikKaynak.Voltaj}, TelSurmeHizi={anlikKaynak.TelSurmeHizi}, Zaman={anlikKaynak.OlcumZamani:yyyy-MM-dd HH:mm:ss}");
+                            await _hubContext.Clients.All.SendAsync(
+                                "ReceiveLiveData",
+                                anlikKaynak.Amper,
+                                anlikKaynak.Voltaj,
+                                anlikKaynak.TelSurmeHizi,
+                                anlikKaynak.OlcumZamani.ToString("yyyy-MM-dd HH:mm:ss")
+                            );
+
+                            // UI senkron değilse (örneğin Normal yayın kaçırıldıysa) Normal durumunu tekrar yayınla
+                            // Her anlık veri geldiğinde fault yoksa Normal'i tekrar gönder (UI kaybını tolere etmek için)
+                            if (!_hasFault)
+                            {
+                                try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Normal"); } catch (Exception ex) { LogToFile("Beklenmeyen hata oluştu-9", ex); }
+                            }
+                            veri.Clear();
+
                         }
+
+                        else if (veri.ToString().Contains("KayOFF"))
+                        {
+                            string kaynak_verileri = veri.ToString().Replace("KayOFF", string.Empty);
+                            string[] kaynak_parcalar = kaynak_verileri.Split('|', StringSplitOptions.RemoveEmptyEntries);
+                            kaynak = new Kaynak
+                            {
+                                BaslangicSaati = kaynak_parcalar.Length > 0 ? Hesaplayici.stringDateParse(kaynak_parcalar[0]) : DateTime.MinValue,
+                                ToplamSure = Hesaplayici.milisaniyeyiTimeOnlyeCevir(kaynak_parcalar.Length > 1 ? int.Parse(kaynak_parcalar[1]) : 0),
+                                KaynakUzunlugu = kaynak_parcalar.Length > 2 ? int.Parse(kaynak_parcalar[2]) : 0,
+                                BaslangicSatiri = kaynak_parcalar.Length > 3 ? int.Parse(kaynak_parcalar[3]) : 0,
+                                BitisSatiri = kaynak_parcalar.Length > 4 ? int.Parse(kaynak_parcalar[4]) : 0,
+                                BitisSaati = Hesaplayici.BaslangicaSureEkle(kaynak_parcalar[0], kaynak_parcalar[1]),
+                                PrcNo = kaynak_parcalar.Length > 5 ? int.Parse(kaynak_parcalar[5]) : 0,
+                                SrcNo = kaynak_parcalar.Length > 6 ? int.Parse(kaynak_parcalar[6]) : 0,
+                                basarili_mi = kaynak_parcalar.Length > 6 ? bool.Parse(kaynak_parcalar[7]) : false,
+                                KaynakAdi = "Kaynak-" + kaynak_parcalar[8].ToString(),
+                                AnlikKaynaklar = anlikKaynaklar,
+                                ProgramVerisi = programVerisi // ✅ Foreign key yerine entity referansı
+                            };
+                            kaynaklar.Add(kaynak);
+                            veri.Clear();
+
+                        }
+
+                        else if (veri.ToString().Contains("progbitti"))
+                        {
+                            string prog_verisi = veri.ToString().Replace("progbitti", string.Empty);
+                            programVerisi.KaynakSayisi = int.Parse(prog_verisi);
+                            programVerisi.Operator = new Operator { Ad = "Ahmet", Soyad = "Çakar", KullaniciAdi = "ahmet.cakar" };
+                            programVerisi.BitisZamani = programVerisi.BitisZamani == default ? DateTime.Now : programVerisi.BitisZamani;
+                            // Eğer başlangıç/bitiş zamanları ayarlanmamışsa, kaynaklardan türet
+                            if (programVerisi.BaslangicZamani == default)
+                            {
+                                var firstStart = kaynaklar
+                                    .Where(k => k.BaslangicSaati != default && k.BaslangicSaati > DateTime.MinValue)
+                                    .OrderBy(k => k.BaslangicSaati)
+                                    .Select(k => k.BaslangicSaati)
+                                    .FirstOrDefault();
+                                if (firstStart != default && firstStart > DateTime.MinValue)
+                                    programVerisi.BaslangicZamani = firstStart;
+                            }
+                            if (programVerisi.BitisZamani == default)
+                            {
+                                var lastEnd = kaynaklar
+                                    .Where(k => k.BitisSaati != default && k.BitisSaati > DateTime.MinValue)
+                                    .OrderByDescending(k => k.BitisSaati)
+                                    .Select(k => k.BitisSaati)
+                                    .FirstOrDefault();
+                                if (lastEnd != default && lastEnd > DateTime.MinValue)
+                                    programVerisi.BitisZamani = lastEnd;
+                            }
+                            programVerisi.Kaynaklar = kaynaklar;
+                            programVerisi.Hatalar = hatalar;
+                            programVerisi.TamamlandiMi = true;
+                            LogToFile($"prog bitti çıkışı");
+                            // Reset all temporary data for next program
+                            veri.Clear();
+
+                        }
+
+                        else if (veri.ToString().Contains("hataalindi"))
+                        {
+
+                            string hata_verisi = veri.ToString().Replace("hataalindi", string.Empty);
+                            string[] hata_parcalar = hata_verisi.Split('|', StringSplitOptions.RemoveEmptyEntries);
+                            int tip = hata_parcalar[1] == "1" ? 1 : 2;
+                            DateTime hata_zamani = Hesaplayici.stringDateParse(hata_parcalar[3]);
+                            bool kaynakAnindaMi = Convert.ToBoolean(int.Parse(hata_parcalar[4]));
+
+                            string kaynakAdi = null;
+                            if (kaynakAnindaMi)
+                            {
+                                kaynakAdi = "Kaynak-" + hata_parcalar[5].ToString();
+                            }
+
+                            Hata hata = new Hata
+                            {
+                                Kod = hata_parcalar[0],
+                                Tip = tip,
+                                Aciklama = hata_parcalar[2],
+                                Zaman = hata_zamani,
+                                KaynakAnindaMi = kaynakAnindaMi,
+                                KaynakAdi = kaynakAdi,
+                                ProgramVerisi = programVerisi // ✅ Navigation property üzerinden bağla
+                            };
+                            hatalar.Add(hata);
+                            LogToFile($"Hata Log kaydedildi: Kod={hata.Kod}, Aciklama={hata.Aciklama}, Zaman={hata.Zaman:yyyy-MM-dd HH:mm:ss}");
+
+                            // Hata olduğunda sistem fault durumuna geçsin
+                            _robotStatus = "Durdu";
+                            _aktifProgram = "";
+                            SaveRobotStatusToFile();
+                            await _hubContext.Clients.All.SendAsync("ReceiveRobotStatus", _robotStatus, _aktifProgram);
+
+                            _hasFault = true; // her hata durumunda set (üst üste gelse bile)
+                            try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Fault"); LogToFile("hataalindi: Fault yayınlandı"); } catch (Exception ex) { LogToFile("Beklenmeyen hata oluştu-12", ex); }
+
+                            veri.Clear();
+
+                        }
+
                         else
                         {
-                            try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Normal"); } catch (Exception ex) { LogToFile("Beklenmeyen hata oluştu-11", ex); }
+                            tempData.Add(veri.ToString());
                         }
 
-                        // Reset all temporary data for next program
-                        veri.Clear();
-                        kaynaklar = new List<Kaynak>();
-                        anlikKaynaklar = new List<AnlikKaynak>();
-                        programVerisi = new ProgramVerisi();
-                    }
-
-
-                    else if (veri.ToString().Contains("hataalindi"))
-                    {
-
-                        string hata_verisi = veri.ToString().Replace("hataalindi", string.Empty);
-                        string[] hata_parcalar = hata_verisi.Split('|', StringSplitOptions.RemoveEmptyEntries);
-                        DateTime hata_zamani = Hesaplayici.stringDateParse(hata_parcalar[3]);
-                        bool kaynakAnindaMi = Convert.ToBoolean(int.Parse(hata_parcalar[4]));
-
-                        int tip = hata_parcalar[1] == "1" ? 1 : 2;
-                        Hata hata = new Hata
-                        {
-                            Kod = hata_parcalar[0],
-                            Tip = tip,
-                            Aciklama = hata_parcalar[2],
-                            Zaman = hata_zamani,
-                            kaynakAnindaMi =kaynakAnindaMi,
-                            ProgramVerisiId = programVerisi.Id
-                        };
-                        hatalar.Add(hata);
-                        LogToFile($"Hata Log kaydedildi: Kod={hata.Kod}, Aciklama={hata.Aciklama}, Zaman={hata.Zaman:yyyy-MM-dd HH:mm:ss}");
-
-                        // Hata olduğunda sistem fault durumuna geçsin
-                        _robotStatus = "Durdu";
-                        _aktifProgram = "";
-                        SaveRobotStatusToFile();
-                        await _hubContext.Clients.All.SendAsync("ReceiveRobotStatus", _robotStatus, _aktifProgram);
-
-                        _hasFault = true; // her hata durumunda set (üst üste gelse bile)
-                        try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Fault"); LogToFile("hataalindi: Fault yayınlandı"); } catch (Exception ex) { LogToFile("Beklenmeyen hata oluştu-12", ex); }
-
-                        veri.Clear();
-
-                    }
-
-                    else
-                    {
-                        tempData.Add(veri.ToString());
                     }
 
                 }
+                catch (IOException ioEx)
+                {
+                    LogToFile("TCP bağlantısı robot tarafından kapatıldı: " + ioEx.Message);
+                    try { client.Close(); } catch { }
+                    return; // bağlantı bittiği için metottan çık
+                }
+
             }
             catch (OperationCanceledException ex)
             {
@@ -441,7 +432,32 @@ namespace FanucRelease.Services
             }
             finally
             {
-                try { client.Close(); } catch (Exception ex) { LogToFile("Client close error", ex); }
+                try { client.Close(); } catch (Exception ex) { LogToFile("Client kapanma hatası alındı", ex); }
+
+
+                try
+                {
+                    using (var scope = _services.CreateScope())
+                    {
+                        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                        db.ProgramVerileri.Add(programVerisi);
+                        db.Hatalar.AddRange(hatalar);
+                        db.Kaynaklar.AddRange(kaynaklar);
+                        db.AnlikKaynaklar.AddRange(anlikKaynaklar);
+                        await db.SaveChangesAsync();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogToFile("ProgramVerisi kaydedilirken hata oluştu.", ex);
+                }
+
+
+                // Program tamamen bittiğinde varsa aktif fault durumunu sıfırla
+
+                try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Normal"); LogToFile("progbitti: Normal yayınlandı (fault reset)"); } catch (Exception ex) { LogToFile("Beklenmeyen hata oluştu-10", ex); }
+                _hasFault = false;
+
 
                 // 🔔 Bağlantı koptu → robotu durdu kabul et
                 _robotStatus = "Durdu";
@@ -450,14 +466,14 @@ namespace FanucRelease.Services
                 try
                 {
                     await _hubContext.Clients.All.SendAsync("ReceiveRobotStatus", _robotStatus, _aktifProgram);
-                    
+
                 }
                 catch (Exception ex)
                 {
-                    LogToFile("Disconnect broadcast failed", ex);
+                    LogToFile("Yayını kesme başarısız oldu", ex);
                 }
 
-                LogToFile("Robot connection closed.");
+                LogToFile("Robot bağlantısı kapatıldı.");
             }
         }
         public override Task StopAsync(CancellationToken cancellationToken)

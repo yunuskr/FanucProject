@@ -4,6 +4,7 @@ using FanucRelease.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FanucRelease.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251027113453_Addtest")]
+    partial class Addtest
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -88,11 +91,8 @@ namespace FanucRelease.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("KaynakAdi")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("KaynakAnindaMi")
-                        .HasColumnType("bit");
+                    b.Property<int?>("KaynakId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Kod")
                         .IsRequired()
@@ -108,6 +108,8 @@ namespace FanucRelease.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("KaynakId");
 
                     b.HasIndex("ProgramVerisiId");
 
@@ -359,9 +361,15 @@ namespace FanucRelease.Migrations
 
             modelBuilder.Entity("FanucRelease.Models.Hata", b =>
                 {
+                    b.HasOne("FanucRelease.Models.Kaynak", "Kaynak")
+                        .WithMany("Hatalar")
+                        .HasForeignKey("KaynakId");
+
                     b.HasOne("FanucRelease.Models.ProgramVerisi", "ProgramVerisi")
                         .WithMany("Hatalar")
                         .HasForeignKey("ProgramVerisiId");
+
+                    b.Navigation("Kaynak");
 
                     b.Navigation("ProgramVerisi");
                 });
@@ -422,6 +430,8 @@ namespace FanucRelease.Migrations
             modelBuilder.Entity("FanucRelease.Models.Kaynak", b =>
                 {
                     b.Navigation("AnlikKaynaklar");
+
+                    b.Navigation("Hatalar");
                 });
 
             modelBuilder.Entity("FanucRelease.Models.ProgramVerisi", b =>

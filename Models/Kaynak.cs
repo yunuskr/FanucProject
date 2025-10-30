@@ -14,6 +14,8 @@ namespace FanucRelease.Models
         [DataType(DataType.Time)]
         public DateTime BaslangicSaati { get; set; }
 
+        public string KaynakAdi { get; set; }
+
         [DataType(DataType.Time)]
         public DateTime BitisSaati { get; set; }
 
@@ -27,8 +29,12 @@ namespace FanucRelease.Models
 
         public bool basarili_mi { get; set; }
 
-        [ForeignKey("ProgramVerisiId")]
-        public virtual ProgramVerisi ProgramVerisi { get; set; } = null!;
+        // 🔹 Foreign key ve navigation
+        public int ProgramVerisiId { get; set; }
+
+
+        public ProgramVerisi ProgramVerisi { get; set; }
+
         // Bir KaynakDongusu'na ait birden fazla AnlikKaynak kaydı olabilir
         public virtual ICollection<AnlikKaynak> AnlikKaynaklar { get; set; } = new List<AnlikKaynak>();
     }

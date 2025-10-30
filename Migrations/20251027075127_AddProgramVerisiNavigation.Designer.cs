@@ -4,6 +4,7 @@ using FanucRelease.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FanucRelease.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251027075127_AddProgramVerisiNavigation")]
+    partial class AddProgramVerisiNavigation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -88,12 +91,6 @@ namespace FanucRelease.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("KaynakAdi")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("KaynakAnindaMi")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Kod")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -106,6 +103,9 @@ namespace FanucRelease.Migrations
 
                     b.Property<DateTime>("Zaman")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("kaynakAnindaMi")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
@@ -133,10 +133,6 @@ namespace FanucRelease.Migrations
 
                     b.Property<int>("BitisSatiri")
                         .HasColumnType("int");
-
-                    b.Property<string>("KaynakAdi")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("KaynakUzunlugu")
                         .HasColumnType("int");

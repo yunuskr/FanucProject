@@ -28,4 +28,6 @@ public class ProgramVerisi
     public virtual ICollection<Kaynak> Kaynaklar { get; set; } = new List<Kaynak>();
     public virtual ICollection<Hata> Hatalar { get; set; } = new List<Hata>();
 
+    public bool TamamlandiMi  { get; set; }
+
 }
