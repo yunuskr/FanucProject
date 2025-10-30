@@ -21,6 +21,7 @@ builder.Services.AddScoped<IProgramVerisiService, ProgramVerisiService>();
 builder.Services.AddScoped<ISettingsService, SettingsService>();
 builder.Services.AddScoped<IKaynakService, KaynakService>();
 builder.Services.AddScoped<IHataService, HataService>();
+builder.Services.AddSingleton<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IOperatorService, OperatorService>();
 builder.Services.AddScoped<IAnlikKaynakService, AnlikKaynakService>();
 builder.Services.AddHostedService<RobotTcpListenerService>();

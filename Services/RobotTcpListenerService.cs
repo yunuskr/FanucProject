@@ -6,7 +6,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.SignalR;
 using FanucRelease.Models;
 using FanucRelease.Data;
-
+using FanucRelease.Services;
 namespace FanucRelease.Services
 {
     /// <summary>
@@ -31,6 +31,7 @@ namespace FanucRelease.Services
 
         // Servisler
         private readonly IHubContext<RobotStatusHub> _hubContext;
+        private readonly ICurrentUserService _currentUser;
         private readonly IServiceProvider _services;
         private TcpListener? _server;
 
@@ -115,10 +116,14 @@ namespace FanucRelease.Services
             public string? aktifProgram { get; set; }
         }
 
-        public RobotTcpListenerService(IHubContext<RobotStatusHub> hubContext, IServiceProvider services)
+       public RobotTcpListenerService(
+        IHubContext<RobotStatusHub> hubContext,
+        IServiceProvider services,
+        ICurrentUserService currentUser)
         {
             _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
             _services = services ?? throw new ArgumentNullException(nameof(services));
+            _currentUser = currentUser;
 
             try
             {
@@ -322,7 +327,12 @@ namespace FanucRelease.Services
                     {
                         string prog_verisi = veri.ToString().Replace("progbitti", string.Empty);
                         programVerisi.KaynakSayisi = int.Parse(prog_verisi);
-                        programVerisi.Operator = new Operator { Ad = "Ahmet", Soyad = "Çakar", KullaniciAdi = "ahmet.cakar" };
+                        programVerisi.Operator = new Operator
+                        {
+                            KullaniciAdi = _currentUser.Username ?? "system",
+                            Ad = _currentUser.FullName?.Split(' ').FirstOrDefault() ?? "",
+                            Soyad = _currentUser.FullName?.Split(' ').Skip(1).FirstOrDefault() ?? ""
+                        };
                         programVerisi.BitisZamani = programVerisi.BitisZamani == default ? DateTime.Now : programVerisi.BitisZamani;
                         // Eğer başlangıç/bitiş zamanları ayarlanmamışsa, kaynaklardan türet
                         if (programVerisi.BaslangicZamani == default)
@@ -351,12 +361,12 @@ namespace FanucRelease.Services
                         {
                             using (var scope = _services.CreateScope())
                             {
-                                // var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                                // db.ProgramVerileri.Add(programVerisi);
-                                // db.Hatalar.AddRange(hatalar);
-                                // db.Kaynaklar.AddRange(kaynaklar);
-                                // db.AnlikKaynaklar.AddRange(anlikKaynaklar);
-                                // await db.SaveChangesAsync();
+                                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                                db.ProgramVerileri.Add(programVerisi);
+                                db.Hatalar.AddRange(hatalar);
+                                db.Kaynaklar.AddRange(kaynaklar);
+                                db.AnlikKaynaklar.AddRange(anlikKaynaklar);
+                                await db.SaveChangesAsync();
                             }
                         }
                         catch (Exception ex)
@@ -415,7 +425,6 @@ namespace FanucRelease.Services
 
                         _hasFault = true; // her hata durumunda set (üst üste gelse bile)
                         try { await _hubContext.Clients.All.SendAsync("ReceiveSystemStatus", "Fault"); LogToFile("hataalindi: Fault yayınlandı"); } catch (Exception ex) { LogToFile("Beklenmeyen hata oluştu-12", ex); }
-
                         veri.Clear();
 
                     }

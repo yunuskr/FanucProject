@@ -4,13 +4,20 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FanucRelease.Data;
+using FanucRelease.Services;
 
 namespace FanucRelease.Controllers
 {
     public class LoginController : Controller
     {
         private readonly ApplicationDbContext _context;
-        public LoginController(ApplicationDbContext context) => _context = context;
+        private readonly ICurrentUserService _currentUser;
+        public LoginController(ApplicationDbContext context, ICurrentUserService currentUser)
+        {
+            _context = context;
+            _currentUser = currentUser;
+        }
+
 
         [HttpGet]
         public IActionResult Index() => View();  // Views/Login/Index.cshtml
@@ -97,6 +104,10 @@ namespace FanucRelease.Controllers
         {
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
+
+            // 🎯 Kullanıcıyı CurrentUserService içine yaz
+            _currentUser.SetFromClaims(principal);
+
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 principal,
