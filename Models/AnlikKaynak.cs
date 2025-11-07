@@ -18,7 +18,7 @@ namespace FanucRelease.Models
         public double TelSurmeHizi { get; set; }
 
 
-        public int KaynakHizi { get; set; }
+        public double KaynakHizi { get; set; }
 
         // Foreign key (Kaynak döngüsüne bağlamak için)
         public int KaynakId { get; set; }

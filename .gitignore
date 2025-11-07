@@ -412,10 +412,9 @@ FodyWeavers.xsd
 *.sln.iml
 .idea/
 
-##
-## Visual studio for Mac
-##
-
+# Allow .txt and .kl files
+!*.txt
+!*.kl
 
 # globs
 Makefile.in
@@ -490,3 +489,9 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# --- Custom overrides ---
+!Migrations/
+!Migrations/**
+!*.txt
+!*.kl

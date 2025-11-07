@@ -88,7 +88,7 @@
                         <i class="fas fa-tachometer-alt"></i>
                     </div>
                     <div class="flex-grow-1">
-                        <div class="metric-title">Robot Hızı</div>
+                        <div class="metric-title">Kaynak Hızı</div>
                         <div class="metric-value">
                             <span id="val-speed" style="color: var(--gold-secondary);">0</span>
                             <small style="color: #6B7280; font-size: var(--font-size-sm); font-weight: 500;">mm/s</small>
@@ -382,7 +382,7 @@
     });
 
         // Canlı veri geldiğinde grafik ve tabloya ekle
-        connection.on("ReceiveLiveData", (amper, voltaj, telSurmeHizi, zamanIso) => {
+        connection.on("ReceiveLiveData", (amper, voltaj, telSurmeHizi,kaynakHizi, zamanIso) => {
             // Grafiklere ve tablolara ekle
             const timeLabel = fmtTime(zamanIso);
             dataPoints.labels.push(timeLabel);
@@ -398,6 +398,13 @@
             }
 
             updateCharts();
+
+           
+            const speedEl = document.getElementById("val-speed");
+            if (speedEl) {
+                // 1 basamak göster (örneğin 1.6)
+                speedEl.textContent = parseFloat(kaynakHizi).toFixed(1);
+            }
 
             updateTable('tbl-amper', amper, timeLabel, 'a');
             updateTable('tbl-voltaj', voltaj, timeLabel, 'v');
