@@ -88,6 +88,19 @@ namespace FanucRelease.Services
             }
         }
 
+
+        private double FixFloat(double value)
+        {
+            if (double.IsNaN(value) || double.IsInfinity(value))
+                return 0;
+
+            // SQL FLOAT için güvenli aralık
+            if (value > 1_000_000) return 0;
+            if (value < -1_000_000) return 0;
+
+            return Math.Round(value, 3);
+        }
+
         private void LoadRobotStatusFromFile()
         {
             if (File.Exists(_statusFilePath))
@@ -280,20 +293,36 @@ namespace FanucRelease.Services
                             double kaynak_hizi = 0.0;
                             try
                             {
-                                kaynak_hizi = Math.Round(power / heat_input,1);
+                                kaynak_hizi = Math.Round(power / heat_input, 1);
                             }
                             catch (Exception)
                             {
                                 kaynak_hizi = 0.0;
-                               
+
                             }
+                            
                             anlikKaynak = new AnlikKaynak
                             {
                                 OlcumZamani = anlik_parcalar.Length > 0 ? DateTime.Now : DateTime.MinValue,
-                                Voltaj = anlik_parcalar.Length > 0 ? double.Parse(anlik_parcalar[0]) : 0,
-                                Amper = anlik_parcalar.Length > 1 ? double.Parse(anlik_parcalar[1]) : 0,
-                                TelSurmeHizi = anlik_parcalar.Length > 2 ? double.Parse(anlik_parcalar[2]) : 0,
-                                KaynakHizi = kaynak_hizi,
+                                    Voltaj = FixFloat(
+                                anlik_parcalar.Length > 0 
+                                ? double.Parse(anlik_parcalar[0]) 
+                                : 0
+                            ),
+
+                            Amper = FixFloat(
+                                anlik_parcalar.Length > 1 
+                                ? double.Parse(anlik_parcalar[1]) 
+                                : 0
+                            ),
+
+                            TelSurmeHizi = FixFloat(
+                                anlik_parcalar.Length > 2 
+                                ? double.Parse(anlik_parcalar[2]) 
+                                : 0
+                            ),
+
+                            KaynakHizi = FixFloat(kaynak_hizi),
 
 
                             };
