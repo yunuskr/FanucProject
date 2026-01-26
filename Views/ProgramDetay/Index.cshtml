@@ -5,17 +5,17 @@
 @{
     ViewData["Title"] = "Program Detayı";
 
-    var opAdSoyad  = Model?.Program?.Operator is null ? "—" : $"{Model.Program.Operator.Ad} {Model.Program.Operator.Soyad}";
-    var kaynakSay  = Model?.Program?.Kaynaklar?.Count ?? 0;
-    var hataSay    = Model?.Program?.Hatalar?.Count ?? 0;
-    var bas        = Model?.Program?.BaslangicZamani ?? DateTime.MinValue;
-    var bit        = Model?.Program?.BitisZamani ?? DateTime.MinValue;
-    var sure       = (bas != DateTime.MinValue && bit != DateTime.MinValue && bit > bas) ? (TimeSpan?)(bit - bas) : null;
+    var opAdSoyad = Model?.Program?.Operator is null ? "—" : $"{Model.Program.Operator.Ad} {Model.Program.Operator.Soyad}";
+    var kaynakSay = Model?.Program?.Kaynaklar?.Count ?? 0;
+    var hataSay = Model?.Program?.Hatalar?.Count ?? 0;
+    var bas = Model?.Program?.BaslangicZamani ?? DateTime.MinValue;
+    var bit = Model?.Program?.BitisZamani ?? DateTime.MinValue;
+    var sure = (bas != DateTime.MinValue && bit != DateTime.MinValue && bit > bas) ? (TimeSpan?)(bit - bas) : null;
 
     var sonProgramlar = Model?.SonProgramlar ?? Enumerable.Empty<ProgramVerisi>();
 }
 
-@section Head{
+@section Head {
     <link href="~/lib/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" asp-append-version="true">
     <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/program-detay.css" asp-append-version="true" />
@@ -23,291 +23,296 @@
 
 <div class="dashboard-container">
     <div class="container-fluid">
-    <!-- Program Header Card -->
-    <div class="program-card mb-4">
-        <div class="program-header">
-            <h4 class="program-title">
-                <i class="fas fa-robot"></i>
-                Program: @(Model?.Program?.ProgramAdi ?? "—") 
-                <span class="program-id">#@(Model?.Program?.Id ?? 0)</span>
-            </h4>
-            <div class="program-info-grid">
-                <div class="info-item">
-                    <div class="info-icon success">
-                        <i class="fas fa-play"></i>
+        <!-- Program Header Card -->
+        <div class="program-card mb-4">
+            <div class="program-header">
+                <h4 class="program-title">
+
+                    Program: @(Model?.Program?.ProgramAdi ?? "—")
+                    <span class="program-id">#@(Model?.Program?.Id ?? 0)</span>
+                </h4>
+                <div class="program-info-grid">
+                    <div class="info-item">
+                        <div class="info-icon success">
+                            <i class="fas fa-play"></i>
+                        </div>
+                        <div class="info-content">
+                            <span class="info-label">Başlangıç</span>
+                            <span class="info-value">@(bas == DateTime.MinValue ? "—" : bas.ToString("dd.MM.yyyy                                HH:mm"))</span>
+                        </div>
                     </div>
-                    <div class="info-content">
-                        <span class="info-label">Başlangıç</span>
-                        <span class="info-value">@(bas == DateTime.MinValue ? "—" : bas.ToString("dd.MM.yyyy HH:mm"))</span>
+                    <div class="info-item">
+                        <div class="info-icon danger">
+                            <i class="fas fa-stop"></i>
+                        </div>
+                        <div class="info-content">
+                            <span class="info-label">Bitiş</span>
+                            <span class="info-value">@(bit == DateTime.MinValue ? "—" : bit.ToString("dd.MM.yyyy                                HH:mm"))</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon info">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="info-content">
+                            <span class="info-label">Operatör</span>
+                            <span class="info-value">@opAdSoyad</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon warning">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div class="info-content">
+                            <span class="info-label">Toplam Kaynak</span>
+                            <span class="info-value">@kaynakSay</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon primary">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="info-content">
+                            <span class="info-label">Toplam Süre</span>
+                            <span class="info-value">@(sure.HasValue? sure.Value.ToString(@"hh\:mm\:ss") : "—")</span>
+                        </div>
                     </div>
                 </div>
-                <div class="info-item">
-                    <div class="info-icon danger">
-                        <i class="fas fa-stop"></i>
-                    </div>
-                    <div class="info-content">
-                        <span class="info-label">Bitiş</span>
-                        <span class="info-value">@(bit == DateTime.MinValue ? "—" : bit.ToString("dd.MM.yyyy HH:mm"))</span>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <div class="info-icon info">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div class="info-content">
-                        <span class="info-label">Operatör</span>
-                        <span class="info-value">@opAdSoyad</span>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <div class="info-icon warning">
-                        <i class="fas fa-bolt"></i>
-                    </div>
-                    <div class="info-content">
-                        <span class="info-label">Toplam Kaynak</span>
-                        <span class="info-value">@kaynakSay</span>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <div class="info-icon primary">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <div class="info-content">
-                        <span class="info-label">Toplam Süre</span>
-                        <span class="info-value">@(sure.HasValue ? sure.Value.ToString(@"hh\:mm\:ss") : "—")</span>
-                    </div>
+            </div>
+
+            <!-- Kaynak Cards -->
+            <div class="kaynak-list">
+                <h5 class="kaynak-list-title">
+                    <i class="fas fa-bolt"></i>
+                    Kaynak Detayları
+                </h5>
+                <div class="kaynak-grid">
+                    @if (Model?.Program?.Kaynaklar is null || !Model.Program.Kaynaklar.Any())
+                    {
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-info-circle fa-2x mb-2"></i>
+                            <p>Kaynak verisi bulunamadı.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        var i = 1;
+                        foreach (var k in Model.Program.Kaynaklar.OrderBy(x => x.Id))
+                        {
+                            var ad = $"Kaynak-{i.ToString("D2")}";
+                            var basKaynak = k.BaslangicSaati == default ? "—" : k.BaslangicSaati.ToString("HH:mm");
+                            var bitKaynak = k.BitisSaati == default ? "—" : k.BitisSaati.ToString("HH:mm");
+                            var ts = k.ToplamSure != default ? k.ToplamSure.ToTimeSpan() : (k.BitisSaati - k.BaslangicSaati);
+                            if (ts < TimeSpan.Zero) { ts = TimeSpan.Zero; }
+                            var totalMinutes = (int)Math.Round(ts.TotalMinutes);
+                            var sureText = ts.TotalHours >= 1 ? $"{(int)ts.TotalHours} sa {ts.Minutes} dk" : $"{totalMinutes}                    dk";
+                            var statusClass = k.basarili_mi ? "success" : "danger";
+                            var statusIcon = k.basarili_mi ? "fas fa-check" : "fas fa-times";
+
+                            <div class="kaynak-item">
+                                <div class="kaynak-icon">
+                                    <i class="fas fa-bolt"></i>
+                                </div>
+                                <div class="kaynak-details">
+                                    <h6>@ad</h6>
+                                    <div class="kaynak-time">
+                                        <span><i class="fas fa-play-circle"></i> @basKaynak</span>
+                                        <span><i class="fas fa-stop-circle"></i> @bitKaynak</span>
+                                        <span class="duration"><i class="fas fa-clock"></i> @sureText</span>
+                                    </div>
+                                    <div class="kaynak-meta">
+                                        <small class="text-muted">PRC: @k.PrcNo | SRC: @k.SrcNo</small>
+                                    </div>
+                                </div>
+                                <div class="kaynak-status @statusClass">
+                                    <i class="@statusIcon"></i>
+                                </div>
+                                <div class="kaynak-actions">
+                                    <a asp-action="KaynakDetay" asp-route-id="@k.Id" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-search"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            i++;
+                        }
+                    }
                 </div>
             </div>
         </div>
 
-        <!-- Kaynak Cards -->
-        <div class="kaynak-list">
-            <h5 class="kaynak-list-title">
-                <i class="fas fa-bolt"></i>
-                Kaynak Detayları
-            </h5>
-            <div class="kaynak-grid">
-                @if (Model?.Program?.Kaynaklar is null || !Model.Program.Kaynaklar.Any())
+        <!-- Hata Detayları - Üstte -->
+        <div class="chart-card error-card mb-4">
+            <div class="chart-header error-header">
+                <h5 class="chart-title">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Hata Detayları
+                </h5>
+                <a asp-action="Hatalar" asp-route-id="@Model?.Program?.Id" class="btn btn-sm">
+                    Tüm Hatalar (@hataSay)
+                </a>
+            </div>
+            <div class="chart-container">
+                @if (Model?.Program?.Hatalar != null && Model.Program.Hatalar.Any())
                 {
-                    <div class="text-center text-muted py-4">
-                        <i class="fas fa-info-circle fa-2x mb-2"></i>
-                        <p>Kaynak verisi bulunamadı.</p>
+                    <!-- Hata listesi - Geçmiş programlar yapısına benzer -->
+                    <div class="alarm-container hata-alarm-container">
+                        <div class="alarm-list">
+                            @foreach (var hata in Model.Program.Hatalar.OrderByDescending(h => h.Zaman))
+                            {
+                                var isKritik = hata.Tip == 1;
+                                var levelClass = isKritik ? "high" : "medium"; // reuse existing alarm color scheme
+                                var levelIcon = isKritik ? "fas fa-exclamation-circle" : "fas fa-exclamation-triangle";
+                                var levelText = isKritik ? "KRİTİK" : "UYARI";
+                                <div class="alarm-item @levelClass" style="align-items:stretch;">
+                                    <div class="alarm-icon" style="width:46px;height:46px;">
+                                        <i class="@levelIcon"></i>
+                                    </div>
+                                    <div class="alarm-details" style="flex:2;">
+                                        <div class="alarm-code" style="display:flex; gap:.5rem; align-items:center;">
+                                            <span
+                                                style="font-size:.7rem; font-weight:700; letter-spacing:.5px; padding:.25rem .5rem; border-radius:6px; background: @(isKritik ? "linear-gradient(135deg,#dc2626,#b91c1c)" : "linear-gradient(135deg,#f59e0b,#d97706)"); color:#fff;">@levelText</span>
+                                            <span
+                                                style="font-family:'Courier New',monospace; font-weight:700; background:rgba(0,0,0,.05); padding:.25rem .6rem; border-radius:6px; border:1px solid rgba(0,0,0,.08);">@hata.Kod</span>
+                                        </div>
+                                        <div class="alarm-desc"
+                                            style="white-space:normal; text-align:left; line-height:1.3; font-size:.8rem;">
+                                            @hata.Aciklama</div>
+                                    </div>
+                                    <div class="alarm-details"
+                                        style="flex:0 0 140px; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:.35rem;">
+                                        <div class="date"
+                                            style="font-weight:700; background:rgba(0,0,0,.05); padding:.35rem .65rem; border-radius:6px; border:1px solid rgba(0,0,0,.08); font-size:.7rem; letter-spacing:.5px;">
+                                            @hata.Zaman.ToString("dd.MM.yyyy")</div>
+                                        <div class="alarm-time" style="font-size:.7rem;">@hata.Zaman.ToString("HH:mm:ss")</div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
                     </div>
                 }
                 else
                 {
-                    var i = 1;
-                    foreach (var k in Model.Program.Kaynaklar.OrderBy(x => x.Id))
-                    {
-                        var ad = $"Kaynak-{i.ToString("D2")}";
-                        var basKaynak = k.BaslangicSaati == default ? "—" : k.BaslangicSaati.ToString("HH:mm");
-                        var bitKaynak = k.BitisSaati == default ? "—" : k.BitisSaati.ToString("HH:mm");
-                        var ts = k.ToplamSure != default ? k.ToplamSure.ToTimeSpan() : (k.BitisSaati - k.BaslangicSaati);
-                        if (ts < TimeSpan.Zero) { ts = TimeSpan.Zero; }
-                        var totalMinutes = (int)Math.Round(ts.TotalMinutes);
-                        var sureText = ts.TotalHours >= 1 ? $"{(int)ts.TotalHours} sa {ts.Minutes} dk" : $"{totalMinutes} dk";
-                        var statusClass = k.basarili_mi ? "success" : "danger";
-                        var statusIcon = k.basarili_mi ? "fas fa-check" : "fas fa-times";
-                        
-                        <div class="kaynak-item">
-                            <div class="kaynak-icon">
-                                <i class="fas fa-bolt"></i>
-                            </div>
-                            <div class="kaynak-details">
-                                <h6>@ad</h6>
-                                <div class="kaynak-time">
-                                    <span><i class="fas fa-play-circle"></i> @basKaynak</span>
-                                    <span><i class="fas fa-stop-circle"></i> @bitKaynak</span>
-                                    <span class="duration"><i class="fas fa-clock"></i> @sureText</span>
-                                </div>
-                                <div class="kaynak-meta">
-                                    <small class="text-muted">PRC: @k.PrcNo | SRC: @k.SrcNo</small>
-                                </div>
-                            </div>
-                            <div class="kaynak-status @statusClass">
-                                <i class="@statusIcon"></i>
-                            </div>
-                            <div class="kaynak-actions">
-                                <a asp-action="KaynakDetay" asp-route-id="@k.Id" class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-search"></i>
-                                </a>
-                            </div>
-                        </div>
-                        i++;
-                    }
+                    <div class="text-center py-5">
+                        <i class="fas fa-check-circle fa-4x text-success mb-3" style="opacity: 0.6;"></i>
+                        <h4 class="text-success mb-2">Hiç Hata Yok</h4>
+                        <p class="text-muted">Bu program başarıyla tamamlandı, herhangi bir hata kaydı bulunmuyor.</p>
+                    </div>
                 }
             </div>
         </div>
-    </div>
 
-    <!-- Hata Detayları - Üstte -->
-    <div class="chart-card error-card mb-4">
-        <div class="chart-header error-header">
-            <h5 class="chart-title">
-                <i class="fas fa-exclamation-triangle"></i> 
-                Hata Detayları
-            </h5>
-            <a asp-action="Hatalar" asp-route-id="@Model?.Program?.Id" class="btn btn-sm">
-                Tüm Hatalar (@hataSay)
-            </a>
-        </div>
-        <div class="chart-container">
-            @if (Model?.Program?.Hatalar != null && Model.Program.Hatalar.Any())
-            {
-                <!-- Hata listesi - Geçmiş programlar yapısına benzer -->
-                <div class="alarm-container hata-alarm-container">
-                    <div class="alarm-list">
-                        @foreach (var hata in Model.Program.Hatalar.OrderByDescending(h => h.Zaman))
+        <!-- Geçmiş Programlar - Altta -->
+        <div class="chart-card history-card">
+            <div class="chart-header history-header">
+                <h5 class="chart-title">
+                    <i class="fas fa-history"></i>
+                    Geçmiş Programlar
+                </h5>
+                <small class="text-light">Son 10 program</small>
+            </div>
+
+            <div class="chart-container" style="height: auto;">
+                <!-- Filtreler -->
+                <div class="row g-3 mb-3 px-3">
+                    <div class="col-md-4">
+                        <input type="text" id="searchProgram" class="form-control" placeholder="Program adı ara...">
+                    </div>
+                    <div class="col-md-3">
+                        <input type="date" id="startDate" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <input type="date" id="endDate" class="form-control">
+                    </div>
+                    <div class="col-md-2 d-grid">
+                        <button type="button" id="clearFilters" class="btn btn-secondary">Temizle</button>
+                    </div>
+                </div>
+
+                <!-- Program History List -->
+                <div class="alarm-container">
+                    <div class="alarm-list" id="programList">
+                        @foreach (var p in sonProgramlar
+                                                .Where(x => x.Id != (Model?.Program?.Id ?? 0))
+                                                .OrderByDescending(x => x.Id)
+                                                .Take(10))
                         {
-                            var isKritik = hata.Tip == 1;
-                            var levelClass = isKritik ? "high" : "medium"; // reuse existing alarm color scheme
-                            var levelIcon = isKritik ? "fas fa-exclamation-circle" : "fas fa-exclamation-triangle";
-                            var levelText = isKritik ? "KRİTİK" : "UYARI";
-                            <div class="alarm-item @levelClass" style="align-items:stretch;">
-                                <div class="alarm-icon" style="width:46px;height:46px;">
-                                    <i class="@levelIcon"></i>
+                            <div class="alarm-item low program-item" data-program="@p.ProgramAdi"
+                                data-date="@p.Tarih.ToString("yyyy-MM-dd")">
+                                <div class="alarm-icon">
+                                    <i class="fas fa-file-code"></i>
                                 </div>
-                                <div class="alarm-details" style="flex:2;">
-                                    <div class="alarm-code" style="display:flex; gap:.5rem; align-items:center;">
-                                        <span style="font-size:.7rem; font-weight:700; letter-spacing:.5px; padding:.25rem .5rem; border-radius:6px; background: @(isKritik?"linear-gradient(135deg,#dc2626,#b91c1c)":"linear-gradient(135deg,#f59e0b,#d97706)"); color:#fff;">@levelText</span>
-                                        <span style="font-family:'Courier New',monospace; font-weight:700; background:rgba(0,0,0,.05); padding:.25rem .6rem; border-radius:6px; border:1px solid rgba(0,0,0,.08);">@hata.Kod</span>
-                                    </div>
-                                    <div class="alarm-desc" style="white-space:normal; text-align:left; line-height:1.3; font-size:.8rem;">@hata.Aciklama</div>
+                                <div class="alarm-details">
+                                    <div class="alarm-code">@p.ProgramAdi</div>
+                                    <div class="alarm-desc">#@p.Id • @p.KaynakSayisi kaynak •
+                                        @p.Tarih.ToString("dd.MM.yyyy")</div>
+                                    <div class="alarm-time">Program ID: @p.Id</div>
                                 </div>
-                                <div class="alarm-details" style="flex:0 0 140px; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:.35rem;">
-                                    <div class="date" style="font-weight:700; background:rgba(0,0,0,.05); padding:.35rem .65rem; border-radius:6px; border:1px solid rgba(0,0,0,.08); font-size:.7rem; letter-spacing:.5px;">@hata.Zaman.ToString("dd.MM.yyyy")</div>
-                                    <div class="alarm-time" style="font-size:.7rem;">@hata.Zaman.ToString("HH:mm:ss")</div>
+                                <div class="alarm-status" style="background: linear-gradient(135deg,#dc3545,#c82333);">
+                                    <span class="text-white">@((p.Hatalar?.Count) ?? 0)</span>
                                 </div>
+                                <a asp-controller="ProgramDetay" asp-action="Index" asp-route-id="@p.Id"
+                                    class="btn btn-sm btn-outline-primary ms-2">
+                                    <i class="fas fa-eye"></i>
+                                </a>
                             </div>
                         }
                     </div>
                 </div>
-            }
-            else
-            {
-                <div class="text-center py-5">
-                    <i class="fas fa-check-circle fa-4x text-success mb-3" style="opacity: 0.6;"></i>
-                    <h4 class="text-success mb-2">Hiç Hata Yok</h4>
-                    <p class="text-muted">Bu program başarıyla tamamlandı, herhangi bir hata kaydı bulunmuyor.</p>
-                </div>
-            }
-        </div>
-    </div>
-
-    <!-- Geçmiş Programlar - Altta -->
-    <div class="chart-card history-card">
-        <div class="chart-header history-header">
-            <h5 class="chart-title">
-                <i class="fas fa-history"></i> 
-                Geçmiş Programlar
-            </h5>
-            <small class="text-light">Son 10 program</small>
-        </div>
-        
-        <div class="chart-container" style="height: auto;">
-            <!-- Filtreler -->
-            <div class="row g-3 mb-3 px-3">
-                <div class="col-md-4">
-                    <input type="text" id="searchProgram" class="form-control" placeholder="Program adı ara...">
-                </div>
-                <div class="col-md-3">
-                    <input type="date" id="startDate" class="form-control">
-                </div>
-                <div class="col-md-3">
-                    <input type="date" id="endDate" class="form-control">
-                </div>
-                <div class="col-md-2 d-grid">
-                    <button type="button" id="clearFilters" class="btn btn-secondary">Temizle</button>
-                </div>
-            </div>
-
-            <!-- Program History List -->
-            <div class="alarm-container">
-                <div class="alarm-list" id="programList">
-                    @foreach (var p in sonProgramlar
-                               .Where(x => x.Id != (Model?.Program?.Id ?? 0))
-                                               .OrderByDescending(x => x.Id)
-                                               .Take(10))
-                    {
-                        <div class="alarm-item low program-item"
-                             data-program="@p.ProgramAdi"
-                             data-date="@p.Tarih.ToString("yyyy-MM-dd")">
-                            <div class="alarm-icon">
-                                <i class="fas fa-file-code"></i>
-                            </div>
-                            <div class="alarm-details">
-                                <div class="alarm-code">@p.ProgramAdi</div>
-                                <div class="alarm-desc">#@p.Id • @p.KaynakSayisi kaynak • @p.Tarih.ToString("dd.MM.yyyy")</div>
-                                <div class="alarm-time">Program ID: @p.Id</div>
-                            </div>
-                            <div class="alarm-status" style="background: linear-gradient(135deg,#dc3545,#c82333);">
-                                <span class="text-white">@((p.Hatalar?.Count) ?? 0)</span>
-                            </div>
-                            <a asp-controller="ProgramDetay"
-                               asp-action="Index"
-                               asp-route-id="@p.Id"
-                               class="btn btn-sm btn-outline-primary ms-2">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                        </div>
-                    }
-                </div>
             </div>
         </div>
     </div>
-</div>
 
 @section Scripts{
-<script>
-(function () {
-  // sayfa teması: yalnızca bu view'da arka plan ve stiller aktif olsun
-  document.body.classList.add('program-detay');
-  window.addEventListener('beforeunload', function(){ document.body.classList.remove('program-detay'); });
+        <script>
+            (function () {
+                // sayfa teması: yalnızca bu view'da arka plan ve stiller aktif olsun
+                document.body.classList.add('program-detay');
+                window.addEventListener('beforeunload', function () { document.body.classList.remove('program-detay'); });
 
-  const searchInput = document.getElementById('searchProgram');
-  const startInput  = document.getElementById('startDate');
-  const endInput    = document.getElementById('endDate');
-  const items       = Array.from(document.querySelectorAll('#programList .program-item'));
+                const searchInput = document.getElementById('searchProgram');
+                const startInput = document.getElementById('startDate');
+                const endInput = document.getElementById('endDate');
+                const items = Array.from(document.querySelectorAll('#programList .program-item'));
 
-  function toLocalDate(ymd) {
-    if (!ymd) return null;
-    const [y, m, d] = ymd.split('-').map(Number);
-    if (!y || !m || !d) return null;
-    return new Date(y, m - 1, d);
-  }
+                function toLocalDate(ymd) {
+                    if (!ymd) return null;
+                    const [y, m, d] = ymd.split('-').map(Number);
+                    if (!y || !m || !d) return null;
+                    return new Date(y, m - 1, d);
+                }
 
-  function applyFilters() {
-    const q      = (searchInput.value || '').trim().toLowerCase();
-    const start  = toLocalDate(startInput.value);
-    const endRaw = toLocalDate(endInput.value);
-    const end    = endRaw ? new Date(endRaw.getFullYear(), endRaw.getMonth(), endRaw.getDate(), 23,59,59,999) : null;
+                function applyFilters() {
+                    const q = (searchInput.value || '').trim().toLowerCase();
+                    const start = toLocalDate(startInput.value);
+                    const endRaw = toLocalDate(endInput.value);
+                    const end = endRaw ? new Date(endRaw.getFullYear(), endRaw.getMonth(), endRaw.getDate(), 23, 59, 59, 999) : null;
 
-    items.forEach(el => {
-      const name = (el.dataset.program || '').toLowerCase();
-      const d    = toLocalDate(el.dataset.date);
+                    items.forEach(el => {
+                        const name = (el.dataset.program || '').toLowerCase();
+                        const d = toLocalDate(el.dataset.date);
 
-      let ok = true;
-      if (q && !name.includes(q)) ok = false;
-      if (start && d && d < start) ok = false;
-      if (end && d && d > end) ok = false;
+                        let ok = true;
+                        if (q && !name.includes(q)) ok = false;
+                        if (start && d && d < start) ok = false;
+                        if (end && d && d > end) ok = false;
 
-      el.style.display = ok ? '' : 'none';
-    });
-  }
+                        el.style.display = ok ? '' : 'none';
+                    });
+                }
 
-  searchInput.addEventListener('input', applyFilters);
-  startInput.addEventListener('change', applyFilters);
-  endInput.addEventListener('change', applyFilters);
+                searchInput.addEventListener('input', applyFilters);
+                startInput.addEventListener('change', applyFilters);
+                endInput.addEventListener('change', applyFilters);
 
-  const clearBtn = document.getElementById('clearFilters');
-  clearBtn?.addEventListener('click', () => {
-    searchInput.value = '';
-    startInput.value  = '';
-    endInput.value    = '';
-    applyFilters();
-  });
+                const clearBtn = document.getElementById('clearFilters');
+                clearBtn?.addEventListener('click', () => {
+                    searchInput.value = '';
+                    startInput.value = '';
+                    endInput.value = '';
+                    applyFilters();
+                });
 
-  applyFilters();
-})();
-</script>
+                applyFilters();
+            })();
+        </script>
 }
