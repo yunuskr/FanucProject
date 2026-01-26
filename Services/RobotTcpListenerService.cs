@@ -28,16 +28,11 @@ namespace FanucRelease.Services
 
         // Sabitler
         private const int RobotPort = 59002; // Karel ile aynı port
-
-
-        // Servisler
         private readonly IHubContext<RobotStatusHub> _hubContext;
         private readonly ICurrentUserService _currentUser;
         private readonly IServiceProvider _services;
         private TcpListener? _server;
 
-        // Geçici veri
-        private readonly List<string> tempData = new List<string>();
         public string RobotStatus => _robotStatus;
         public string AktifProgram => _aktifProgram;
 
@@ -70,7 +65,7 @@ namespace FanucRelease.Services
                 // Atomic write to app base dir
                 var tmpPath = _statusFilePath + ".tmp";
                 File.WriteAllText(tmpPath, json);
-                File.Copy(tmpPath, _statusFilePath, true);
+                File.Move(tmpPath, _statusFilePath, true);
                 try { File.Delete(tmpPath); }
                 catch (Exception ex)
                 {
@@ -91,6 +86,19 @@ namespace FanucRelease.Services
                     LogToFile("Beklenmeyen hata oluştu-2", ex);
                 }
             }
+        }
+
+
+        private double FixFloat(double value)
+        {
+            if (double.IsNaN(value) || double.IsInfinity(value))
+                return 0;
+
+            // SQL FLOAT için güvenli aralık
+            if (value > 1_000_000) return 0;
+            if (value < -1_000_000) return 0;
+
+            return Math.Round(value, 3);
         }
 
         private void LoadRobotStatusFromFile()
@@ -280,13 +288,41 @@ namespace FanucRelease.Services
 
                             string anlik_veriler = veri.ToString().Replace("anlikveri", string.Empty);
                             string[] anlik_parcalar = anlik_veriler.Split('|', StringSplitOptions.RemoveEmptyEntries);
+                            var power = anlik_parcalar.Length > 2 ? double.Parse(anlik_parcalar[3]) : 0;
+                            var heat_input = anlik_parcalar.Length > 2 ? double.Parse(anlik_parcalar[4]) : 0;
+                            double kaynak_hizi = 0.0;
+                            try
+                            {
+                                kaynak_hizi = Math.Round(power / heat_input, 1);
+                            }
+                            catch (Exception)
+                            {
+                                kaynak_hizi = 0.0;
+
+                            }
+                            
                             anlikKaynak = new AnlikKaynak
                             {
                                 OlcumZamani = anlik_parcalar.Length > 0 ? DateTime.Now : DateTime.MinValue,
-                                Voltaj = anlik_parcalar.Length > 0 ? double.Parse(anlik_parcalar[0]) : 0,
-                                Amper = anlik_parcalar.Length > 1 ? double.Parse(anlik_parcalar[1]) : 0,
-                                TelSurmeHizi = anlik_parcalar.Length > 2 ? double.Parse(anlik_parcalar[2]) : 0,
-                                KaynakHizi = 10,
+                                    Voltaj = FixFloat(
+                                anlik_parcalar.Length > 0 
+                                ? double.Parse(anlik_parcalar[0]) 
+                                : 0
+                            ),
+
+                            Amper = FixFloat(
+                                anlik_parcalar.Length > 1 
+                                ? double.Parse(anlik_parcalar[1]) 
+                                : 0
+                            ),
+
+                            TelSurmeHizi = FixFloat(
+                                anlik_parcalar.Length > 2 
+                                ? double.Parse(anlik_parcalar[2]) 
+                                : 0
+                            ),
+
+                            KaynakHizi = FixFloat(kaynak_hizi),
 
 
                             };
@@ -298,6 +334,7 @@ namespace FanucRelease.Services
                                 anlikKaynak.Amper,
                                 anlikKaynak.Voltaj,
                                 anlikKaynak.TelSurmeHizi,
+                                anlikKaynak.KaynakHizi, 
                                 anlikKaynak.OlcumZamani.ToString("yyyy-MM-dd HH:mm:ss")
                             );
 
@@ -312,7 +349,18 @@ namespace FanucRelease.Services
                         }
 
                         else if (veri.ToString().Contains("KayOFF"))
-                        {
+                        {   
+                        // 🔹 O ana kadar biriken anlık verilerin DERİN kopyası
+                            var kaynakAnlik = anlikKaynaklar
+                                .Select(a => new AnlikKaynak {
+                                    OlcumZamani = a.OlcumZamani,
+                                    Voltaj = a.Voltaj,
+                                    Amper = a.Amper,
+                                    TelSurmeHizi = a.TelSurmeHizi,
+                                    KaynakHizi = a.KaynakHizi,
+                                }).ToList();
+
+
                             string kaynak_verileri = veri.ToString().Replace("KayOFF", string.Empty);
                             string[] kaynak_parcalar = kaynak_verileri.Split('|', StringSplitOptions.RemoveEmptyEntries);
                             kaynak = new Kaynak
@@ -327,10 +375,44 @@ namespace FanucRelease.Services
                                 SrcNo = kaynak_parcalar.Length > 6 ? int.Parse(kaynak_parcalar[6]) : 0,
                                 basarili_mi = kaynak_parcalar.Length > 6 ? bool.Parse(kaynak_parcalar[7]) : false,
                                 KaynakAdi = "Kaynak-" + kaynak_parcalar[8].ToString(),
-                                AnlikKaynaklar = anlikKaynaklar,
+                                AnlikKaynaklar = kaynakAnlik,
                                 ProgramVerisi = programVerisi // ✅ Foreign key yerine entity referansı
                             };
                             kaynaklar.Add(kaynak);
+                            // 🔹 Yeni kaynak için temiz bir liste
+                            anlikKaynaklar = new List<AnlikKaynak>();
+                             // 4) ✨ KAYNAĞI ANINDA DB'YE YAZ ✨
+                            try
+                            {
+                                using (var scope = _services.CreateScope())
+                                {
+                                    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+                                    // ProgramVerisi henüz DB'ye eklenmemişse ekle
+                                    if (programVerisi.Id == 0)
+                                    {
+                                        db.ProgramVerileri.Add(programVerisi);
+                                        await db.SaveChangesAsync();
+                                    }
+                                    else
+                                    {
+                                        db.Attach(programVerisi);  // 🔥 EKLENECEK
+                                    }
+
+                                    // Şimdi kaynağı kaydet
+                                    db.Kaynaklar.Add(kaynak);
+                                    await db.SaveChangesAsync();
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                LogToFile("Kaynak veri tabanına yazılırken hata oluştu", ex);
+                            }
+
+
+
+
+
                             veri.Clear();
 
                         }
@@ -412,10 +494,7 @@ namespace FanucRelease.Services
 
                         }
 
-                        else
-                        {
-                            tempData.Add(veri.ToString());
-                        }
+                       
 
                     }
 
@@ -455,7 +534,7 @@ namespace FanucRelease.Services
                         {
                             mevcutOperator = await db.Operators.FirstOrDefaultAsync(o => o.KullaniciAdi == operatorKullaniciAdi);
                         }
-                        
+
 
                         // 🟢 3. Program verisine operator ID’yi bağla
                         if (mevcutOperator != null)
@@ -464,10 +543,17 @@ namespace FanucRelease.Services
                         }
 
 
-                        db.ProgramVerileri.Add(programVerisi);
+                        // db.ProgramVerileri.Update(programVerisi);
+
+                        // 🔥 SORUNSUZ ÇÖZÜM BURADA 🔥
+                        if (programVerisi.Id > 0)
+                            db.ProgramVerileri.Update(programVerisi);
+                        else
+                            db.ProgramVerileri.Add(programVerisi);
+
                         db.Hatalar.AddRange(hatalar);
-                        db.Kaynaklar.AddRange(kaynaklar);
-                        db.AnlikKaynaklar.AddRange(anlikKaynaklar);
+                        // db.Kaynaklar.AddRange(kaynaklar);
+                        // db.AnlikKaynaklar.AddRange(anlikKaynaklar);
                         await db.SaveChangesAsync();
                     }
                 }

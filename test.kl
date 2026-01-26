@@ -4,33 +4,24 @@ PROGRAM  com_pc
 %NOLOCKGROUP
 %ENVIRONMENT ERRs
 %ENVIRONMENT TIM
-%ENVIRONMENT uif
-%ENVIRONMENT sysdef
-%ENVIRONMENT memo
-%ENVIRONMENT kclop
-%ENVIRONMENT bynam
 %ENVIRONMENT iosetup
 %ENVIRONMENT fdev
-%ENVIRONMENT flbt
 %ENVIRONMENT STRNG
-%INCLUDE klevccdf
-%INCLUDE klevkeys
-%INCLUDE klevkmsk
+%ENVIRONMENT flbt
+
 
 VAR 
 status : INTEGER
 entry : INTEGER
+baglanti_var_mi:BOOLEAN
+is_pause : INTEGER
 file_var : FILE
 prog_adi : STRING[50]
 kaynak_sayisi : INTEGER
 kaynak_basari:STRING[8]
-weld_no :INTEGER
 kaynak_aninda :INTEGER
-weld_start :BOOLEAN
+arc_on : BOOLEAN
 
-
-manuel_mudahele:INTEGER
-prog_no :INTEGER
 
 --kaynak verileri
 kaynak_saati :STRING[20]
@@ -38,7 +29,8 @@ toplam_sure : INTEGER
 bas_satiri : INTEGER
 bit_satiri : INTEGER
 task_num:INTEGER
-curr_line:INTEGER
+curr_line_stop:INTEGER
+curr_line_start:INTEGER
 kay_uzunlugu : STRING[20]
 prc_no:INTEGER
 sch_no:INTEGER
@@ -47,6 +39,8 @@ sch_no:INTEGER
 akim_ :STRING[20]
 volt_ :STRING[20]
 wfs_ :STRING[20]
+power_ :STRING[20]
+heat_input_:STRING[20]
 
 
 --ERROR  DEĞİŞKENLERİ 
@@ -57,7 +51,6 @@ cause_code  : INTEGER
 cause_str   : STRING[128]
 t_int       : INTEGER
 t_str       : STRING[24]
-
 severity    : INTEGER
 prog_name   : STRING[64]
 count : INTEGER
@@ -72,6 +65,39 @@ BEGIN
 RETURN (num)
 END get_var_int_getir
 --get_var integer  fonk.. --> bitiş
+
+
+ROUTINE robot_durumu_yolla(file_var_:FILE ;kaynak_aninda_mi:INTEGER)
+VAR 
+kaynak_no :INTEGER
+
+BEGIN
+	kaynak_no = get_var_int_getir('$AWELOG[1].$AWCURLOG.$WELDSTAT.$AS_LINE') --başlangıç satırı getir
+	seq_num = MAXINT
+	ERR_DATA(seq_num, err_code, err_str, cause_code, cause_str, 
+			t_int, severity, prog_name)
+	WRITE file_var_(err_code,'|')
+	WRITE file_var_(severity,'|')
+	WRITE file_var_(err_str,'|')
+	GET_TIME(t_int)
+	CNV_TIME_STR(t_int, t_str)
+	WRITE file_var_(t_str,'|')
+	WRITE file_var_(kaynak_aninda_mi,'|')
+	WRITE file_var_(kaynak_no,'|'::7) --kaynak no yollama işlemi
+	WRITE file_var_('hataalindi'::10)
+
+END robot_durumu_yolla
+
+
+ROUTINE program_sifirla(file_var_:FILE ;kaynak_sayisi_:INTEGER;status:INTEGER)
+BEGIN
+		WRITE file_var_(kaynak_sayisi_)
+		WRITE file_var_('progbitti'::9)
+		DELAY 300
+		CLOSE FILE file_var_
+		MSG_DISCO('C3:',status)
+		
+END program_sifirla
 
 
 --get_var string  fonk. --> başlangıç
@@ -109,10 +135,28 @@ BEGIN
 	GET_PORT_VAL(no1, no2,durum,status)
 	IF durum=1 THEN
 		RETURN (TRUE)
-	else
+	ELSE
 		RETURN (FALSE)
 	ENDIF
 END get_port_value
+--fonk.  --> bitiş
+
+
+--fonk. --> başlangıç
+ROUTINE baglanti_durumu_getir(file_var_:FILE) : BOOLEAN
+VAR 
+baglanti_durum : INTEGER
+BEGIN
+	baglanti_durum = IO_STATUS(file_var_)
+	
+	IF baglanti_durum = 0 THEN
+		RETURN (TRUE)
+	ELSE
+		RETURN (FALSE)
+	ENDIF
+
+
+END baglanti_durumu_getir
 --fonk.  --> bitiş
 
 
@@ -122,263 +166,262 @@ END get_port_value
 BEGIN
     prog_adi = ''
     kaynak_saati = ''
-    weld_no = 0
+	kaynak_sayisi = 0
     kaynak_aninda=0
     CLOSE FILE file_var	
     MSG_DISCO('C3:',status)
     GO TO program_dongusu
 
-program_dongusu::
-	prog_adi = ''
-    kaynak_saati = ''
-    weld_no = 0
-    kaynak_aninda=0
+	program_dongusu::
 
-	WRITE('programa girişi',CR)
+		prog_adi = ''
+		kaynak_saati = ''
+		kaynak_aninda =0
+		kaynak_sayisi =0
+		arc_on = FALSE
+		-- Program başladı mı kontrolü
+		WHILE TRUE DO	
+			task_num = get_var_int_getir('$SHELL_WRK.$TASK_NUM')
+				IF (task_num <> 0) AND (UOUT[6] =OFF) THEN --prog başladı ve hata yok
+					SET_FILE_ATR(file_var, ATR_IA)
+					SET_VAR(entry, 
+					'*SYSTEM*','$HOSTC_CFG[3].$SERVER_PORT',59002,status)
+					MSG_CONNECT('C3:',status)
+					OPEN FILE file_var('rw','C3:') 
+					--prog ismi yollama
+					IF (prog_adi = '') THEN
+						prog_adi = get_var_str_getir('$SHELL_WRK.$ROUT_NAME')
+						WRITE file_var(prog_adi::STR_LEN(prog_adi))
+						GET_TIME(t_int)
+						CNV_TIME_STR(t_int, t_str)
+						WRITE file_var('|',t_str)
+						WRITE file_var('RobotAktif'::10)
+					ENDIF
+					baglanti_var_mi = baglanti_durumu_getir(file_var)
+					WRITE('Baglanti yapildi mi:',baglanti_var_mi,CR)
+					IF baglanti_var_mi =TRUE THEN
+						GO TO program_calisiyor
+					ELSE
+						MSG_DISCO('C3:', status)
+						CLOSE FILE file_var
+					ENDIF
+				ENDIF
+		DELAY 400
+		ENDWHILE
 
-	 -- Program başladı mı kontrolü
-	WHILE TRUE DO	
-		task_num = get_var_int_getir('$SHELL_WRK.$TASK_NUM')
-		
-        IF (task_num <> 0) AND (UOUT[6] =OFF) THEN --prog başladı ve hata yok
-			SET_FILE_ATR(file_var, ATR_IA)
-			SET_VAR(entry, 
-			'*SYSTEM*','$HOSTC_CFG[3].$SERVER_PORT',59002,status)
-			MSG_CONNECT('C3:',status)
-			OPEN FILE file_var('rw','C3:') 
-			--prog ismi yollama
-			IF (prog_adi = '') THEN
-				prog_adi = get_var_str_getir('$SHELL_WRK.$ROUT_NAME')
-				WRITE file_var(prog_adi::STR_LEN(prog_adi))
-				GET_TIME(t_int)
-				CNV_TIME_STR(t_int, t_str)
-				WRITE file_var('|',t_str)
-				WRITE file_var('RobotAktif'::10)
+
+	program_calisiyor::  --program başladı  kaynak bekleme alanı 
+
+		WHILE TRUE DO
+			DELAY 200
+			task_num = get_var_int_getir('$SHELL_WRK.$TASK_NUM')
+			is_pause = get_var_int_getir('$OPWORK.$INTPPAUSED')
+			GET_VAR(entry, '*SYSTEM*', '$AWEPOR[1].$ARC_ON', arc_on, status)
+			
+
+			--Program başarılı bir şekilde tamamlandı  REGİON
+			IF 	(task_num = 0) AND (UOUT[6] = OFF ) AND (is_pause = 0) AND (UOUT[5] =OFF) THEN
+				program_sifirla(file_var,kaynak_sayisi,status) 
+				GO TO program_dongusu --program yeniden başlatılırsa en başa dön
 			ENDIF
-			GO TO program_calisiyor
+			--Program başarılı bir şekilde tamamlandı ENDREGİON
+
+			--Kaynak işlemi başladı ise girecek REGİON
+			DELAY 200
+			IF 	(arc_on = TRUE) AND (UOUT[6] =OFF) AND (is_pause = 0) AND (UOUT[5] =OFF) THEN 
+				-- WRITE('yeni kaynak basladi',CR)
+				GO TO weld_basladi
+			ENDIF
+			--Kaynak işlemi başladı ise girecek ENDREGİON
+
+					
+			--kaynak durdu veya pause basıldı veya hold basıldı veya hata varsa
+			DELAY 250
+			is_pause = get_var_int_getir('$OPWORK.$INTPPAUSED')
+			IF  (is_pause <> 0) OR  (UOUT[5]=ON) OR (UOUT[6] = ON) THEN
+				DELAY 3000 --fault değişimini 3 saniye bekliyoruz dout üzerinden aldığımızdan
+				is_pause = get_var_int_getir('$OPWORK.$INTPPAUSED')
+				GET_VAR(entry, '*SYSTEM*', '$AWEPOR[1].$ARC_ON', arc_on, status)
+				robot_durumu_yolla(file_var,0) --pause bilgisi yolla
+				WAIT FOR (UOUT[4] = OFF) --pause kalkmasını bekle
+				GO TO program_calisiyor
+			ENDIF
+		DELAY 100
+		ENDWHILE
+
+
+	weld_basladi::
+		
+		WHILE TRUE DO 
+			DELAY 250
+			is_pause = get_var_int_getir('$OPWORK.$INTPPAUSED')
+			GET_VAR(entry, '*SYSTEM*', '$AWEPOR[1].$ARC_ON', arc_on, status)
+			
+
+			--anlık verileri yolla
+			IF 	(arc_on = TRUE) AND (UOUT[6] =OFF) AND (is_pause = 0)  AND (UOUT[5] =OFF) THEN
+				akim_ =get_var_anlik('$AWEPOR[1].$AMPS_FDBK')
+				volt_  = get_var_anlik('$AWEPOR[1].$VOLTS_FDBK')
+				wfs_  =get_var_anlik('$AWEPOR[1].$WFS_FDBK')
+				power_ =get_var_anlik('$AWEPOR[1].$POWER')
+				heat_input_ =get_var_anlik('$AWEPOR[1].$HEAT_INPUT')
+				WRITE file_var(volt_,'|')
+				WRITE file_var(akim_,'|')
+				WRITE file_var(wfs_,'|')
+				WRITE file_var(power_,'|')
+				WRITE file_var(heat_input_,'|')
+				WRITE file_var('anlikveri'::9)
+
+				baglanti_var_mi = baglanti_durumu_getir(file_var)	
+				IF baglanti_var_mi = FALSE THEN
+					-- BURADA ARTIK BİLİYORSUN Kİ C# İLE HABERLEŞME BOZULDU
+					WRITE('anlik veriler yollanirken baglanti koptu',baglanti_var_mi,CR)
+					MSG_DISCO('C3:', status)
+					CLOSE FILE file_var
+					-- Programı nasıl davranmasını istiyorsan öyle yönlendir:
+					GO TO program_dongusu
+				ENDIF
+
+
+				DELAY 400
+			
+			ENDIF
+			--anlık verileri yolla
+			
+			--kaynak durdu veya pause basıldı veya hold basıldı veya hata varsa
+			IF (arc_on = FALSE) OR (is_pause <> 0) OR  (UOUT[5]=ON) OR (UOUT[6] = ON) THEN
+
+				DELAY 2000 --fault değişimini 3 saniye bekliyoruz dout üzerinden aldığımızdan
+				is_pause = get_var_int_getir('$OPWORK.$INTPPAUSED')
+				GET_VAR(entry, '*SYSTEM*', '$AWEPOR[1].$ARC_ON', arc_on, status)
+
+				IF (arc_on = FALSE)  AND (UOUT[5]=OFF) AND (is_pause <> 0)  AND (UOUT[6] =OFF) THEN --SHİFTTEN ELİNİ ÇEKTİ
+					baglanti_var_mi = baglanti_durumu_getir(file_var)	
+					robot_durumu_yolla(file_var,1) --pause bilgisi yolla
+					WAIT FOR (UOUT[4] = OFF) --pause kalkmasını bekle
+					GO TO weld_basladi
+				ENDIF
+				
+				IF (arc_on = FALSE)  AND (UOUT[5]=ON) AND (is_pause <> 0)  AND (UOUT[6] =OFF) THEN --HOLD DURUMU
+					robot_durumu_yolla(file_var,1) --hold bilgisi yolla
+					WAIT FOR (UOUT[4] = OFF) --pause kalkmasını bekle
+					GO TO weld_basladi
+				ENDIF
+
+				IF (arc_on = FALSE)  AND (UOUT[5]=OFF) AND (is_pause <> 0)  AND (UOUT[6] =ON) THEN --FAULT DURUMU
+					GET_VAR(entry, '*SYSTEM*', '$SHELL_WRK.$CURR_LINE', curr_line_stop, status)  --Hata alınan satır
+					robot_durumu_yolla(file_var,1) --FAULT bilgisi yolla
+					WAIT FOR (UOUT[4] = OFF) --pause kalkmasını bekle
+					GET_VAR(entry, '*SYSTEM*', '$SHELL_WRK.$CURR_LINE', curr_line_start, status)  --Hatadan sonra başlanan satır
+					-- DELAY 500
+					-- GET_VAR(entry, '*SYSTEM*', '$AWEPOR[1].$ARC_ON', arc_on, status) --arc_on açıksa kaynağa devam
+					IF curr_line_stop = curr_line_start  THEN
+						GO TO weld_basladi
+					ELSE
+						GO TO weld_basarisiz_bitti
+					ENDIF
+				ENDIF
+				
+				--kaynak başarılı bir şekilde tamamlandı
+				IF 	(arc_on = FALSE) AND (UOUT[6] =OFF)  AND (is_pause = 0)  AND (UOUT[5] = OFF) AND (task_num <> 0)  THEN --weld başarılı bitti 
+					-- WRITE('kaynaktan basarili cikis yapildi',CR)
+					GO TO weld_basarili_bitti
+				ENDIF
+				--kaynak başarılı bir şekilde tamamlandı	
+			ENDIF
+
+			--program kaynak sırasında sıfırlanma durumunda kendini sıfırlasın
+			task_num = get_var_int_getir('$SHELL_WRK.$TASK_NUM')
+			IF ( task_num = 0) THEN
+				-- WRITE ('program kaynaktayken tamamlanamadi',CR)
+				program_sifirla(file_var,kaynak_sayisi,status)
+				GO TO program_dongusu --program yeniden başlatılırsa en başa dön
+			--program kaynak sırasında sıfırlanma durumunda kendini sıfırlasın
+			ENDIF
+
+		ENDWHILE
+
+
+	weld_basarili_bitti::
+
+		kaynak_basari='True'
+		DELAY 100
+		GO TO weld_bitti
+
+
+	weld_basarisiz_bitti::
+
+		kaynak_basari='False'
+		GO TO weld_bitti
+
+
+	weld_bitti::
+
+		WAIT FOR (DOUT[201] = OFF)
+		DELAY 100
+		
+		kaynak_saati = get_var_str_getir('$AWELOG[1].$AWCURLOG.$WELDSTAT.$TIME_STRING') --başlangıç saati
+		toplam_sure = get_var_int_getir('$AWELOG[1].$AWCURLOG.$WELDSTAT.$WELD_TIME') --toplam kaynak sure
+		kay_uzunlugu =get_var_anlik('$AWELOG[1].$AWCURLOG.$WELDSTAT.$WELD_DIST')  --Kaynak uzunlugu getir
+		bas_satiri = get_var_int_getir('$AWELOG[1].$AWCURLOG.$WELDSTAT.$AS_LINE') --başlangıç satırı getir
+		bit_satiri = get_var_int_getir('$AWELOG[1].$AWCURLOG.$WELDSTAT.$AE_LINE') --bitiş satırı getir
+		prc_no = get_var_int_getir('$AWEPOR[1].$WLD_PRC_NUM') --prc no getir
+		sch_no = get_var_int_getir('$AWEPOR[1].$WLD_SCH_NUM') --sch no getir	
+		kaynak_sayisi = kaynak_sayisi + 1
+		IF toplam_sure <= 0 THEN
+			toplam_sure = 0
 		ENDIF
-	DELAY 400
-	ENDWHILE
+		
+		IF bas_satiri <= 0 THEN
+			bas_satiri = 0
+		ENDIF
+		
+		IF bit_satiri <= 0 THEN
+			bit_satiri = 0
+		ENDIF
+		
+		IF prc_no <= 0 THEN
+			prc_no = 0
+		ENDIF
+		
+		IF sch_no <= 0 THEN
+			sch_no = 0
+		ENDIF
+		DELAY 100
 
-program_calisiyor::  --program başladı  kaynak bekleme alanı 
-	WHILE TRUE DO
-		task_num = get_var_int_getir('$SHELL_WRK.$TASK_NUM')
-		--Program başarılı bir şekilde tamamlandı  REGİON
-		IF 	(task_num = 0 ) AND (UOUT[6] = OFF ) THEN 
-			WRITE file_var(kaynak_sayisi)
-			WRITE file_var('progbitti'::9)
-			DELAY 300
+		baglanti_var_mi = baglanti_durumu_getir(file_var)
+		IF baglanti_var_mi = FALSE THEN
+			-- BURADA ARTIK BİLİYORSUN Kİ C# İLE HABERLEŞME BOZULDU
+			WRITE('kaynak bitisinde baglanti koptu',baglanti_var_mi,CR)
+			MSG_DISCO('C3:', status)
 			CLOSE FILE file_var
-			MSG_DISCO('C3:',status)
-
+			-- Programı nasıl davranmasını istiyorsan öyle yönlendir:
 			GO TO program_dongusu
 		ENDIF
-		--Program başarılı bir şekilde tamamlandı ENDREGİON
-		
-		--Kaynak işlemi başladı ise girecek REGİON
-		IF 	(DOUT[201] = ON) AND (UOUT[6] =OFF) THEN 
-			GO TO weld_basladi
-		ENDIF
-		--Kaynak işlemi başladı ise girecek ENDREGİON
 
-		IF 	(UOUT[4] =ON)  OR (UOUT[5] =ON)  THEN -- eğer program pause olduysa
-			DELAY 3000  --bekle pause'tan sonra hata var mı ,varsa hataya girdi yoksa durduruldu
-			IF UOUT[6] =ON THEN --hata varmış program durdurulmamış
-				kaynak_aninda = 0
-				GO TO hata_durumuna_dustu --kaynak yapmadan önceki hatayı yollamak için 
-			ELSE
-				--program durduruldu bilgisi yollama kısmı-- REGİON
-				seq_num = MAXINT
-				ERR_DATA(seq_num, err_code, err_str, cause_code, cause_str, 
-						t_int, severity, prog_name)
-				WRITE file_var(err_code,'|')
-				WRITE file_var(severity,'|')
-				WRITE file_var(err_str,'|')
-				GET_TIME(t_int)
-				CNV_TIME_STR(t_int, t_str)
-				WRITE file_var(t_str,'|')
-				WRITE file_var(0,'|')
-				WRITE file_var(weld_no,'|'::7) --kaynak no yollama işlemi
-				WRITE file_var('hataalindi'::10)
-				DELAY 200
-				--program durduruldu bilgisi yollama kısmı-- ENDREGİON
-				
-				WAIT FOR (UOUT[4]=OFF) AND (UOUT[5]=OFF) --pausetan ve holdtan çıkana kadar bekle 
-				DELAY 100
-				task_num = get_var_int_getir('$SHELL_WRK.$TASK_NUM')
-				IF (task_num=0) THEN
-					WRITE ('program tamamlanamadi',CR)
-					WRITE file_var(kaynak_sayisi)
-					WRITE file_var('progbitti'::9)
-					DELAY 300
-					CLOSE FILE file_var
-					MSG_DISCO('C3:',status)
-					GO TO program_dongusu --program yeniden başlatılırsa en başa dön
-				ELSE
-					GO TO program_calisiyor --program yeniden başlatılmasa devam et 
-				ENDIF
-			ENDIF
-		ENDIF
-	DELAY 300
-	ENDWHILE
-
-weld_basladi::
-	WHILE TRUE DO 
-		akim_ =get_var_anlik('$AWEPOR[1].$AMPS_FDBK')
-		volt_  = get_var_anlik('$AWEPOR[1].$VOLTS_FDBK')
-		wfs_  =get_var_anlik('$AWEPOR[1].$WFS_FDBK')
-		WRITE file_var(volt_,'|')
-		WRITE file_var(akim_,'|')
-		WRITE file_var(wfs_,'|')
-		WRITE file_var('anlikveri'::9)
-		DELAY 400
+		WRITE file_var (kaynak_saati::20,'|'::3)
+		WRITE file_var (toplam_sure::10, '|'::3)
+		WRITE file_var (kay_uzunlugu::STR_LEN(kay_uzunlugu), '|')
+		WRITE file_var (bas_satiri::4,'|'::3)
+		WRITE file_var (bit_satiri::4, '|'::3)
+		WRITE file_var (prc_no::2, '|'::3)
+		WRITE file_var (sch_no::2, '|'::3)
+		WRITE file_var (kaynak_basari,'|'::8)
+		WRITE file_var (bas_satiri::4, '|') --kaynak numarası
+		WRITE file_var ('KayOFF'::6)
 		
-		--weld end kısmı geldi
-		IF 	(DOUT[201] = OFF) AND (UOUT[6] =OFF) AND (UOUT[4] =OFF)  AND (UOUT[5] =OFF) THEN --weld başarılı bitti 
-			WRITE('basarili bitti',CR)
-			GO TO weld_basarili_bitti
+		
+		IF kaynak_basari = 'True' THEN
+			-- WRITE('Kaynak basari ile tamamlandi',CR)
+			GO TO program_calisiyor
+		ELSE
+			-- WRITE('Kaynak basarisiz tamamlandi',CR)
+			GO TO program_calisiyor
 		ENDIF
 		
-		IF  (DOUT[201] = OFF) AND (UOUT[4] =ON) THEN
-			DELAY 3000
-			IF  (UOUT[6] =ON)  THEN -- kaynak anında program hataya düştü 
-				WRITE('basarisiz bitti',CR)
-				GO TO weld_basarisiz_bitti
-			ELSE
-				--kaynak durduruldu bilgisi yollama kısmı-- REGİON
-				seq_num = MAXINT
-				ERR_DATA(seq_num, err_code, err_str, cause_code, cause_str, 
-						t_int, severity, prog_name)
-				WRITE file_var(err_code,'|')
-				WRITE file_var(severity,'|')
-				WRITE file_var(err_str,'|')
-				GET_TIME(t_int)
-				CNV_TIME_STR(t_int, t_str)
-				WRITE file_var(t_str,'|')
-				WRITE file_var(1,'|')
-				WRITE file_var(weld_no,'|'::7) --kaynak no yollama işlemi
-				WRITE file_var('hataalindi'::10)
-				DELAY 400
-				--kaynak  durduruldu bilgisi yollama kısmı-- ENDREGİON
-				
-				
-				WAIT FOR (UOUT[4]=OFF) AND (UOUT[5]=OFF) --pausetan ve holdtan çıkana kadar bekle 
-				DELAY 100
-				task_num = get_var_int_getir('$SHELL_WRK.$TASK_NUM')
-				IF (task_num=0) THEN
-					WRITE ('program kaynaktayken tamamlanamadi',CR)
-					WRITE file_var(kaynak_sayisi)
-					WRITE file_var('progbitti'::9)
-					DELAY 300
-					CLOSE FILE file_var
-					MSG_DISCO('C3:',status)
-					GO TO program_dongusu --program yeniden başlatılırsa en başa dön
-				IF  (DOUT[201] = ON) AND (UOUT[6]= OFF) THEN
-					GO TO weld_basladi
-				ELSE
-					GO TO program_calisiyor --program yeniden başlatılırsa devam et 
-				ENDIF	
-				
-				ENDIF
-			ENDIF	
 
-		ENDIF
-	DELAY 1000
-	ENDWHILE
+		DELAY 500
+	--Program başladı mı araması -son 
 
-weld_basarili_bitti::
-	kaynak_basari='True'
-	DELAY 100
-	GO TO weld_bitti
-
-weld_basarisiz_bitti::
-	kaynak_basari='False'
-	DELAY 100
-	GO TO weld_bitti
-
-weld_bitti::
-	kaynak_saati = get_var_str_getir('$AWELOG[1].$AWCURLOG.$WELDSTAT.$TIME_STRING') --başlangıç saati
-	toplam_sure = get_var_int_getir('$AWELOG[1].$AWCURLOG.$WELDSTAT.$WELD_TIME') --toplam kaynak sure
-	kay_uzunlugu =get_var_anlik('$AWELOG[1].$AWCURLOG.$WELDSTAT.$WELD_DIST')  --Kaynak uzunlugu getir
-	bas_satiri = get_var_int_getir('$AWELOG[1].$AWCURLOG.$WELDSTAT.$AS_LINE') --başlangıç satırı getir
-	bit_satiri = get_var_int_getir('$AWELOG[1].$AWCURLOG.$WELDSTAT.$AE_LINE') --bitiş satırı getir
-	prc_no = get_var_int_getir('$AWEPOR[1].$WLD_PRC_NUM') --prc no getir
-	sch_no = get_var_int_getir('$AWEPOR[1].$WLD_SCH_NUM') --sch no getir	
-	kaynak_sayisi = kaynak_sayisi + 1
-	
-	IF toplam_sure <= 0 THEN
-		   toplam_sure = 1
-	ENDIF
-	
-	IF bas_satiri <= 0 THEN
-		   bas_satiri = 1
-	ENDIF
-	
-	IF bit_satiri <= 0 THEN
-		   bit_satiri = 1
-	ENDIF
-	
-	IF prc_no <= 0 THEN
-		   prc_no = 1
-	ENDIF
-	
-	IF sch_no <= 0 THEN
-		   sch_no = 1
-	ENDIF
-	
-	DELAY 100
-	
-	IF kaynak_basari = 'True' THEN
-		WRITE('Kaynak basari  ile tamamlandi',CR)
-		WRITE file_var(kaynak_saati::20,'|'::3)
-		WRITE file_var(toplam_sure::TRUNC(LN(ABS(toplam_sure)) / LN(10.0))+1,'|'::3)
-		WRITE file_var(kay_uzunlugu::STR_LEN(kay_uzunlugu),'|')
-		WRITE file_var(bas_satiri::TRUNC(LN(ABS(bas_satiri)) / LN(10.0))+1,'|'::3)
-		WRITE file_var(bit_satiri::TRUNC(LN(ABS(bit_satiri)) / LN(10.0))+1,'|'::3)
-		WRITE file_var(prc_no::TRUNC(LN(ABS(prc_no)) / LN(10.0))+1,'|'::3)
-		WRITE file_var(sch_no::TRUNC(LN(ABS(sch_no)) / LN(10.0))+1,'|'::3)
-		WRITE file_var(kaynak_basari,'|'::8)
-		WRITE file_var(weld_no,'|') --kaynak no yollama işlemi
-		WRITE file_var('KayOFF'::6)
-		weld_no = weld_no + 1
-		GO TO program_calisiyor
-	ELSE
-		WRITE('Kaynak basarisiz  tamamlandi',CR)
-		WRITE file_var(kaynak_saati::20,'|'::3)
-		WRITE file_var('0','|'::3)
-		WRITE file_var('0','|')
-		WRITE file_var(bas_satiri::TRUNC(LN(ABS(bas_satiri)) / LN(10.0))+1,'|'::3)
-		WRITE file_var('0','|'::3)
-		WRITE file_var(prc_no::TRUNC(LN(ABS(prc_no)) / LN(10.0))+1,'|'::3)
-		WRITE file_var(sch_no::TRUNC(LN(ABS(sch_no)) / LN(10.0))+1,'|'::3)
-		WRITE file_var(kaynak_basari,'|'::8)
-		WRITE file_var(weld_no,'|'::6) --kaynak no yollama işlemi
-		WRITE file_var('KayOFF'::6)
-		kaynak_aninda = 1
-		GO TO hata_durumuna_dustu
-	ENDIF
-	
-hata_durumuna_dustu::
-	seq_num = MAXINT
-	ERR_DATA(seq_num, err_code, err_str, cause_code, cause_str, 
-			t_int, severity, prog_name)
-	WRITE(severity,CR)
-	WRITE file_var(err_code,'|')
-	WRITE file_var(severity,'|')
-	WRITE file_var(err_str,'|')
-	GET_TIME(t_int)
-	CNV_TIME_STR(t_int, t_str)
-	WRITE file_var(t_str,'|')
-	WRITE file_var(kaynak_aninda,'|'::4)
-	WRITE file_var(weld_no,'|'::7) --kaynak no yollama işlemi
-	WRITE file_var('hataalindi'::10)
-	DELAY 500
-	WRITE('Sistemde hata algilandi',CR) 
-	WAIT FOR UOUT[6] = OFF
-	WAIT FOR UOUT[4] = OFF
-	GO TO program_calisiyor
-
-DELAY 500
---Program başladı mı araması -son 
- END com_pc
+END com_pc
 --main --> bitiş

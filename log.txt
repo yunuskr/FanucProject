@@ -1,0 +1,14 @@
+[2025-11-05 16:24:15] robot_status.json dosyası güncellenemedi! Yol: C:\Users\ahmet.cakar\Desktop\Projelerim\FanucProject\bin\Debug\net9.0\data\robot_status.json
+System.IO.IOException: The process cannot access the file 'C:\Users\ahmet.cakar\Desktop\Projelerim\FanucProject\bin\Debug\net9.0\data\robot_status.json.tmp' because it is being used by another process.
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.File.WriteToFile(String path, FileMode mode, ReadOnlySpan`1 contents, Encoding encoding)
+   at System.IO.File.WriteAllText(String path, String contents)
+   at FanucRelease.Services.RobotTcpListenerService.SaveRobotStatusToFile() in C:\Users\ahmet.cakar\Desktop\Projelerim\FanucProject\Services\RobotTcpListenerService.cs:line 68
+[2025-11-05 16:26:56] robot_status.json dosyası güncellenemedi! Yol: C:\Users\ahmet.cakar\Desktop\Projelerim\FanucProject\bin\Debug\net9.0\data\robot_status.json
+System.IO.IOException: The process cannot access the file 'C:\Users\ahmet.cakar\Desktop\Projelerim\FanucProject\bin\Debug\net9.0\data\robot_status.json.tmp' because it is being used by another process.
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.File.WriteToFile(String path, FileMode mode, ReadOnlySpan`1 contents, Encoding encoding)
+   at System.IO.File.WriteAllText(String path, String contents)
+   at FanucRelease.Services.RobotTcpListenerService.SaveRobotStatusToFile() in C:\Users\ahmet.cakar\Desktop\Projelerim\FanucProject\Services\RobotTcpListenerService.cs:line 68

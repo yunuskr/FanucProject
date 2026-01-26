@@ -1,6 +1,6 @@
 @{
     ViewData["Title"] = "Robot Canlı İzleme";
-    Layout = "_Layout";
+    Layout = "_Layout"; // ana şablonun
     var kaynakId = (int?)ViewBag.KaynakId;
 }
 
@@ -47,7 +47,7 @@
 }
 
 <div class="container-fluid py-4 page-container">
-    <!-- Header -->
+    <!-- Premium Header -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card glass-card"
@@ -63,8 +63,8 @@
                                 style="font-size:var(--font-size-3xl);font-weight:800;color:#111827;text-shadow:0 2px 4px rgba(0,0,0,.1);">
                                 Robot Canlı İzleme
                             </h3>
-                            <p class="mb-0" style="color:#6B7280;font-size:var(--font-size-lg);font-weight:500;">
-                                <i class="fas fa-satellite-dish me-2" style="color:var(--gold-secondary);"></i>
+                            <p class="mb-0" style="color: #6B7280; font-size: var(--font-size-lg); font-weight: 500;">
+                                <i class="fas fa-satellite-dish me-2" style="color: var(--gold-secondary);"></i>
                                 Gerçek zamanlı kaynak verileri ve performans analizi
                             </p>
                         </div>
@@ -74,7 +74,7 @@
                         {
                             <div class="badge-premium d-flex align-items-center gap-2">
                                 <i class="fas fa-layer-group"></i>
-                                <span style="font-weight:700;">Kaynak ID: @kaynakId.Value</span>
+                                <span style="font-weight: 700;">Kaynak ID: @kaynakId.Value</span>
                             </div>
                         }
                         <div id="program-pill" class="d-flex align-items-center gap-3 px-3 py-2"
@@ -94,10 +94,10 @@
         </div>
     </div>
 
-    <!-- Metric Cards -->
+    <!-- Premium Metric Cards -->
     <div class="row g-4 mb-5">
         <div class="col-lg-4">
-            <div class="card metric-card h-100">
+            <div class="card metric-card h-100" style="animation: fadeInUp 0.6s ease-out 0.1s both;">
                 <div class="card-body">
                     <div class="metric-icon" id="robot-icon-container">
                         <img src="~/images/robot-hand.png" class="metric-icon-img" alt="Robot" />
@@ -127,7 +127,7 @@
         </div>
 
         <div class="col-lg-4">
-            <div class="card metric-card h-100">
+            <div class="card metric-card h-100" style="animation: fadeInUp 0.6s ease-out 0.2s both;">
                 <div class="card-body">
                     <div class="metric-icon"
                         style="background:linear-gradient(135deg,rgba(240,151,1,.15) 0%,rgba(250,206,0,.05) 100%);color:var(--gold-secondary);">
@@ -150,7 +150,8 @@
         </div>
 
         <div class="col-lg-4">
-            <div id="system-status-card" class="card metric-card h-100" data-status="normal">
+            <div id="system-status-card" class="card metric-card h-100" data-status="normal"
+                style="animation: fadeInUp 0.6s ease-out 0.3s both;">
                 <div class="card-body">
                     <div id="system-status-icon" class="metric-icon"
                         style="background:linear-gradient(135deg,rgba(16,185,129,.15) 0%,rgba(16,185,129,.05) 100%);color:#10B981;">
@@ -199,21 +200,33 @@
 </div>
 
 @section Scripts {
+    <!-- SignalR JS (local) -->
     <script src="~/lib/microsoft-signalr/8.0.0/signalr.min.js" asp-append-version="true"></script>
+    <!-- Chart.js (local) -->
+    <script src="~/lib/chart.js/4.4.1/chart.umd.min.js" asp-append-version="true"></script>
+
     <script>
-        // ---------------- UI helpers ----------------
+        // --- Shared helpers (avoid duplication) ---
         function setProgramPill(running, programText) {
             const name = document.getElementById('program-name');
             const dot = document.getElementById('program-status-dot');
             const lbl = document.getElementById('program-state-label');
             if (running) {
-                dot.classList.remove('inactive'); dot.classList.add('active'); dot.style.background = '#10B981';
-                lbl.textContent = 'ÇALIŞIYOR'; lbl.style.background = 'rgba(16,185,129,.15)'; lbl.style.color = '#059669';
-                name.textContent = (programText?.trim() || 'Program Bilgisi');
+                progDot.classList.remove('inactive');
+                progDot.classList.add('active');
+                progDot.style.background = '#10B981';
+                progState.textContent = 'ÇALIŞIYOR';
+                progState.style.background = 'rgba(16,185,129,0.15)';
+                progState.style.color = '#059669';
+                if (progNameEl) progNameEl.textContent = (programText && programText.trim() !== '') ? programText : 'Program Bilgisi';
             } else {
-                dot.classList.remove('active'); dot.classList.add('inactive'); dot.style.background = '#DC2626';
-                lbl.textContent = 'BEKLEME'; lbl.style.background = 'rgba(107,114,128,.15)'; lbl.style.color = '#6B7280';
-                name.textContent = 'Program Yok';
+                progDot.classList.remove('active');
+                progDot.classList.add('inactive');
+                progDot.style.background = '#DC2626';
+                progState.textContent = 'BEKLEME';
+                progState.style.background = 'rgba(107,114,128,0.15)';
+                progState.style.color = '#6B7280';
+                if (progNameEl) progNameEl.textContent = 'Program Yok';
             }
         }
 
@@ -289,17 +302,22 @@
             renderEmptyRows();
         });
 
-        // ---------------- SignalR ----------------
+        // SignalR bağlantısı
         const connection = new signalR.HubConnectionBuilder()
             .withUrl("/robotStatusHub")
             .configureLogging(signalR.LogLevel.Information)
             .build();
 
-        connection.on("ReceiveRobotStatus", (status, prog) => {
-            const running = status === "Calisiyor";
-            setProgramPill(running, prog);
-            applyRobotStatusStyles(running);
-            if (running) resetLiveData();
+        // Her yeni program başladığında grafik ve tablo verilerini sıfırla
+        connection.on("ReceiveRobotStatus", (status, prog_baslat) => {
+            if (status === "Calisiyor") {
+                resetLiveData();
+                setProgramPill(true, prog_baslat);
+                applyRobotStatusStyles(true);
+            } else {
+                setProgramPill(false, '');
+                applyRobotStatusStyles(false);
+            }
         });
 
         connection.on("ReceiveSystemStatus", (sysStatus) => {
@@ -338,7 +356,7 @@
         badge.innerHTML = isFault
             ? '<i class="fas fa-exclamation-triangle me-1"></i><span id="alarm-indicator-text">FAULT</span>'
             : '<i class="fas fa-check-circle me-1"></i><span id="alarm-indicator-text">OK</span>';
-                        });
+                            });
 
         // Canlı veri geldiğinde grafik ve tabloya ekle
         connection.on("ReceiveLiveData", (amper, voltaj, telSurmeHizi, kaynakHizi, zamanIso) => {
@@ -370,6 +388,127 @@
             updateTable('tbl-tel', telSurmeHizi, timeLabel, 'w');
         });
 
-        connection.start().catch(console.error);
+        // Chart helpers
+        const makeChart = (canvasId, label, color = '#007bff') => {
+            const ctx = document.getElementById(canvasId);
+            return new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: label,
+                        data: [],
+                        borderColor: color,
+                        backgroundColor: color + '20',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 3,
+                        pointHoverRadius: 6,
+                        borderWidth: 3,
+                        pointBackgroundColor: color,
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeInOutQuart'
+                    },
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 8,
+                                color: '#6c757d'
+                            },
+                            grid: { color: 'rgba(0,0,0,0.1)' },
+                            title: {
+                                display: true,
+                                text: 'Zaman',
+                                color: '#495057'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0,0,0,0.1)' },
+                            ticks: {
+                                color: '#6c757d'
+                            },
+                            title: {
+                                display: true,
+                                text: label,
+                                color: '#495057'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 15
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(0,0,0,0.8)',
+                            titleColor: 'white',
+                            bodyColor: 'white',
+                            borderColor: color,
+                            borderWidth: 1
+                        }
+                    }
+                }
+            });
+        };
+
+        const chA = makeChart('chartAmper', 'Amper (A)', '#dc3545');    // Kırmızı
+        const chV = makeChart('chartVoltaj', 'Voltaj (V)', '#28a745');  // Yeşil
+        const chW = makeChart('chartTel', 'Tel Hızı', '#ffc107');       // Sarı
+
+        // Grafik verilerini tutmak için arrays
+        let dataPoints = {
+            labels: [],
+            amper: [],
+            voltaj: [],
+            telHizi: []
+        };
+
+        // Maksimum veri noktası sayısı
+        const MAX_DATA_POINTS = 30;
+
+        function fmtTime(iso) {
+            const d = new Date(iso);
+            return d.toLocaleTimeString('tr-TR', { hour12: false });
+        }
+
+        // Removed unused setStatus and fillTable helpers
+
+        // Tabloları güncelleme fonksiyonu
+        function updateTable(tbodyId, value, time, valueKey) {
+            const tb = document.getElementById(tbodyId);
+            // Yeni satır ekle
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${time}</td><td>${value}</td>`;
+            // En üste ekle
+            if (tb.firstChild) {
+                tb.insertBefore(tr, tb.firstChild);
+            } else {
+                tb.appendChild(tr);
+            }
+            // Maksimum 12 satır tut
+            while (tb.children.length > 12) {
+                tb.removeChild(tb.lastChild);
+            }
+        }
     </script>
 }

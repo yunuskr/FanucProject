@@ -183,7 +183,7 @@
             <div class="program-header">
                 <h4 class="program-title">
                     <i class="fa-solid fa-file"></i>
-                    En son Program: @(program?.ProgramAdi ?? "—")
+                    En son program: @(program?.ProgramAdi ?? "—")
                 </h4>
                 <div class="program-info-grid">
                     <div class="info-item">
@@ -246,10 +246,12 @@
                         var ad = $"Kaynak-{(i + 1).ToString("D2")}";
                         var bas = k.BaslangicSaati == default ? "—" : k.BaslangicSaati.ToString("HH:mm");
                         var bit = k.BitisSaati == default ? "—" : k.BitisSaati.ToString("HH:mm");
-                        var ts = k.ToplamSure != default ? k.ToplamSure.ToTimeSpan() : (k.BitisSaati - k.BaslangicSaati);
+                        var ts = k.ToplamSure != default
+                        ? k.ToplamSure.ToTimeSpan()
+                        : (k.BitisSaati - k.BaslangicSaati);
                         if (ts < TimeSpan.Zero) { ts = TimeSpan.Zero; }
                         var totalMinutes = (int)Math.Round(ts.TotalMinutes);
-                        var sureText = ts.TotalHours >= 1 ? $"{(int)ts.TotalHours} sa {ts.Minutes} dk" : $"{totalMinutes}                   dk";
+                        var sureText = ts.TotalHours >= 1 ? $"{(int)ts.TotalHours} sa {ts.Minutes} dk" : $"{totalMinutes}                    dk";
                         var statusClass = k.basarili_mi ? "success" : "danger";
                         // 'fa-times' geniş destekli (FA5/FA6 alias), görünmemeyi önler
                         var statusIcon = k.basarili_mi ? "fas fa-check" : "fas fa-times";
@@ -422,6 +424,8 @@
                     </div>
                 </div>
             </div>
+
+
         </div>
 
         <!-- Geçmiş Programlar Tablosu -->
