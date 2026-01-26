@@ -4,102 +4,152 @@
 
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>RoboEye • Giriş</title>
+    <title>ArcTab • Giriş</title>
 
     <!-- Bootstrap (local) -->
     <link rel="stylesheet" href="~/lib/bootstrap/5.3.3/css/bootstrap.min.css">
 
     <style>
-        :root{
+        :root {
             /* Altın paleti (fotoğraftaki tonlar) */
-            --gold:#face00;     /* parlak sarı */
-            --amber:#f09701;    /* sıcak turuncu */
-            --dark:#15120a;     /* çok koyu kahve/siyah */
-            --brown:#2b1d0d;    /* koyu kahve */
+            --gold: #face00;
+            /* parlak sarı */
+            --amber: #f09701;
+            /* sıcak turuncu */
+            --dark: #15120a;
+            /* çok koyu kahve/siyah */
+            --brown: #2b1d0d;
+            /* koyu kahve */
         }
 
         /* Arkaplan: çok katmanlı radyal + vignette (fotoğraftaki gibi) */
-        body{
-            min-height:100vh;
-            background-color:var(--dark);
+        body {
+            min-height: 100vh;
+            background-color: var(--dark);
             background-image:
-            /* merkez ışık */
-            radial-gradient(1200px 800px at 38% 35%,
-                rgba(250,206,0,.95) 0%,
-                rgba(240,151,1,.65) 34%,
-                rgba(240,151,1,.25) 50%,
-                rgba(21,18,10,0) 68%),
-            /* sağ üst sıcaklık */
-            radial-gradient(900px 600px at 88% 8%,
-                rgba(240,151,1,.35) 0%,
-                rgba(21,18,10,0) 60%),
-            /* sol alt koyulaştırma */
-            radial-gradient(1000px 700px at 0% 100%,
-                rgba(0,0,0,.55) 10%,
-                rgba(0,0,0,0) 60%),
-            /* genel zemin */
-            linear-gradient(180deg,#1c150a 0%, var(--dark) 100%);
-            background-attachment:fixed;
-            background-size:cover;
-            position:relative;
-            overflow-x:hidden;
+                /* merkez ışık */
+                radial-gradient(1200px 800px at 38% 35%,
+                    rgba(250, 206, 0, .95) 0%,
+                    rgba(240, 151, 1, .65) 34%,
+                    rgba(240, 151, 1, .25) 50%,
+                    rgba(21, 18, 10, 0) 68%),
+                /* sağ üst sıcaklık */
+                radial-gradient(900px 600px at 88% 8%,
+                    rgba(240, 151, 1, .35) 0%,
+                    rgba(21, 18, 10, 0) 60%),
+                /* sol alt koyulaştırma */
+                radial-gradient(1000px 700px at 0% 100%,
+                    rgba(0, 0, 0, .55) 10%,
+                    rgba(0, 0, 0, 0) 60%),
+                /* genel zemin */
+                linear-gradient(180deg, #1c150a 0%, var(--dark) 100%);
+            background-attachment: fixed;
+            background-size: cover;
+            position: relative;
+            overflow-x: hidden;
         }
 
         /* Kenarlara yumuşak vignette + çok hafif dither (banding azaltır) */
-        body::after{
-            content:""; position:fixed; inset:0; pointer-events:none;
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
             background:
-            radial-gradient(150% 130% at 50% 50%,
-                rgba(0,0,0,0) 60%, rgba(0,0,0,.45) 100%);
-            mix-blend-mode:multiply;
+                radial-gradient(150% 130% at 50% 50%,
+                    rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, .45) 100%);
+            mix-blend-mode: multiply;
         }
-        body::before{
-            content:""; position:fixed; inset:-2px; pointer-events:none;
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: -2px;
+            pointer-events: none;
             background:
-            repeating-linear-gradient(0deg,
-                rgba(255,255,255,.015) 0 2px,
-                rgba(0,0,0,.02) 2px 4px);
-            opacity:.25;
-            mix-blend-mode:overlay;
+                repeating-linear-gradient(0deg,
+                    rgba(255, 255, 255, .015) 0 2px,
+                    rgba(0, 0, 0, .02) 2px 4px);
+            opacity: .25;
+            mix-blend-mode: overlay;
         }
 
         /* Kart ve metinler (senin mevcut tasarımın) */
-        .rx-card{border:none;border-radius:1.25rem;box-shadow:0 10px 30px rgba(0,0,0,.12)}
-        .brand{font-weight:700;letter-spacing:.5px;color:#fff}
-        .brand small{opacity:.85;font-weight:500}
-        .rx-input{height:48px;border-radius:12px}
+        .rx-card {
+            border: none;
+            border-radius: 1.25rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .12)
+        }
+
+        .brand {
+            font-weight: 700;
+            letter-spacing: .5px;
+            color: #fff
+        }
+
+        .brand small {
+            opacity: .85;
+            font-weight: 500
+        }
+
+        .rx-input {
+            height: 48px;
+            border-radius: 12px
+        }
 
         /* Altın gradyan buton — görseldeki gibi */
-        .rx-btn,.rx-admin-btn{
-            height:48px; border:none; border-radius:50px; padding:12px 30px;
-            font-weight:600; color:#2a220b;
-            background:linear-gradient(90deg,var(--amber),var(--gold));
-            box-shadow:0 6px 18px rgba(240,151,1,.35);
-            transition:transform .2s ease, box-shadow .2s ease, filter .2s ease;
-        }
-        .rx-btn:hover,.rx-admin-btn:hover{
-            background:linear-gradient(90deg,var(--gold),var(--amber));
-            box-shadow:0 10px 22px rgba(240,151,1,.5);
-            transform:translateY(-2px);
-            filter:saturate(1.05);
+        .rx-btn,
+        .rx-admin-btn {
+            height: 48px;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 30px;
+            font-weight: 600;
+            color: #2a220b;
+            background: linear-gradient(90deg, var(--amber), var(--gold));
+            box-shadow: 0 6px 18px rgba(240, 151, 1, .35);
+            transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
         }
 
-        .rx-link{color:#fff;text-decoration:underline;opacity:.9}
-        .rx-badge{background:rgba(255,255,255,.15);color:#fff;border-radius:999px;padding:.35rem .75rem;font-size:.85rem}
-        
+        .rx-btn:hover,
+        .rx-admin-btn:hover {
+            background: linear-gradient(90deg, var(--gold), var(--amber));
+            box-shadow: 0 10px 22px rgba(240, 151, 1, .5);
+            transform: translateY(-2px);
+            filter: saturate(1.05);
+        }
+
+        .rx-link {
+            color: #fff;
+            text-decoration: underline;
+            opacity: .9
+        }
+
+        .rx-badge {
+            background: rgba(255, 255, 255, .15);
+            color: #fff;
+            border-radius: 999px;
+            padding: .35rem .75rem;
+            font-size: .85rem
+        }
+
         /* CSS */
         .brand-icon {
-        width: 1em;          /* yazı boyutuna göre ölçeklenir (fs-2 ile büyür) */
-        height: 1em;
-        display: inline-block;
-        vertical-align: -0.125em; /* metin tabanına daha iyi oturması için küçük düzeltme */
-        object-fit: contain; 
+            width: 1em;
+            /* yazı boyutuna göre ölçeklenir (fs-2 ile büyür) */
+            height: 1em;
+            display: inline-block;
+            vertical-align: -0.125em;
+            /* metin tabanına daha iyi oturması için küçük düzeltme */
+            object-fit: contain;
         }
     </style>
 </head>
+
 <body class="d-flex align-items-center justify-content-center">
 
     <div class="container py-5">
@@ -107,7 +157,9 @@
             <div class="col-lg-5 col-md-7">
 
                 <div class="text-center mb-4">
-                    <div class="brand fs-2">  <img src="~/icons/robot.png" alt="RoboEye logosu" class="brand-icon" /> RoboEye</div>
+                    <div class="brand fs-2"> <img src="~/images/robot-hand_w.png" alt="RoboEye logosu"
+                            class="brand-icon" />
+                        ArcTab</div>
                     <div class="text-white-50">Gerçek zamanlı robot takip ve yönetim sistemi</div>
                 </div>
 
@@ -126,7 +178,8 @@
                         @Html.AntiForgeryToken()
                         <div class="mb-3">
                             <label class="form-label" for="username">Kullanıcı Adı</label>
-                            <input class="form-control rx-input" id="username" name="username" placeholder="ör. mehmet.yilmaz" />
+                            <input class="form-control rx-input" id="username" name="username"
+                                placeholder="ör. mehmet.yilmaz" />
                         </div>
                         <button class="btn rx-btn w-100" type="submit">Giriş</button>
                     </form>
@@ -139,14 +192,15 @@
                 </div>
 
                 <div class="text-center mt-4">
-                    <small class="text-white-50">© @DateTime.Now.Year RoboEye</small>
+                    <small class="text-white-50">© @DateTime.Now.Year ArcTab</small>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Admin Modal -->
-    <div class="modal fade" id="adminLoginModal" tabindex="-1" aria-labelledby="adminLoginModalLabel" aria-hidden="true">
+    <div class="modal fade" id="adminLoginModal" tabindex="-1" aria-labelledby="adminLoginModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content" style="border-radius:1rem;">
                 <div class="modal-header">
@@ -162,13 +216,16 @@
                         @Html.AntiForgeryToken()
                         <div class="mb-3">
                             <label class="form-label" for="adminUsername">Kullanıcı Adı</label>
-                            <input type="text" class="form-control rx-input" id="adminUsername" name="adminUsername" placeholder="admin">
+                            <input type="text" class="form-control rx-input" id="adminUsername" name="adminUsername"
+                                placeholder="admin">
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="adminPassword">Şifre</label>
-                            <input type="password" class="form-control rx-input" id="adminPassword" name="adminPassword" placeholder="••••••••">
+                            <input type="password" class="form-control rx-input" id="adminPassword" name="adminPassword"
+                                placeholder="••••••••">
                         </div>
-                        <button class="btn rx-btn w-100" style="height:48px;border-radius:12px;" type="submit">Giriş</button>
+                        <button class="btn rx-btn w-100" style="height:48px;border-radius:12px;"
+                            type="submit">Giriş</button>
                     </form>
                 </div>
             </div>
@@ -180,7 +237,7 @@
 
     <script>
         // Admin hatası varsa modalı otomatik aç
-        (function() {
+        (function () {
             var hasAdminError = '@(TempData["AdminError"] != null ? "1" : "")';
             if (hasAdminError) {
                 var modal = new bootstrap.Modal(document.getElementById('adminLoginModal'));
@@ -189,4 +246,5 @@
         })();
     </script>
 </body>
+
 </html>

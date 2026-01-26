@@ -2,23 +2,25 @@
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? string.Empty;
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? string.Empty;
     bool IsActive(string ctrl, string? act = null) =>
-        string.Equals(currentController, ctrl, StringComparison.OrdinalIgnoreCase) &&
-        (act == null || string.Equals(currentAction, act, StringComparison.OrdinalIgnoreCase));
+    string.Equals(currentController, ctrl, StringComparison.OrdinalIgnoreCase) &&
+    (act == null || string.Equals(currentAction, act, StringComparison.OrdinalIgnoreCase));
     string pageTitle = ViewData["Title"]?.ToString() ?? "RoboEye";
 }
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="utf-8" />
     <title>@pageTitle - Robentex Robot Takip</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="Robentex Robot Takip ve Yönetim Sistemi" name="description" />
     <meta content="Robentex End. Ver. A.Ş." name="author" />
-    
+
     <link rel="shortcut icon" href="~/favicon.ico" />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link href="~/lib/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" asp-append-version="true">
-    
+
     <link href="~/lib/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet" />
     <link href="~/css/site.css" rel="stylesheet" />
 
@@ -67,7 +69,8 @@
         /* Sidebar Styles */
         .sidebar {
             width: var(--sidebar-width);
-            background: #0F1115;   /* %60 opak siyah */
+            background: #0F1115;
+            /* %60 opak siyah */
             backdrop-filter: blur(20px);
             border-right: 1px solid var(--glass-border);
             box-shadow: var(--shadow-glass);
@@ -84,7 +87,7 @@
         .sidebar-header {
             padding: 1.5rem;
             text-align: center;
-            border-bottom: 1px solid rgba(0,0,0,0.1);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
             margin-bottom: 1rem;
         }
 
@@ -166,7 +169,7 @@
 
         .nav-badge {
             margin-left: auto;
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
             color: inherit;
             padding: 0.2rem 0.6rem;
             border-radius: 10px;
@@ -233,6 +236,14 @@
             color: white;
         }
 
+        .nav-icon {
+            width: 18px;
+            height: 18px;
+            margin-right: 10px;
+            vertical-align: middle;
+            display: inline-block;
+        }
+
         .topbar-avatar {
             width: 35px;
 
@@ -259,16 +270,16 @@
                 transform: translateX(-100%);
                 transition: transform 0.3s ease;
             }
-            
+
             .sidebar.show {
                 transform: translateX(0);
             }
-            
+
             .main-content {
                 margin-left: 0 !important;
                 width: 100% !important;
             }
-            
+
             .mobile-toggle {
                 display: block !important;
             }
@@ -305,8 +316,17 @@
         }
 
         @@keyframes pulse-green {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.2); }
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(1.2);
+            }
         }
 
         /* Dropdown Menu */
@@ -347,22 +367,23 @@
         .sidebar::-webkit-scrollbar-thumb:hover {
             background: rgba(102, 126, 234, 0.5);
         }
-        
     </style>
 
     @RenderSection("Head", required: false)
 </head>
 
-<body class="@((ViewContext.RouteData.Values["controller"]?.ToString()=="ProgramDetay" && ViewContext.RouteData.Values["action"]?.ToString()=="Index")?"program-detay":"")">
+<body
+    class="@((ViewContext.RouteData.Values["controller"]?.ToString()=="ProgramDetay" && ViewContext.RouteData.Values["action"]?.ToString()=="Index")?"program-detay":"")">
     <div class="layout-wrapper">
         <!-- Sidebar -->
         <nav class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="sidebar-logo">
-                    <img src="/icons/robot.png" alt="Robot" style="width:24px; height:24px; object-fit:contain; filter: drop-shadow(0 1px 1px rgba(0,0,0,.2));" />
-                    RoboEye
+                    <img src="/images/robot-hand_w.png" alt="Robot"
+                        style="width:24px; height:24px; object-fit:contain; filter: drop-shadow(0 1px 1px rgba(0,0,0,.2));" />
+                    ArcTab
                 </div>
-                <div class="sidebar-tagline">Robot Takip Sistemi</div>
+                <div class="sidebar-tagline">Robot Kaynak Takip Sistemi</div>
             </div>
 
             <div class="sidebar-nav">
@@ -376,19 +397,18 @@
                         </a>
                     </div>
                     <div class="nav-item">
-                        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString()=="CanliIzleme" ? "active" : "")"
+                        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "CanliIzleme" ? "active" : "")"
                             asp-controller="CanliIzleme" asp-action="Index">
-                            <i class="fas fa-robot"></i>
+                            <img src="~/images/robot-hand_w.png" class="nav-icon" alt="Robot" />
                             <span>Robot Durumu</span>
-                            <span class="nav-badge">????</span>
+
                         </a>
                     </div>
                     <div class="nav-item">
-                        <a class="nav-link d-flex align-items-center @(ViewContext.RouteData.Values["controller"]?.ToString()=="ProgramDetay" ? "active" : "")"
-                            asp-controller="ProgramDetay"
-                            asp-action="Index">
-                                <i class="fas fa-file-code me-2"></i>
-                                <span>Geçmiş Programlar</span>
+                        <a class="nav-link d-flex align-items-center @(ViewContext.RouteData.Values["controller"]?.ToString() == "ProgramDetay" ? "active" : "")"
+                            asp-controller="ProgramDetay" asp-action="Index">
+                            <i class="fas fa-file-code me-2"></i>
+                            <span>Geçmiş Programlar</span>
                         </a>
                     </div>
                     @* <div class="nav-item">
@@ -403,8 +423,7 @@
                 <div class="nav-section">
                     <div class="nav-section-title">Analiz & Raporlama</div>
                     <div class="nav-item">
-                        <a class="nav-link" asp-controller="Performance"
-                            asp-action="Index">
+                        <a class="nav-link" asp-controller="Performance" asp-action="Index">
                             <i class="fas fa-chart-line"></i>
                             <span>Performans</span>
                         </a>
@@ -417,7 +436,8 @@
                         </a>
                     </div> *@
                     <div class="nav-item">
-                        <a class="nav-link @(IsActive("Raporlar") ? "active" : "")" asp-controller="Raporlar" asp-action="Index">
+                        <a class="nav-link @(IsActive("Raporlar") ? "active" : "")" asp-controller="Raporlar"
+                            asp-action="Index">
                             <i class="fas fa-file-alt"></i>
                             <span>Raporlar</span>
                         </a>
@@ -441,13 +461,14 @@
                     <button class="mobile-toggle me-3" id="mobileToggle">
                         <i class="fas fa-bars"></i>
                     </button>
-                    
+
                 </div>
 
                 <div class="topbar-actions">
                     <!-- Settings -->
                     <div class="dropdown">
-                        <button class="btn btn-link text-decoration-none p-2" data-bs-toggle="modal" data-bs-target="#settingsModal">
+                        <button class="btn btn-link text-decoration-none p-2" data-bs-toggle="modal"
+                            data-bs-target="#settingsModal">
                             <i class="fas fa-cog" style="font-size: 1.1rem; color: #ffffff;"></i>
                         </button>
                     </div>
@@ -455,13 +476,20 @@
                     <div class="dropdown">
                         <button class="btn btn-link text-decoration-none p-2" data-bs-toggle="dropdown">
                             <i class="fas fa-bell" style="font-size: 1.1rem; color: #ffffff;"></i>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">3</span>
+                            <span
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                style="font-size: 0.6rem;">3</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><h6 class="dropdown-header">Bildirimler</h6></li>
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Robot hatası</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-check-circle text-success me-2"></i>Program tamamlandı</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-info-circle text-info me-2"></i>Sistem güncelleme</a></li>
+                            <li>
+                                <h6 class="dropdown-header">Bildirimler</h6>
+                            </li>
+                            <li><a class="dropdown-item" href="#"><i
+                                        class="fas fa-exclamation-triangle text-warning me-2"></i>Robot hatası</a></li>
+                            <li><a class="dropdown-item" href="#"><i
+                                        class="fas fa-check-circle text-success me-2"></i>Program tamamlandı</a></li>
+                            <li><a class="dropdown-item" href="#"><i
+                                        class="fas fa-info-circle text-info me-2"></i>Sistem güncelleme</a></li>
                         </ul>
                     </div>
 
@@ -482,7 +510,9 @@
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profilim</a></li>
                                 <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Ayarlar</a></li>
-                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
                                 <li>
                                     <form method="post" action="@Url.Action("Logout", "Login")">
                                         @Html.AntiForgeryToken()
@@ -511,47 +541,47 @@
     </div>
     <!-- Settings Modal -->
     <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-        <form method="post" action="@Url.Action("SaveSettings", "Home")">
-            @Html.AntiForgeryToken()
-            <div class="modal-header">
-                <h5 class="modal-title" id="settingsModalLabel">
-                    <i class="fas fa-cog me-2"></i> Sistem Ayarları
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-
-            <div class="modal-body">
-                <div class="row g-3">
-                    <!-- Robot Ayarları -->
-                    <div class="col-md-6">
-                        <label class="form-label">Robot IP</label>
-                        <input type="text" name="RobotIp" class="form-control" 
-                            value="@ViewBag.Settings?.RobotIp" required />
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Robot Kullanıcı</label>
-                        <input type="text" name="RobotUser" class="form-control" 
-                            value="@ViewBag.Settings?.RobotUser" required />
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Robot Şifre</label>
-                        <input type="password" name="RobotPassword" class="form-control" 
-                            value="@ViewBag.Settings?.RobotPassword" required />
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <form method="post" action="@Url.Action("SaveSettings", "Home")">
+                    @Html.AntiForgeryToken()
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="settingsModalLabel">
+                            <i class="fas fa-cog me-2"></i> Sistem Ayarları
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
 
-                    
-                </div>
-            </div>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <!-- Robot Ayarları -->
+                            <div class="col-md-6">
+                                <label class="form-label">Robot IP</label>
+                                <input type="text" name="RobotIp" class="form-control"
+                                    value="@ViewBag.Settings?.RobotIp" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Robot Kullanıcı</label>
+                                <input type="text" name="RobotUser" class="form-control"
+                                    value="@ViewBag.Settings?.RobotUser" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Robot Şifre</label>
+                                <input type="password" name="RobotPassword" class="form-control"
+                                    value="@ViewBag.Settings?.RobotPassword" required />
+                            </div>
 
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
-                <button type="submit" class="btn btn-primary">Kaydet</button>
+
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                        <button type="submit" class="btn btn-primary">Kaydet</button>
+                    </div>
+                </form>
             </div>
-        </form>
         </div>
-    </div>
     </div>
     <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -559,22 +589,22 @@
     <script src="~/js/site.js"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const sidebar = document.getElementById('sidebar');
             const mobileToggle = document.getElementById('mobileToggle');
-            
+
             // Mobile sidebar toggle
             if (mobileToggle) {
-                mobileToggle.addEventListener('click', function() {
+                mobileToggle.addEventListener('click', function () {
                     sidebar.classList.toggle('show');
                 });
             }
 
             // Close sidebar when clicking outside on mobile
-            document.addEventListener('click', function(e) {
-                if (window.innerWidth <= 768 && 
-                    !sidebar.contains(e.target) && 
-                    !mobileToggle?.contains(e.target) && 
+            document.addEventListener('click', function (e) {
+                if (window.innerWidth <= 768 &&
+                    !sidebar.contains(e.target) &&
+                    !mobileToggle?.contains(e.target) &&
                     sidebar.classList.contains('show')) {
                     sidebar.classList.remove('show');
                 }
@@ -583,12 +613,12 @@
             // Active menu item highlighting
             const navLinks = document.querySelectorAll('.nav-link');
             navLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
+                link.addEventListener('click', function (e) {
                     // Only prevent default for non-functional links
                     if (this.getAttribute('href') === '#') {
                         e.preventDefault();
                     }
-                    
+
                     // Remove active class from all links
                     navLinks.forEach(l => l.classList.remove('active'));
                     // Add active class to clicked link
@@ -600,7 +630,7 @@
             navLinks.forEach((link, index) => {
                 link.style.opacity = '0';
                 link.style.transform = 'translateX(-20px)';
-                
+
                 setTimeout(() => {
                     link.style.transition = 'all 0.4s ease';
                     link.style.opacity = '1';
@@ -617,7 +647,7 @@
                     clockElement.textContent = timeString;
                 }
             }
-            
+
             setInterval(updateClock, 1000);
 
         });
@@ -625,4 +655,5 @@
 
     @RenderSection("Scripts", required: false)
 </body>
+
 </html>

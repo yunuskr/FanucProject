@@ -23,7 +23,7 @@
     <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
     <script src="~/lib/chart.js/4.4.1/chart.umd.min.js" asp-append-version="true"></script>
 }
- 
+
 
 <div class="dashboard-container">
     <!-- Loading Overlay -->
@@ -34,11 +34,13 @@
     <div class="container-fluid">
         <!-- Dashboard Header -->
         <div class="dashboard-header">
-          <h1 class="dashboard-title" style="display:flex; align-items:center; gap:.5rem;">
-              <img src="~/icons/robot.png" alt="Robot" style="width:45px; height:45px; object-fit:contain; filter: drop-shadow(0 1px 1px rgba(0,0,0,.2));" />
-              <span class="brand-gold">RoboEye</span>
-          </h1>
-            <p class="dashboard-subtitle" style="align-items:center; display:flex; gap:.5rem;">Gerçek zamanlı robot takip ve yönetim sistemi</p>
+            <h1 class="dashboard-title" style="display:flex; align-items:center; gap:.5rem;">
+                <img src="~/images/robot-hand.png" alt="Robot"
+                    style="width:45px; height:45px; object-fit:contain; filter: drop-shadow(0 1px 1px rgba(0,0,0,.2));" />
+                <span class="brand-gold text-black font-semibold tracking-tight">ArcTab</span>
+            </h1>
+            <p class="dashboard-subtitle" style="align-items:center; display:flex; gap:.5rem;">Gerçek zamanlı robot
+                takip ve yönetim sistemi</p>
         </div>
 
         <!-- Stats Grid -->
@@ -48,11 +50,12 @@
                     <div>
                         <h3 class="stat-value" id="programCount">@Model.ProgramCount</h3>
                         <p class="stat-label" style=>Toplam Program</p>
-                        <div  style="margin-top: .9rem;" class="stat-trend @Model.ProgramCountTrendClass">
-                            <i  class="@Model.ProgramCountTrendIcon"></i>
+                        <div style="margin-top: .9rem;" class="stat-trend @Model.ProgramCountTrendClass">
+                            <i class="@Model.ProgramCountTrendIcon"></i>
                             <span>@Model.ProgramCountTrendText</span>
                         </div>
-                      <div class="stat-trend" style="text-align:bottom; color:black; opacity:0.6; font-size:0.8rem;  font-weight:400;">
+                        <div class="stat-trend"
+                            style="text-align:bottom; color:black; opacity:0.6; font-size:0.8rem;  font-weight:400;">
                             <span> Haftalık program sayısı değişimi</span>
                         </div>
 
@@ -69,11 +72,12 @@
                         <h3 class="stat-value" id="kaynakCount">@toplamKaynak</h3>
                         <p class="stat-label">Toplam Kaynak</p>
 
-                        <div style="margin-top: .5rem;" class="stat-trend trend-up" >
+                        <div style="margin-top: .5rem;" class="stat-trend trend-up">
                             @* <i class="fas fa-arrow-up"></i> *@
                             <span>@basariOrani% başarılı</span>
                         </div>
-                        <div class="stat-trend" style="text-align:bottom; color:black; opacity:0.6; font-size:0.8rem;  font-weight:400;">
+                        <div class="stat-trend"
+                            style="text-align:bottom; color:black; opacity:0.6; font-size:0.8rem;  font-weight:400;">
                             <span>Toplam başarılı kaynak yüzdesi</span>
                         </div>
                     </div>
@@ -87,13 +91,14 @@
                 <div class="stat-header">
                     <div>
                         <h3 class="stat-value" id="hataCount">@Model.HataToplam</h3>
-                        <p  class="stat-label">Toplam Hata</p>
-                        <div  style="margin-top: .5rem;" class="stat-trend @Model.HataTrendClass">
+                        <p class="stat-label">Toplam Hata</p>
+                        <div style="margin-top: .5rem;" class="stat-trend @Model.HataTrendClass">
                             <i class="@Model.HataTrendIcon"></i>
                             <span>@Model.HataTrendText</span>
-                            <div class="stat-trend" style="text-align:bottom; color:black; opacity:0.6; font-size:0.8rem;  font-weight:400;">
-                            <span>Toplam hata sayındaki değişim</span>
-                        </div>
+                            <div class="stat-trend"
+                                style="text-align:bottom; color:black; opacity:0.6; font-size:0.8rem;  font-weight:400;">
+                                <span>Toplam hata sayındaki değişim</span>
+                            </div>
                         </div>
                     </div>
                     <div class="stat-icon danger">
@@ -107,11 +112,12 @@
                     <div>
                         <h3 class="stat-value" id="totalTime">@Model.BugunToplamKaynakSureText</h3>
                         <p class="stat-label">Günlük Kaynak Süresi</p>
-                        <div  style="margin-top: .5rem; "class="stat-trend @Model.TodayTimeTrendClass">
+                        <div style="margin-top: .5rem; " class="stat-trend @Model.TodayTimeTrendClass">
                             <i class="@Model.TodayTimeTrendIcon"></i>
                             <span>@Model.TodayTimeTrendText</span>
                         </div>
-                        <div class="stat-trend" style="text-align:bottom; color:black; opacity:0.6; font-size:0.8rem;  font-weight:400;">
+                        <div class="stat-trend"
+                            style="text-align:bottom; color:black; opacity:0.6; font-size:0.8rem;  font-weight:400;">
                             <span> Günlük kaynak süresinde değişim</span>
                         </div>
                     </div>
@@ -142,7 +148,8 @@
         <div class="robot-status stopped" id="robotStatusCard">
             <div class="robot-info">
                 <div class="robot-avatar" id="robotAvatar">
-                    <img src="/icons/robot.png" alt="Robot" style="width:60px; height:60px; object-fit:contain;" />
+                    <img src="/images/robot-hand.png" alt="Robot"
+                        style="width:60px; height:60px; object-fit:contain;" />
                 </div>
                 <div class="robot-details">
                     <h3>
@@ -154,7 +161,8 @@
                         Aktif Program: <strong id="activeProgramText">Bekleniyor...</strong>
                     </p>
                     <div class="robot-actions">
-                        <a id="btnLiveWatch" asp-controller="CanliIzleme" asp-action="Index" class="btn-modern success" data-base-href="@Url.Action("Index","CanliIzleme")">
+                        <a id="btnLiveWatch" asp-controller="CanliIzleme" asp-action="Index" class="btn-modern success"
+                            data-base-href="@Url.Action("Index", "CanliIzleme")">
                             <i class="fas fa-eye"></i>
                             Canlı İzle
                         </a>
@@ -164,11 +172,11 @@
         </div>
 
         <!-- Son Çalıştırılan Program Kartı (Dinamik) -->
-    <div class="program-card mb-2rem">
+        <div class="program-card mb-2rem">
             @{
                 // Controller'da hazırlanmış baş/bitiş metinlerini kullan
                 var kaynaklar = program?.Kaynaklar?.OrderBy(k => k.BaslangicSaati).ToList()
-                               ?? new List<FanucRelease.Models.Kaynak>();
+                ?? new List<FanucRelease.Models.Kaynak>();
                 string basText = Model.SonProgramBaslangicText ?? "—";
                 string bitText = Model.SonProgramBitisText ?? "—";
             }
@@ -202,7 +210,7 @@
                         </div>
                         <div class="info-content">
                             <span class="info-label">Operatör</span>
-                            <span class="info-value">@(program?.Operator is null ? "—" : ($"{program.Operator.Ad} {program.Operator.Soyad}"))</span>
+                            <span class="info-value">@(program?.Operator is null ? "—" : ($"{program.Operator.Ad}                                {program.Operator.Soyad}"))</span>
                         </div>
                     </div>
                     <div class="info-item">
@@ -235,32 +243,32 @@
                     @for (int i = 0; i < kaynaklar.Count; i++)
                     {
                         var k = kaynaklar[i];
-                        var ad = $"Kaynak-{(i+1).ToString("D2")}";
+                        var ad = $"Kaynak-{(i + 1).ToString("D2")}";
                         var bas = k.BaslangicSaati == default ? "—" : k.BaslangicSaati.ToString("HH:mm");
                         var bit = k.BitisSaati == default ? "—" : k.BitisSaati.ToString("HH:mm");
                         var ts = k.ToplamSure != default ? k.ToplamSure.ToTimeSpan() : (k.BitisSaati - k.BaslangicSaati);
                         if (ts < TimeSpan.Zero) { ts = TimeSpan.Zero; }
                         var totalMinutes = (int)Math.Round(ts.TotalMinutes);
-                        var sureText = ts.TotalHours >= 1 ? $"{(int)ts.TotalHours} sa {ts.Minutes} dk" : $"{totalMinutes} dk";
+                        var sureText = ts.TotalHours >= 1 ? $"{(int)ts.TotalHours} sa {ts.Minutes} dk" : $"{totalMinutes}                   dk";
                         var statusClass = k.basarili_mi ? "success" : "danger";
                         // 'fa-times' geniş destekli (FA5/FA6 alias), görünmemeyi önler
                         var statusIcon = k.basarili_mi ? "fas fa-check" : "fas fa-times";
-                    <div class="kaynak-item">
-                        <div class="kaynak-icon">
-                            <i class="fas fa-bolt"></i>
-                        </div>
-                        <div class="kaynak-details">
-                            <h6>@ad</h6>
-                            <div class="kaynak-time">
-                                <span><i class="fas fa-play-circle"></i> @bas</span>
-                                <span><i class="fas fa-stop-circle"></i> @bit</span>
-                                <span class="duration"><i class="fas fa-clock"></i> @sureText</span>
+                        <div class="kaynak-item">
+                            <div class="kaynak-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <div class="kaynak-details">
+                                <h6>@ad</h6>
+                                <div class="kaynak-time">
+                                    <span><i class="fas fa-play-circle"></i> @bas</span>
+                                    <span><i class="fas fa-stop-circle"></i> @bit</span>
+                                    <span class="duration"><i class="fas fa-clock"></i> @sureText</span>
+                                </div>
+                            </div>
+                            <div class="kaynak-status @statusClass">
+                                <i class="@statusIcon"></i>
                             </div>
                         </div>
-                        <div class="kaynak-status @statusClass">
-                            <i class="@statusIcon"></i>
-                        </div>
-                    </div>
                     }
                 </div>
             </div>
@@ -276,8 +284,10 @@
                 </div>
                 <div class="success-rate-display">
                     <div class="success-meta">
-                        <div class="success-program-name">@(string.IsNullOrWhiteSpace(program?.ProgramAdi) ? "—" : program!.ProgramAdi)</div>
-                        <div class="success-circle" style="background: conic-gradient(from 0deg, #11998e 0% @programBasariYuzde% , #f1f3f4 @programBasariYuzde% 100%);">
+                        <div class="success-program-name">@(string.IsNullOrWhiteSpace(program?.ProgramAdi) ? "—" :
+                                                        program!.ProgramAdi)</div>
+                        <div class="success-circle"
+                            style="background: conic-gradient(from 0deg, #11998e 0% @programBasariYuzde% , #f1f3f4 @programBasariYuzde% 100%);">
                             <div class="success-percentage">@programBasariYuzde%</div>
                         </div>
                     </div>
@@ -324,7 +334,8 @@
                     }
                     else
                     {
-                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: .75rem;">
+                        <div
+                            style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: .75rem;">
                             <div class="info-item">
                                 <div class="info-icon info"><i class="fas fa-code"></i></div>
                                 <div class="info-content">
@@ -393,19 +404,19 @@
                                 var kod = string.IsNullOrWhiteSpace(hata.Kod) ? "—" : hata.Kod;
                                 var desc = string.IsNullOrWhiteSpace(hata.Aciklama) ? "—" : hata.Aciklama;
                                 var zamanText = hata.Zaman.ToString("dd.MM.yyyy HH:mm:ss");
-                        <div class="alarm-item @severityClass">
-                            <div class="alarm-icon">
-                                <i class="fas fa-exclamation-triangle"></i>
-                            </div>
-                            <div class="alarm-details">
-                                <div class="alarm-code">KOD-@kod</div>
-                                <div class="alarm-desc">@desc</div>
-                                <div class="alarm-time">@zamanText</div>
-                            </div>
-                            <div class="alarm-status resolved">
-                                <i class="fas fa-check"></i>
-                            </div>
-                        </div>
+                                <div class="alarm-item @severityClass">
+                                    <div class="alarm-icon">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    </div>
+                                    <div class="alarm-details">
+                                        <div class="alarm-code">KOD-@kod</div>
+                                        <div class="alarm-desc">@desc</div>
+                                        <div class="alarm-time">@zamanText</div>
+                                    </div>
+                                    <div class="alarm-status resolved">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                </div>
                             }
                         }
                     </div>
@@ -413,84 +424,82 @@
             </div>
         </div>
 
-       <!-- Geçmiş Programlar Tablosu -->
-<div class="history-section">
-    <div class="section-header">
-        <h4 class="section-title">
-            <i class="fas fa-history"></i>
-            Geçmiş Programlar
-        </h4>
-        <p class="section-subtitle">Son çalıştırılan programların geçmiş kayıtları</p>
-    </div>
+        <!-- Geçmiş Programlar Tablosu -->
+        <div class="history-section">
+            <div class="section-header">
+                <h4 class="section-title">
+                    <i class="fas fa-history"></i>
+                    Geçmiş Programlar
+                </h4>
+                <p class="section-subtitle">Son çalıştırılan programların geçmiş kayıtları</p>
+            </div>
 
-    <div class="history-table-container">
-        <div class="table-responsive">
-            <table class="table history-table">
-                <thead>
-                    <tr>
-                        <th><i class="fas fa-code"></i> Program Adı</th>
-                        <th><i class="fas fa-bolt"></i> Toplam Kaynak Sayısı</th>
-                        <th><i class="fas fa-user"></i> Operatör</th>
-                        <th><i class="fas fa-clock"></i> Toplam Süre</th>
-                        <th><i class="fas fa-calendar"></i> Tarih</th>
-                        <th><i class="fas fa-chart-line"></i> Başarı</th>
-                        <th><i class="fas fa-eye"></i> Detaylar</th>
-                    </tr>
-                </thead>
-                <tbody>
-                @if (!items.Any())
-                {
-                    <tr>
-                        <td colspan="7" class="text-muted">Kayıt bulunamadı.</td>
-                    </tr>
-                }
-                else
-                {
-                    foreach (var item in items)
-                    {
-                        var rateClass = item.BasariYuzde >= 80 ? "high" : (item.BasariYuzde >= 50 ? "medium" : "low");
-                        <tr>
-                            <td>
-                                <div class="program-name">
-                                    <span class="program-code">@item.ProgramAdi</span>
-                                    <small class="program-version">#@item.Id</small>
-                                </div>
-                            </td>
+            <div class="history-table-container">
+                <div class="table-responsive">
+                    <table class="table history-table">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-code"></i> Program Adı</th>
+                                <th><i class="fas fa-bolt"></i> Toplam Kaynak Sayısı</th>
+                                <th><i class="fas fa-user"></i> Operatör</th>
+                                <th><i class="fas fa-clock"></i> Toplam Süre</th>
+                                <th><i class="fas fa-calendar"></i> Tarih</th>
+                                <th><i class="fas fa-chart-line"></i> Başarı</th>
+                                <th><i class="fas fa-eye"></i> Detaylar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!items.Any())
+                            {
+                                <tr>
+                                    <td colspan="7" class="text-muted">Kayıt bulunamadı.</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                foreach (var item in items)
+                                {
+                                    var rateClass = item.BasariYuzde >= 80 ? "high" : (item.BasariYuzde >= 50 ? "medium" :
+                                    "low");
+                                    <tr>
+                                        <td>
+                                            <div class="program-name">
+                                                <span class="program-code">@item.ProgramAdi</span>
+                                                <small class="program-version">#@item.Id</small>
+                                            </div>
+                                        </td>
 
-                            <td>
-                                <span class="badge badge-count">@item.KaynakSayisi</span>
-                            </td>
+                                        <td>
+                                            <span class="badge badge-count">@item.KaynakSayisi</span>
+                                        </td>
 
-                            <td>
-                                <div class="operator-info">
-                                    <i class="fas fa-user-circle"></i>
-                                    <span>@item.OperatorAdSoyad</span>
-                                </div>
-                            </td>
+                                        <td>
+                                            <div class="operator-info">
+                                                <i class="fas fa-user-circle"></i>
+                                                <span>@item.OperatorAdSoyad</span>
+                                            </div>
+                                        </td>
 
-                            <td><span class="duration">@item.ToplamSureText</span></td>
-                            <td><span class="date">@item.TarihText</span></td>
+                                        <td><span class="duration">@item.ToplamSureText</span></td>
+                                        <td><span class="date">@item.TarihText</span></td>
 
-                            <td><span class="success-rate @rateClass">@item.BasariYuzde%</span></td>
+                                        <td><span class="success-rate @rateClass">@item.BasariYuzde%</span></td>
 
-                            <td>
-                                <a class="btn-detail"
-                                   asp-controller="ProgramDetay"
-                                   asp-action="Index"
-                                   asp-route-id="@item.Id"
-                                   title="Detayları Gör">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    }
-                }
-                </tbody>
-            </table>
+                                        <td>
+                                            <a class="btn-detail" asp-controller="ProgramDetay" asp-action="Index"
+                                                asp-route-id="@item.Id" title="Detayları Gör">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
-</div>
-</div>
 </div>
 
 <script>
@@ -639,7 +648,7 @@
                 liveBtn.setAttribute('href', baseHref);
             }
         }
-    // Debug log kaldırıldı
+        // Debug log kaldırıldı
     }
 
     // SignalR Connection for Real-time Robot Status

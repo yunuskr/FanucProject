@@ -28,22 +28,26 @@
     <div class="filter-card mb-4">
         <form method="get" class="row g-3 align-items-end">
             <div class="col-md-3">
-                <label class="form-label fw-semibold text-dark">🎯 Minimum Program</label>
-                <input type="number" name="minProgram" value="@Model.MinProgram" class="form-control form-control-modern" placeholder="0" />
+                <label class="form-label fw-semibold text-dark"> Minimum Program</label>
+                <input type="number" name="minProgram" value="@Model.MinProgram"
+                    class="form-control form-control-modern" placeholder="0" />
             </div>
             <div class="col-md-3">
-                <label class="form-label fw-semibold text-dark">📅 Son (gün)</label>
-                <input type="number" name="days" value="@Model.Days" class="form-control form-control-modern" placeholder="Tümü" />
+                <label class="form-label fw-semibold text-dark"> Son (gün)</label>
+                <input type="number" name="days" value="@Model.Days" class="form-control form-control-modern"
+                    placeholder="Tümü" />
             </div>
             <div class="col-md-3">
-                <label class="form-label fw-semibold text-dark">⏱️ Max Süre (saat)</label>
-                <input type="number" step="0.1" name="maxProgramHours" value="@(Model.MaxProgramHours?.ToString("0.0"))" class="form-control form-control-modern" placeholder="Sınır yok" />
+                <label class="form-label fw-semibold text-dark">Max Süre (saat)</label>
+                <input type="number" step="0.1" name="maxProgramHours" value="@(Model.MaxProgramHours?.ToString("0.0"))"
+                    class="form-control form-control-modern" placeholder="Sınır yok" />
             </div>
             <div class="col-md-3 d-flex gap-2">
                 <button class="btn btn-modern btn-primary-modern flex-fill">
                     <i class="fas fa-search me-2"></i>Filtrele
                 </button>
-                <a class="btn btn-modern btn-outline-gold" href="@Url.Action("ExportCsv", new { minProgram = Model.MinProgram, days = Model.Days, maxProgramHours = Model.MaxProgramHours })">
+                <a class="btn btn-modern btn-outline-gold"
+                    href="@Url.Action("ExportCsv", new { minProgram = Model.MinProgram, days = Model.Days, maxProgramHours = Model.MaxProgramHours })">
                     <i class="fas fa-download me-2"></i>CSV
                 </a>
             </div>
@@ -55,8 +59,10 @@
             <div class="metric-card bg-gradient-warning">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <div class="text-white opacity-75 mb-1" style="font-size: 0.9rem; font-weight: 500;">Toplam Program</div>
-                        <div class="text-white" style="font-size: 2.2rem; font-weight: 700; line-height: 1;">@Model.ToplamProgram</div>
+                        <div class="text-white opacity-75 mb-1" style="font-size: 0.9rem; font-weight: 500;">Toplam
+                            Program</div>
+                        <div class="text-white" style="font-size: 2.2rem; font-weight: 700; line-height: 1;">
+                            @Model.ToplamProgram</div>
                     </div>
                     <div class="text-white opacity-50">
                         <i class="fas fa-code" style="font-size: 2.5rem;"></i>
@@ -68,8 +74,10 @@
             <div class="metric-card bg-gradient-success">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <div class="text-white opacity-75 mb-1" style="font-size: 0.9rem; font-weight: 500;">Toplam Kaynak</div>
-                        <div class="text-white" style="font-size: 2.2rem; font-weight: 700; line-height: 1;">@Model.ToplamKaynak</div>
+                        <div class="text-white opacity-75 mb-1" style="font-size: 0.9rem; font-weight: 500;">Toplam
+                            Kaynak</div>
+                        <div class="text-white" style="font-size: 2.2rem; font-weight: 700; line-height: 1;">
+                            @Model.ToplamKaynak</div>
                     </div>
                     <div class="text-white opacity-50">
                         <i class="fas fa-database" style="font-size: 2.5rem;"></i>
@@ -81,8 +89,10 @@
             <div class="metric-card bg-gradient-green">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <div class="text-white opacity-75 mb-1" style="font-size: 0.9rem; font-weight: 500;">Başarılı</div>
-                        <div class="text-white" style="font-size: 2.2rem; font-weight: 700; line-height: 1;">@Model.ToplamBasariliKaynak</div>
+                        <div class="text-white opacity-75 mb-1" style="font-size: 0.9rem; font-weight: 500;">Başarılı
+                        </div>
+                        <div class="text-white" style="font-size: 2.2rem; font-weight: 700; line-height: 1;">
+                            @Model.ToplamBasariliKaynak</div>
                     </div>
                     <div class="text-white opacity-50">
                         <i class="fas fa-check-circle" style="font-size: 2.5rem;"></i>
@@ -95,7 +105,8 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-white opacity-75 mb-1" style="font-size: 0.9rem; font-weight: 500;">Hata</div>
-                        <div class="text-white" style="font-size: 2.2rem; font-weight: 700; line-height: 1;">@Model.ToplamHata</div>
+                        <div class="text-white" style="font-size: 2.2rem; font-weight: 700; line-height: 1;">
+                            @Model.ToplamHata</div>
                     </div>
                     <div class="text-white opacity-50">
                         <i class="fas fa-exclamation-triangle" style="font-size: 2.5rem;"></i>
@@ -107,8 +118,11 @@
             <div class="metric-card bg-gradient-info">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <div style="color: #2d3748; opacity: 0.75; font-size: 0.9rem; font-weight: 500; margin-bottom: 0.25rem;">Genel Başarı</div>
-                        <div style="color: #2d3748; font-size: 2.2rem; font-weight: 700; line-height: 1;">@Model.GenelBasariYuzdesi<span style="font-size: 1.4rem;">%</span></div>
+                        <div
+                            style="color: #2d3748; opacity: 0.75; font-size: 0.9rem; font-weight: 500; margin-bottom: 0.25rem;">
+                            Genel Başarı</div>
+                        <div style="color: #2d3748; font-size: 2.2rem; font-weight: 700; line-height: 1;">
+                            @Model.GenelBasariYuzdesi<span style="font-size: 1.4rem;">%</span></div>
                     </div>
                     <div style="color: #2d3748; opacity: 0.4;">
                         <i class="fas fa-chart-pie" style="font-size: 2.5rem;"></i>
@@ -121,14 +135,21 @@
     @{
         var ops = Model.Operatorlar ?? new List<FanucRelease.ViewModels.OperatorPerformanceRow>();
         var hasData = ops.Any();
-        var topPrograms = hasData ? ops.OrderByDescending(o => o.ProgramSayisi).ThenByDescending(o => o.ToplamKaynak).FirstOrDefault() : null;
-        var topKaynak = hasData ? ops.OrderByDescending(o => o.ToplamKaynak).ThenByDescending(o => o.ProgramSayisi).FirstOrDefault() : null;
-        var topSuccess = hasData ? ops.OrderByDescending(o => o.BasariYuzdesi).ThenByDescending(o => o.ToplamKaynak).FirstOrDefault() : null;
-        var minHataEligible = hasData ? ops.Where(o => o.ProgramSayisi >= Math.Max(1, Model.MinProgram)).OrderBy(o => o.HataSayisi).ThenByDescending(o => o.ToplamKaynak).FirstOrDefault() : null;
+        var topPrograms = hasData ? ops.OrderByDescending(o => o.ProgramSayisi).ThenByDescending(o =>
+        o.ToplamKaynak).FirstOrDefault() : null;
+        var topKaynak = hasData ? ops.OrderByDescending(o => o.ToplamKaynak).ThenByDescending(o =>
+        o.ProgramSayisi).FirstOrDefault() : null;
+        var topSuccess = hasData ? ops.OrderByDescending(o => o.BasariYuzdesi).ThenByDescending(o =>
+        o.ToplamKaynak).FirstOrDefault() : null;
+        var minHataEligible = hasData ? ops.Where(o => o.ProgramSayisi >= Math.Max(1, Model.MinProgram)).OrderBy(o =>
+        o.HataSayisi).ThenByDescending(o => o.ToplamKaynak).FirstOrDefault() : null;
 
-        var topSuccessList = ops.OrderByDescending(o => o.BasariYuzdesi).ThenByDescending(o => o.ToplamKaynak).Take(5).ToList();
-        var topProgramList = ops.OrderByDescending(o => o.ProgramSayisi).ThenByDescending(o => o.ToplamKaynak).Take(5).ToList();
-        var topKaynakList = ops.OrderByDescending(o => o.ToplamKaynak).ThenByDescending(o => o.ProgramSayisi).Take(5).ToList();
+        var topSuccessList = ops.OrderByDescending(o => o.BasariYuzdesi).ThenByDescending(o =>
+        o.ToplamKaynak).Take(5).ToList();
+        var topProgramList = ops.OrderByDescending(o => o.ProgramSayisi).ThenByDescending(o =>
+        o.ToplamKaynak).Take(5).ToList();
+        var topKaynakList = ops.OrderByDescending(o => o.ToplamKaynak).ThenByDescending(o =>
+        o.ProgramSayisi).Take(5).ToList();
         var topHataList = ops.OrderByDescending(o => o.HataSayisi).ThenByDescending(o => o.ToplamKaynak).Take(5).ToList();
     }
 
@@ -154,180 +175,208 @@
         }
         else
         {
-        <div class="row g-4">
-            <div class="col-lg-4">
-                <div class="leaders-card p-4 gold-card">
-                    <div class="mb-4 section-card-title" style="font-size:1.3rem;">
-                        <i class="fas fa-trophy me-2"></i>Liderler
-                    </div>
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="leaders-card p-4 gold-card">
+                        <div class="mb-4 section-card-title" style="font-size:1.3rem;">
+                            <i class="fas fa-trophy me-2"></i>Liderler
+                        </div>
 
-                    <div class="d-grid gap-3">
-                        @if (topPrograms != null)
-                        {
-                            <div class="leader-item p-3">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <div style="font-size:.9rem; font-weight:600; color:var(--gold-start); text-transform:uppercase; letter-spacing:0.5px;">
-                                            <i class="fas fa-code me-1"></i>En Çok Program
+                        <div class="d-grid gap-3">
+                            @if (topPrograms != null)
+                            {
+                                <div class="leader-item p-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div
+                                                style="font-size:.9rem; font-weight:600; color:var(--gold-start); text-transform:uppercase; letter-spacing:0.5px;">
+                                                <i class="fas fa-code me-1"></i>En Çok Program
+                                            </div>
+                                            <div style="font-weight:800; color:#1a202c; font-size:1.1rem; margin-top:0.3rem;">
+                                                @topPrograms.AdSoyad</div>
                                         </div>
-                                        <div style="font-weight:800; color:#1a202c; font-size:1.1rem; margin-top:0.3rem;">@topPrograms.AdSoyad</div>
-                                    </div>
-                                    <div class="text-end">
-                                        <div style="font-weight:900; font-size:1.8rem; color:#1a202c; text-shadow: 0 1px 3px rgba(0,0,0,0.1);">@topPrograms.ProgramSayisi</div>
-                                        <div style="font-size:.85rem; font-weight:600; color:#6b7280;">program</div>
+                                        <div class="text-end">
+                                            <div
+                                                style="font-weight:900; font-size:1.8rem; color:#1a202c; text-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                                @topPrograms.ProgramSayisi</div>
+                                            <div style="font-size:.85rem; font-weight:600; color:#6b7280;">program</div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        }
-                        @if (topKaynak != null)
-                        {
-                            <div class="leader-item p-3">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <div style="font-size:.9rem; font-weight:600; color:var(--gold-start); text-transform:uppercase; letter-spacing:0.5px;">
-                                            <i class="fas fa-database me-1"></i>En Çok Kaynak
+                            }
+                            @if (topKaynak != null)
+                            {
+                                <div class="leader-item p-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div
+                                                style="font-size:.9rem; font-weight:600; color:var(--gold-start); text-transform:uppercase; letter-spacing:0.5px;">
+                                                <i class="fas fa-database me-1"></i>En Çok Kaynak
+                                            </div>
+                                            <div style="font-weight:800; color:#1a202c; font-size:1.1rem; margin-top:0.3rem;">
+                                                @topKaynak.AdSoyad</div>
                                         </div>
-                                        <div style="font-weight:800; color:#1a202c; font-size:1.1rem; margin-top:0.3rem;">@topKaynak.AdSoyad</div>
-                                    </div>
-                                    <div class="text-end">
-                                        <div style="font-weight:900; font-size:1.8rem; color:#1a202c; text-shadow: 0 1px 3px rgba(0,0,0,0.1);">@topKaynak.ToplamKaynak</div>
-                                        <div style="font-size:.85rem; font-weight:600; color:#6b7280;">adet</div>
+                                        <div class="text-end">
+                                            <div
+                                                style="font-weight:900; font-size:1.8rem; color:#1a202c; text-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                                @topKaynak.ToplamKaynak</div>
+                                            <div style="font-size:.85rem; font-weight:600; color:#6b7280;">adet</div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        }
-                        @if (topSuccess != null)
-                        {
-                            <div class="leader-item p-3">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <div style="font-size:.9rem; font-weight:600; color:var(--gold-start); text-transform:uppercase; letter-spacing:0.5px;">
-                                            <i class="fas fa-chart-line me-1"></i>En Yüksek Başarı
+                            }
+                            @if (topSuccess != null)
+                            {
+                                <div class="leader-item p-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div
+                                                style="font-size:.9rem; font-weight:600; color:var(--gold-start); text-transform:uppercase; letter-spacing:0.5px;">
+                                                <i class="fas fa-chart-line me-1"></i>En Yüksek Başarı
+                                            </div>
+                                            <div style="font-weight:800; color:#1a202c; font-size:1.1rem; margin-top:0.3rem;">
+                                                @topSuccess.AdSoyad</div>
                                         </div>
-                                        <div style="font-weight:800; color:#1a202c; font-size:1.1rem; margin-top:0.3rem;">@topSuccess.AdSoyad</div>
-                                    </div>
-                                    <div class="text-end">
-                                        <div style="font-weight:900; font-size:1.8rem; color:#16a34a; text-shadow: 0 1px 3px rgba(0,0,0,0.1);">@topSuccess.BasariYuzdesi%</div>
-                                        <div style="font-size:.85rem; font-weight:600; color:#6b7280;">başarı</div>
+                                        <div class="text-end">
+                                            <div
+                                                style="font-weight:900; font-size:1.8rem; color:#16a34a; text-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                                @topSuccess.BasariYuzdesi%</div>
+                                            <div style="font-size:.85rem; font-weight:600; color:#6b7280;">başarı</div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        }
-                        @if (minHataEligible != null)
-                        {
-                            <div class="leader-item p-3">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <div style="font-size:.9rem; font-weight:600; color:var(--gold-start); text-transform:uppercase; letter-spacing:0.5px;">
-                                            <i class="fas fa-shield-alt me-1"></i>En Az Hata
+                            }
+                            @if (minHataEligible != null)
+                            {
+                                <div class="leader-item p-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div
+                                                style="font-size:.9rem; font-weight:600; color:var(--gold-start); text-transform:uppercase; letter-spacing:0.5px;">
+                                                <i class="fas fa-shield-alt me-1"></i>En Az Hata
+                                            </div>
+                                            <div style="font-weight:800; color:#1a202c; font-size:1.1rem; margin-top:0.3rem;">
+                                                @minHataEligible.AdSoyad</div>
                                         </div>
-                                        <div style="font-weight:800; color:#1a202c; font-size:1.1rem; margin-top:0.3rem;">@minHataEligible.AdSoyad</div>
-                                    </div>
-                                    <div class="text-end">
-                                        <div style="font-weight:900; font-size:1.8rem; color:#16a34a; text-shadow: 0 1px 3px rgba(0,0,0,0.1);">@minHataEligible.HataSayisi</div>
-                                        <div style="font-size:.85rem; font-weight:600; color:#6b7280;">hata</div>
+                                        <div class="text-end">
+                                            <div
+                                                style="font-weight:900; font-size:1.8rem; color:#16a34a; text-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                                @minHataEligible.HataSayisi</div>
+                                            <div style="font-size:.85rem; font-weight:600; color:#6b7280;">hata</div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        }
+                            }
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="col-lg-8">
-                <div class="row g-4">
-                    <div class="col-md-6">
-                        <div class="p-4 ranking-card gold-card">
-                            <div class="mb-4 section-card-title">
-                                <i class="fas fa-percentage me-2"></i>Başarı Yüzdesi (Top 5)
-                            </div>
-                            <ol class="list-unstyled m-0">
-                                @foreach (var (item, idx) in topSuccessList.Select((x,i)=>(x,i+1)))
-                                {
-                                    <li class="ranking-item mb-2">
-                                        <div class="ranking-item-content">
-                                            <div class="d-flex align-items-center gap-3">
-                                                <span class="badge badge-rank-gold">@idx</span>
-                                                <div style="color:#1a202c; font-weight:700; font-size:1.05rem;">@item.AdSoyad</div>
-                                            </div>
-                                            <div class="d-flex align-items-center gap-3">
-                                                <div class="progress" style="width: 100px; height:10px; background: rgba(0,0,0,0.08); border-radius:10px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
-                                                    <div class="progress-bar pb-success" style="width:@item.BasariYuzdesi%; transition: width 0.3s ease;"></div>
+                <div class="col-lg-8">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="p-4 ranking-card gold-card">
+                                <div class="mb-4 section-card-title">
+                                    <i class="fas fa-percentage me-2"></i>Başarı Yüzdesi (Top 5)
+                                </div>
+                                <ol class="list-unstyled m-0">
+                                    @foreach (var (item, idx) in topSuccessList.Select((x, i) => (x, i + 1)))
+                                    {
+                                        <li class="ranking-item mb-2">
+                                            <div class="ranking-item-content">
+                                                <div class="d-flex align-items-center gap-3">
+                                                    <span class="badge badge-rank-gold">@idx</span>
+                                                    <div style="color:#1a202c; font-weight:700; font-size:1.05rem;">
+                                                        @item.AdSoyad</div>
                                                 </div>
-                                                <span style="color:#1a202c; font-weight:800; min-width:45px; text-align:right; font-size:1.1rem;">@item.BasariYuzdesi%</span>
+                                                <div class="d-flex align-items-center gap-3">
+                                                    <div class="progress"
+                                                        style="width: 100px; height:10px; background: rgba(0,0,0,0.08); border-radius:10px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
+                                                        <div class="progress-bar pb-success"
+                                                            style="width:@item.BasariYuzdesi%; transition: width 0.3s ease;">
+                                                        </div>
+                                                    </div>
+                                                    <span
+                                                        style="color:#1a202c; font-weight:800; min-width:45px; text-align:right; font-size:1.1rem;">@item.BasariYuzdesi%</span>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </li>
-                                }
-                            </ol>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="p-4 ranking-card gold-card">
-                            <div class="mb-4 section-card-title">
-                                <i class="fas fa-code me-2"></i>Program Sayısı (Top 5)
+                                        </li>
+                                    }
+                                </ol>
                             </div>
-                            <ol class="list-unstyled m-0">
-                                @foreach (var (item, idx) in topProgramList.Select((x,i)=>(x,i+1)))
-                                {
-                                    <li class="ranking-item mb-2">
-                                        <div class="ranking-item-content">
-                                            <div class="d-flex align-items-center gap-3">
-                                                <span class="badge badge-rank-gold">@idx</span>
-                                                <div style="color:#1a202c; font-weight:700; font-size:1.05rem;">@item.AdSoyad</div>
-                                            </div>
-                                            <span style="color:#1a202c; font-weight:800; font-size:1.3rem;">@item.ProgramSayisi</span>
-                                        </div>
-                                    </li>
-                                }
-                            </ol>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="p-4 ranking-card gold-card">
-                            <div class="mb-4 section-card-title">
-                                <i class="fas fa-database me-2"></i>Kaynak Adedi (Top 5)
-                            </div>
-                            <ol class="list-unstyled m-0">
-                                @foreach (var (item, idx) in topKaynakList.Select((x,i)=>(x,i+1)))
-                                {
-                                    <li class="ranking-item mb-2">
-                                        <div class="ranking-item-content">
-                                            <div class="d-flex align-items-center gap-3">
-                                                <span class="badge badge-rank-gold">@idx</span>
-                                                <div style="color:#1a202c; font-weight:700; font-size:1.05rem;">@item.AdSoyad</div>
+                        <div class="col-md-6">
+                            <div class="p-4 ranking-card gold-card">
+                                <div class="mb-4 section-card-title">
+                                    <i class="fas fa-code me-2"></i>Program Sayısı (Top 5)
+                                </div>
+                                <ol class="list-unstyled m-0">
+                                    @foreach (var (item, idx) in topProgramList.Select((x, i) => (x, i + 1)))
+                                    {
+                                        <li class="ranking-item mb-2">
+                                            <div class="ranking-item-content">
+                                                <div class="d-flex align-items-center gap-3">
+                                                    <span class="badge badge-rank-gold">@idx</span>
+                                                    <div style="color:#1a202c; font-weight:700; font-size:1.05rem;">
+                                                        @item.AdSoyad</div>
+                                                </div>
+                                                <span
+                                                    style="color:#1a202c; font-weight:800; font-size:1.3rem;">@item.ProgramSayisi</span>
                                             </div>
-                                            <span style="color:#1a202c; font-weight:800; font-size:1.3rem;">@item.ToplamKaynak</span>
-                                        </div>
-                                    </li>
-                                }
-                            </ol>
+                                        </li>
+                                    }
+                                </ol>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="p-4 ranking-card gold-card">
-                            <div class="mb-4 section-card-title">
-                                <i class="fas fa-exclamation-triangle me-2" style="color:#dc3545;"></i>Hata Sayısı (Top 5)
-                            </div>
-                            <ol class="list-unstyled m-0">
-                                @foreach (var (item, idx) in topHataList.Select((x,i)=>(x,i+1)))
-                                {
-                                    <li class="ranking-item ranking-item-danger mb-2">
-                                        <div class="ranking-item-content">
-                                            <div class="d-flex align-items-center gap-3">
-                                                <span class="badge badge-rank-danger">@idx</span>
-                                                <div style="color:#1a202c; font-weight:700; font-size:1.05rem;">@item.AdSoyad</div>
+                        <div class="col-md-6">
+                            <div class="p-4 ranking-card gold-card">
+                                <div class="mb-4 section-card-title">
+                                    <i class="fas fa-database me-2"></i>Kaynak Adedi (Top 5)
+                                </div>
+                                <ol class="list-unstyled m-0">
+                                    @foreach (var (item, idx) in topKaynakList.Select((x, i) => (x, i + 1)))
+                                    {
+                                        <li class="ranking-item mb-2">
+                                            <div class="ranking-item-content">
+                                                <div class="d-flex align-items-center gap-3">
+                                                    <span class="badge badge-rank-gold">@idx</span>
+                                                    <div style="color:#1a202c; font-weight:700; font-size:1.05rem;">
+                                                        @item.AdSoyad</div>
+                                                </div>
+                                                <span
+                                                    style="color:#1a202c; font-weight:800; font-size:1.3rem;">@item.ToplamKaynak</span>
                                             </div>
-                                            <span style="color:#dc3545; font-weight:800; font-size:1.3rem;">@item.HataSayisi</span>
-                                        </div>
-                                    </li>
-                                }
-                            </ol>
+                                        </li>
+                                    }
+                                </ol>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-4 ranking-card gold-card">
+                                <div class="mb-4 section-card-title">
+                                    <i class="fas fa-exclamation-triangle me-2" style="color:#dc3545;"></i>Hata Sayısı (Top
+                                    5)
+                                </div>
+                                <ol class="list-unstyled m-0">
+                                    @foreach (var (item, idx) in topHataList.Select((x, i) => (x, i + 1)))
+                                    {
+                                        <li class="ranking-item ranking-item-danger mb-2">
+                                            <div class="ranking-item-content">
+                                                <div class="d-flex align-items-center gap-3">
+                                                    <span class="badge badge-rank-danger">@idx</span>
+                                                    <div style="color:#1a202c; font-weight:700; font-size:1.05rem;">
+                                                        @item.AdSoyad</div>
+                                                </div>
+                                                <span
+                                                    style="color:#dc3545; font-weight:800; font-size:1.3rem;">@item.HataSayisi</span>
+                                            </div>
+                                        </li>
+                                    }
+                                </ol>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
         }
     </div>
 
@@ -372,73 +421,80 @@
                     </tr>
                 </thead>
                 <tbody>
-                @foreach (var op in ops)
-                {
-                    var badgeClass = op.BasariYuzdesi >= 90 ? "success" : op.BasariYuzdesi >= 70 ? "warning" : "danger";
-                    <tr>
-                        <td class="px-4 py-3 border-0">
-                            <div class="d-flex align-items-center">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center me-3 avatar-initials brand-gradient-bg">
-                                    @(op.AdSoyad.Split(' ').Take(2).Select(n => n.FirstOrDefault()).Aggregate("", (acc, c) => acc + c))
+                    @foreach (var op in ops)
+                    {
+                        var badgeClass = op.BasariYuzdesi >= 90 ? "success" : op.BasariYuzdesi >= 70 ? "warning" : "danger";
+                        <tr>
+                            <td class="px-4 py-3 border-0">
+                                <div class="d-flex align-items-center">
+                                    <div
+                                        class="rounded-circle d-flex align-items-center justify-content-center me-3 avatar-initials brand-gradient-bg">
+                                        @(op.AdSoyad.Split(' ').Take(2).Select(n => n.FirstOrDefault()).Aggregate("", (acc,
+                                                                            c) => acc + c))
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold" style="color: #2d3748; font-size: 1rem;">@op.AdSoyad</div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <div class="fw-bold" style="color: #2d3748; font-size: 1rem;">@op.AdSoyad</div>
+                            </td>
+                            <td class="px-3 py-3 border-0">
+                                <span class="badge badge-pill-gold">
+                                    @op.KullaniciAdi
+                                </span>
+                            </td>
+                            <td class="px-3 py-3 border-0 text-end">
+                                <span class="fw-bold" style="color: #2d3748; font-size: 1.1rem;">@op.ProgramSayisi</span>
+                            </td>
+                            <td class="px-3 py-3 border-0 text-end">
+                                <span style="color: #4a5568; font-weight: 600;">@op.ToplamKaynak</span>
+                            </td>
+                            <td class="px-3 py-3 border-0 text-end">
+                                <span class="fw-bold" style="color: #38a169;">@op.BasariliKaynak</span>
+                            </td>
+                            <td class="px-3 py-3 border-0 text-end">
+                                <span class="fw-bold" style="color: #e53e3e;">@op.BasarisizKaynak</span>
+                            </td>
+                            <td class="px-3 py-3 border-0 text-end">
+                                <div class="d-flex align-items-center justify-content-end">
+                                    <div class="progress progress-thin">
+                                        <div class="progress-bar pb-@badgeClass" role="progressbar"
+                                            style="width: @op.BasariYuzdesi%;"></div>
+                                    </div>
+                                    <span class="ms-2 fw-bold"
+                                        style="color: #2d3748; font-size: 0.9rem; min-width: 35px;">@op.BasariYuzdesi%</span>
                                 </div>
-                            </div>
-                        </td>
-                        <td class="px-3 py-3 border-0">
-                            <span class="badge badge-pill-gold">
-                                @op.KullaniciAdi
-                            </span>
-                        </td>
-                        <td class="px-3 py-3 border-0 text-end">
-                            <span class="fw-bold" style="color: #2d3748; font-size: 1.1rem;">@op.ProgramSayisi</span>
-                        </td>
-                        <td class="px-3 py-3 border-0 text-end">
-                            <span style="color: #4a5568; font-weight: 600;">@op.ToplamKaynak</span>
-                        </td>
-                        <td class="px-3 py-3 border-0 text-end">
-                            <span class="fw-bold" style="color: #38a169;">@op.BasariliKaynak</span>
-                        </td>
-                        <td class="px-3 py-3 border-0 text-end">
-                            <span class="fw-bold" style="color: #e53e3e;">@op.BasarisizKaynak</span>
-                        </td>
-                        <td class="px-3 py-3 border-0 text-end">
-                            <div class="d-flex align-items-center justify-content-end">
-                                <div class="progress progress-thin">
-                                    <div class="progress-bar pb-@badgeClass" role="progressbar" style="width: @op.BasariYuzdesi%;"></div>
+                            </td>
+                            <td class="px-3 py-3 border-0 text-end">
+                                <span class="fw-bold" style="color: #e53e3e;">@op.HataSayisi</span>
+                            </td>
+                            <td class="px-3 py-3 border-0 text-end">
+                                <span
+                                    style="color: #4a5568; font-weight: 500; font-size: 0.9rem;">@op.OrtalamaProgramSureText</span>
+                            </td>
+                            <td class="px-3 py-3 border-0 text-end">
+                                <span
+                                    style="color: #4a5568; font-weight: 500; font-size: 0.9rem;">@op.SonProgramZamanText</span>
+                            </td>
+                            <td class="px-3 py-3 border-0 text-center">
+                                <a class="btn btn-sm btn-modern btn-primary-modern"
+                                    href="@Url.Action("Operator", new { id = op.OperatorId, days = Model.Days, maxProgramHours = Model.MaxProgramHours })"
+                                    style="border-radius: 10px; padding: 0.5rem 1rem; font-weight: 600; text-decoration: none;">
+                                    <i class="fas fa-eye me-1"></i>Detay
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                    @if (!ops.Any())
+                    {
+                        <tr>
+                            <td colspan="11" class="text-center py-5 border-0">
+                                <div style="color: #a0aec0; font-size: 1.1rem;">
+                                    <i class="fas fa-search mb-3" style="font-size: 3rem;"></i>
+                                    <div>Kayıt bulunamadı.</div>
                                 </div>
-                                <span class="ms-2 fw-bold" style="color: #2d3748; font-size: 0.9rem; min-width: 35px;">@op.BasariYuzdesi%</span>
-                            </div>
-                        </td>
-                        <td class="px-3 py-3 border-0 text-end">
-                            <span class="fw-bold" style="color: #e53e3e;">@op.HataSayisi</span>
-                        </td>
-                        <td class="px-3 py-3 border-0 text-end">
-                            <span style="color: #4a5568; font-weight: 500; font-size: 0.9rem;">@op.OrtalamaProgramSureText</span>
-                        </td>
-                        <td class="px-3 py-3 border-0 text-end">
-                            <span style="color: #4a5568; font-weight: 500; font-size: 0.9rem;">@op.SonProgramZamanText</span>
-                        </td>
-                        <td class="px-3 py-3 border-0 text-center">
-                                     <a class="btn btn-sm btn-modern btn-primary-modern" href="@Url.Action("Operator", new { id = op.OperatorId, days = Model.Days, maxProgramHours = Model.MaxProgramHours })" 
-                                         style="border-radius: 10px; padding: 0.5rem 1rem; font-weight: 600; text-decoration: none;">
-                                <i class="fas fa-eye me-1"></i>Detay
-                            </a>
-                        </td>
-                    </tr>
-                }
-                @if (!ops.Any())
-                {
-                    <tr>
-                        <td colspan="11" class="text-center py-5 border-0">
-                            <div style="color: #a0aec0; font-size: 1.1rem;">
-                                <i class="fas fa-search mb-3" style="font-size: 3rem;"></i>
-                                <div>Kayıt bulunamadı.</div>
-                            </div>
-                        </td>
-                    </tr>
-                }
+                            </td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
@@ -447,66 +503,66 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Tablo sıralama fonksiyonalitesi
-    const tbl = document.getElementById('tbl-operator');
-    if(!tbl) return;
-    
-    const thead = tbl.querySelector('thead');
-    if(!thead) return;
-    
-    let sortState = {};
-    
-    function getCellValue(tr, idx) {
-        const td = tr.children[idx];
-        if(!td) return '';
-        const text = td.innerText.trim();
-        const num = text.replace(/[%]/g,'').replace(',', '.');
-        return isNaN(num) || num === '' ? text : parseFloat(num);
-    }
-    
-    function comparer(idx) {
-        return function(a, b) {
-            const v1 = getCellValue(a, idx);
-            const v2 = getCellValue(b, idx);
-            if(typeof v1 === 'number' && typeof v2 === 'number') return v1 - v2;
-            return v1.toString().localeCompare(v2.toString(), 'tr');
+    document.addEventListener('DOMContentLoaded', function () {
+        // Tablo sıralama fonksiyonalitesi
+        const tbl = document.getElementById('tbl-operator');
+        if (!tbl) return;
+
+        const thead = tbl.querySelector('thead');
+        if (!thead) return;
+
+        let sortState = {};
+
+        function getCellValue(tr, idx) {
+            const td = tr.children[idx];
+            if (!td) return '';
+            const text = td.innerText.trim();
+            const num = text.replace(/[%]/g, '').replace(',', '.');
+            return isNaN(num) || num === '' ? text : parseFloat(num);
         }
-    }
-    
-    thead.addEventListener('click', e => {
-        const th = e.target.closest('th');
-        if(!th) return;
-        
-        const ths = Array.from(thead.querySelectorAll('th'));
-        const idx = ths.indexOf(th);
-        if(idx < 0 || idx === 10) return; // Son kolon (işlemler) sıralama yapmasın
-        
-        const tbody = tbl.querySelector('tbody');
-        const rows = Array.from(tbody.querySelectorAll('tr')).filter(r => r.children.length > 1);
-        const asc = !(sortState[idx] === true);
-        
-        // Sıralama animasyonu
-        tbody.style.opacity = '0.7';
-        tbody.style.transition = 'opacity 0.3s ease';
-        
-        setTimeout(() => {
-            rows.sort(comparer(idx));
-            if(!asc) rows.reverse();
-            rows.forEach(r => tbody.appendChild(r));
-            
-            sortState = {[idx]: asc};
-            ths.forEach(h => h.classList.remove('sorted-asc', 'sorted-desc'));
-            th.classList.add(asc ? 'sorted-asc' : 'sorted-desc');
-            
-            tbody.style.opacity = '1';
-        }, 150);
+
+        function comparer(idx) {
+            return function (a, b) {
+                const v1 = getCellValue(a, idx);
+                const v2 = getCellValue(b, idx);
+                if (typeof v1 === 'number' && typeof v2 === 'number') return v1 - v2;
+                return v1.toString().localeCompare(v2.toString(), 'tr');
+            }
+        }
+
+        thead.addEventListener('click', e => {
+            const th = e.target.closest('th');
+            if (!th) return;
+
+            const ths = Array.from(thead.querySelectorAll('th'));
+            const idx = ths.indexOf(th);
+            if (idx < 0 || idx === 10) return; // Son kolon (işlemler) sıralama yapmasın
+
+            const tbody = tbl.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr')).filter(r => r.children.length > 1);
+            const asc = !(sortState[idx] === true);
+
+            // Sıralama animasyonu
+            tbody.style.opacity = '0.7';
+            tbody.style.transition = 'opacity 0.3s ease';
+
+            setTimeout(() => {
+                rows.sort(comparer(idx));
+                if (!asc) rows.reverse();
+                rows.forEach(r => tbody.appendChild(r));
+
+                sortState = { [idx]: asc };
+                ths.forEach(h => h.classList.remove('sorted-asc', 'sorted-desc'));
+                th.classList.add(asc ? 'sorted-asc' : 'sorted-desc');
+
+                tbody.style.opacity = '1';
+            }, 150);
+        });
+
+        // Metrik kartları animasyon gecikmesi
+        const metricCards = document.querySelectorAll('.metric-card');
+        metricCards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+        });
     });
-    
-    // Metrik kartları animasyon gecikmesi
-    const metricCards = document.querySelectorAll('.metric-card');
-    metricCards.forEach((card, index) => {
-        card.style.animationDelay = `${index * 0.1}s`;
-    });
-});
 </script>
