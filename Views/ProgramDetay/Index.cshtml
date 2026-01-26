@@ -19,6 +19,24 @@
     <link href="~/lib/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" asp-append-version="true">
     <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/program-detay.css" asp-append-version="true" />
+    <style>
+        .program-title {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        /* Başlık ne kadar büyükse ikon da o kadar büyür */
+        .program-title .title-icon {
+            width: 1.1em;
+            /* 1.0em - 1.4em arası dene */
+            height: 1.1em;
+            min-width: 1.1em;
+            /* flex içinde küçülmesin */
+            object-fit: contain;
+            display: block;
+        }
+    </style>
 }
 
 <div class="dashboard-container">
@@ -27,7 +45,6 @@
         <div class="program-card mb-4">
             <div class="program-header">
                 <h4 class="program-title">
-
                     Program: @(Model?.Program?.ProgramAdi ?? "—")
                     <span class="program-id">#@(Model?.Program?.Id ?? 0)</span>
                 </h4>

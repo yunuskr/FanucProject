@@ -215,7 +215,7 @@
                         </div>
                         <div class="info-content">
                             <span class="info-label">Operatör</span>
-                            <span class="info-value">@(program?.Operator is null ? "—" : ($"{program.Operator.Ad}                            {program.Operator.Soyad}"))</span>
+                            <span class="info-value">@(program?.Operator is null ? "—" : ($"{program.Operator.Ad}                             {program.Operator.Soyad}"))</span>
                         </div>
                     </div>
                     <div class="info-item">
@@ -248,7 +248,7 @@
                     @for (int i = 0; i < kaynaklar.Count; i++)
                     {
                         var k = kaynaklar[i];
-                        var ad = $"{k.KaynakAdi}";
+                        var ad = $"Kaynak-{(i + 1).ToString("D2")}";
                         var bas = k.BaslangicSaati == default ? "—" : k.BaslangicSaati.ToString("HH:mm");
                         var bit = k.BitisSaati == default ? "—" : k.BitisSaati.ToString("HH:mm");
                         var ts = k.ToplamSure != default
@@ -256,19 +256,7 @@
                         : (k.BitisSaati - k.BaslangicSaati);
                         if (ts < TimeSpan.Zero) { ts = TimeSpan.Zero; }
                         var totalMinutes = (int)Math.Round(ts.TotalMinutes);
-                        var sureText = "";
-                        if (ts.TotalHours >= 1)
-                        {
-                            sureText = $"{(int)ts.TotalHours} sa {ts.Minutes} dk {ts.Seconds} sn";
-                        }
-                        else if (ts.TotalMinutes >= 1)
-                        {
-                            sureText = $"{ts.Minutes} dk {ts.Seconds} sn";
-                        }
-                        else
-                        {
-                            sureText = $"{ts.Seconds} sn";
-                        }
+                        var sureText = ts.TotalHours >= 1 ? $"{(int)ts.TotalHours} sa {ts.Minutes} dk" : $"{totalMinutes}                    dk";
                         var statusClass = k.basarili_mi ? "success" : "danger";
                         // 'fa-times' geniş destekli (FA5/FA6 alias), görünmemeyi önler
                         var statusIcon = k.basarili_mi ? "fas fa-check" : "fas fa-times";
