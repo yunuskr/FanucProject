@@ -1,25 +1,67 @@
 @{
     ViewData["Title"] = "Robot Canlı İzleme";
-    Layout = "_Layout";                 // ana şablonun
+    Layout = "_Layout"; // ana şablonun
     var kaynakId = (int?)ViewBag.KaynakId;
 }
 
 @section Head {
     <link rel="stylesheet" href="~/css/canli-izleme.css" />
+    <style>
+        /* Placeholder satırlar gri ve italik görünsün */
+        #tbl-all-body tr.empty-row td {
+            color: #9CA3AF;
+            font-style: italic;
+        }
+
+        /* Sticky başlık için arkaplan */
+        #tbl-all thead {
+            position: sticky;
+            top: 0;
+            background: #fff;
+            z-index: 1;
+        }
+
+        /* ikonun oturduğu kutu */
+        .metric-icon {
+            width: 56px;
+            /* istediğin gibi: 48 / 56 / 64 */
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: linear-gradient(135deg, rgba(16, 185, 129, .15) 0%, rgba(16, 185, 129, .05) 100%);
+            color: #10B981;
+        }
+
+        /* resmin kendisi */
+        .metric-icon-img {
+            width: 32px;
+            /* istediğin gibi: 28 / 32 / 36 */
+            height: 32px;
+            object-fit: contain;
+            display: block;
+        }
+    </style>
 }
 
 <div class="container-fluid py-4 page-container">
     <!-- Premium Header -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card glass-card" style="background: linear-gradient(135deg, rgba(250, 206, 0, 0.95) 0%, rgba(240, 151, 1, 0.9) 50%, rgba(218, 165, 32, 0.95) 100%); border: 1px solid rgba(240,151,1,0.3); box-shadow: 0 8px 32px rgba(240, 151, 1, 0.15);">
+            <div class="card glass-card"
+                style="background: linear-gradient(135deg, rgba(250, 206, 0, 0.95) 0%, rgba(240, 151, 1, 0.9) 50%, rgba(218, 165, 32, 0.95) 100%); border: 1px solid rgba(240,151,1,0.3); box-shadow: 0 8px 32px rgba(240, 151, 1, 0.15);">
                 <div class="card-body d-flex align-items-center justify-content-between py-4 px-4">
                     <div class="d-flex align-items-center">
-                        <div class="me-4" style="width: 60px; height: 60px; background: var(--gradient-gold); border-radius: var(--radius-xl); display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-gold);">
-                            <i class="fas fa-robot" style="font-size: 1.75rem; color: #1F2937;"></i>
+                        <div class="me-4" style="width:60px;height:60px;background:#0b0b0b;border-radius:var(--radius-xl);
+                            display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-gold);">
+                            <img src="~/images/favicon-ArcTab.png" alt="ArcTab"
+                                style="width:1.75rem;height:1.75rem;object-fit:contain;" />
                         </div>
                         <div>
-                            <h3 class="mb-2" style="font-size: var(--font-size-3xl); font-weight: 800; color: #111827; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <h3 class="mb-2"
+                                style="font-size: var(--font-size-3xl); font-weight: 800; color: #111827; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                                 Robot Canlı İzleme
                             </h3>
                             <p class="mb-0" style="color: #6B7280; font-size: var(--font-size-lg); font-weight: 500;">
@@ -36,12 +78,16 @@
                                 <span style="font-weight: 700;">Kaynak ID: @kaynakId.Value</span>
                             </div>
                         }
-                        <div id="program-pill" class="d-flex align-items-center gap-3 px-3 py-2" style="background: rgba(250,252,251,0.9); border-radius: var(--radius-lg); border: 1px solid rgb(210,216,214); min-width:260px;">
+                        <div id="program-pill" class="d-flex align-items-center gap-3 px-3 py-2"
+                            style="background: rgba(250,252,251,0.9); border-radius: var(--radius-lg); border: 1px solid rgb(210,216,214); min-width:260px;">
                             <div id="program-status-dot" class="status-indicator inactive"></div>
                             <div class="d-flex flex-column" style="line-height:1.1;">
-                                <span id="program-name" style="font-weight:600; font-size: var(--font-size-sm); color:#374151;">Program Yok</span>
+                                <span id="program-name"
+                                    style="font-weight:600; font-size: var(--font-size-sm); color:#374151;">Program
+                                    Yok</span>
                             </div>
-                            <span id="program-state-label" class="ms-auto badge-premium" style="background: rgba(107,114,128,0.15); color:#6B7280; font-weight:600;">BEKLEME</span>
+                            <span id="program-state-label" class="ms-auto badge-premium"
+                                style="background: rgba(107,114,128,0.15); color:#6B7280; font-weight:600;">BEKLEME</span>
                         </div>
                     </div>
                 </div>
@@ -54,26 +100,34 @@
         <div class="col-lg-4">
             <div class="card metric-card h-100" style="animation: fadeInUp 0.6s ease-out 0.1s both;">
                 <div class="card-body">
-                    <div class="metric-icon" id="robot-icon-container" style="background: linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0.05) 100%); color: #10B981; transition: all 0.3s ease;">
-                        <i class="fas fa-robot" style="font-size: 1.75rem;"></i>
+                    <div class="metric-icon" id="robot-icon-container"
+                        style="background: linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0.05) 100%); color: #10B981; transition: all 0.3s ease;">
+                        <img src="~/images/robot-hand.png" alt="Robot"
+                            style="width:1.75rem;height:1.75rem;object-fit:contain;vertical-align:middle;" />
                     </div>
                     <div class="flex-grow-1">
                         <div class="metric-title">Robot Durumu</div>
-                        <div class="metric-value" id="txt-status" style="color: #10B981; font-size: var(--font-size-lg); font-weight: 400;">Sistem Hazır</div>
+                        <div class="metric-value" id="txt-status"
+                            style="color: #10B981; font-size: var(--font-size-lg); font-weight: 400;">Sistem Hazır</div>
                         <div class="metric-subtitle mt-3">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center">
-                                    <span id="status-icon" class="status-indicator active me-2" style="width: 10px; height: 10px;"></span>
-                                    <span style="color: #9CA3AF; font-size: 0.8rem; font-weight: 500;">Canlı Bağlantı</span>
+                                    <span id="status-icon" class="status-indicator active me-2"
+                                        style="width: 10px; height: 10px;"></span>
+                                    <span style="color: #9CA3AF; font-size: 0.8rem; font-weight: 500;">Canlı
+                                        Bağlantı</span>
                                 </div>
                                 <div style="color: #6B7280; font-size: 0.75rem;">
                                     <span id="last-upd" style="color: #374151; font-weight: 600;">-</span>
                                 </div>
                             </div>
+                            <div style="color:#6B7280;font-size:.75rem;"><span id="last-upd"
+                                    style="color:#374151;font-weight:600;">-</span></div>
                         </div>
                     </div>
                     <div class="ms-auto">
-                        <div class="badge-premium" id="status-badge" style="background: rgba(16,185,129,0.1); color: #10B981;">
+                        <div class="badge-premium" id="status-badge"
+                            style="background: rgba(16,185,129,0.1); color: #10B981;">
                             <i class="fas fa-wifi me-1"></i>Canlı
                         </div>
                     </div>
@@ -84,43 +138,43 @@
         <div class="col-lg-4">
             <div class="card metric-card h-100" style="animation: fadeInUp 0.6s ease-out 0.2s both;">
                 <div class="card-body">
-                    <div class="metric-icon" style="background: linear-gradient(135deg, rgba(240,151,1,0.15) 0%, rgba(250,206,0,0.05) 100%); color: var(--gold-secondary);">
+                    <div class="metric-icon"
+                        style="background: linear-gradient(135deg, rgba(240,151,1,0.15) 0%, rgba(250,206,0,0.05) 100%); color: var(--gold-secondary);">
                         <i class="fas fa-tachometer-alt"></i>
                     </div>
                     <div class="flex-grow-1">
                         <div class="metric-title">Kaynak Hızı</div>
                         <div class="metric-value">
                             <span id="val-speed" style="color: var(--gold-secondary);">0</span>
-                            <small style="color: #6B7280; font-size: var(--font-size-sm); font-weight: 500;">mm/s</small>
+                            <small
+                                style="color: #6B7280; font-size: var(--font-size-sm); font-weight: 500;">mm/s</small>
                         </div>
                         <div class="metric-subtitle">Anlık hareket hızı</div>
                     </div>
                     <div class="ms-auto">
-                        <div class="badge-premium">
-                            <i class="fas fa-bolt me-1"></i>Anlık
-                        </div>
+                        <div class="badge-premium"><i class="fas fa-bolt me-1"></i>Anlık</div>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="col-lg-4">
-            <div id="system-status-card" class="card metric-card h-100" data-status="normal" style="animation: fadeInUp 0.6s ease-out 0.3s both;">
+            <div id="system-status-card" class="card metric-card h-100" data-status="normal"
+                style="animation: fadeInUp 0.6s ease-out 0.3s both;">
                 <div class="card-body">
-                    <div id="system-status-icon" class="metric-icon" style="background: linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0.05) 100%); color: #10B981; transition: all .3s;">
+                    <div id="system-status-icon" class="metric-icon"
+                        style="background: linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0.05) 100%); color: #10B981; transition: all .3s;">
                         <i class="fas fa-shield-alt"></i>
                     </div>
                     <div class="flex-grow-1">
                         <div class="metric-title">Sistem Durumu</div>
-                        <div class="metric-value">
-                            <span id="val-alarm" style="color: #10B981; font-weight:700;">Normal</span>
-                        </div>
-                        <div class="metric-subtitle">
-                            <span id="val-alarm-msg">Alarm bulunmuyor</span>
-                        </div>
+                        <div class="metric-value"><span id="val-alarm"
+                                style="color:#10B981;font-weight:700;">Normal</span></div>
+                        <div class="metric-subtitle"><span id="val-alarm-msg">Alarm bulunmuyor</span></div>
                     </div>
                     <div class="ms-auto">
-                        <div id="alarm-indicator" class="badge-premium" style="background: rgba(16,185,129,0.1); color: #10B981;">
+                        <div id="alarm-indicator" class="badge-premium"
+                            style="background: rgba(16,185,129,0.1); color: #10B981;">
                             <i class="fas fa-check-circle me-1"></i><span id="alarm-indicator-text">OK</span>
                         </div>
                     </div>
@@ -129,116 +183,27 @@
         </div>
     </div>
 
-    <!-- Premium Chart Visualization -->
-    <div class="row g-4">
-        <!-- Amper Chart -->
-        <div class="col-lg-4">
-            <div class="card chart-card h-100" style="animation: fadeInUp 0.6s ease-out 0.4s both;">
-                <div class="card-header">
-                    <h5 class="card-title">
-                        <i class="fas fa-bolt" style="color: #DC2626;"></i>
-                        Amper Değerleri
-                    </h5>
-                    <div class="badge-premium" style="background: rgba(220,38,38,0.1); color: #DC2626;">
-                        <i class="fas fa-chart-area me-1"></i>Gerçek Zamanlı
-                    </div>
-                </div>
-                <div class="chart-container">
-                    <canvas id="chartAmper"></canvas>
-                </div>
-                <div class="card-footer p-0" style="border-top: 1px solid rgba(0,0,0,0.08);">
-                    <div class="table-responsive">
-                        <table class="table table-premium mb-0">
-                            <thead>
-                                <tr>
-                                    <th style="width: 45%;">
-                                        <i class="fas fa-clock me-1" style="color: #6B7280;"></i>
-                                        Zaman
-                                    </th>
-                                    <th>
-                                        <i class="fas fa-bolt me-1" style="color: #DC2626;"></i>
-                                        Amper (A)
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbl-amper"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+    <!-- ✅ TEK BİRLEŞİK TABLO -->
+    <div class="card chart-card">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <h5 class="card-title m-0"><i class="fas fa-table me-2" style="color:var(--gold-secondary);"></i> Anlık
+                Kaynak Değerleri</h5>
+            <div class="badge-premium"><i class="fas fa-bolt me-1"></i>Gerçek Zamanlı</div>
         </div>
-
-        <!-- Voltaj Chart -->
-        <div class="col-lg-4">
-            <div class="card chart-card h-100" style="animation: fadeInUp 0.6s ease-out 0.5s both;">
-                <div class="card-header">
-                    <h5 class="card-title">
-                        <i class="fas fa-plug" style="color: #059669;"></i>
-                        Voltaj Değerleri
-                    </h5>
-                    <div class="badge-premium" style="background: rgba(5,150,105,0.1); color: #059669;">
-                        <i class="fas fa-chart-area me-1"></i>Gerçek Zamanlı
-                    </div>
-                </div>
-                <div class="chart-container">
-                    <canvas id="chartVoltaj"></canvas>
-                </div>
-                <div class="card-footer p-0" style="border-top: 1px solid rgba(0,0,0,0.08);">
-                    <div class="table-responsive">
-                        <table class="table table-premium mb-0">
-                            <thead>
-                                <tr>
-                                    <th style="width: 45%;">
-                                        <i class="fas fa-clock me-1" style="color: #6B7280;"></i>
-                                        Zaman
-                                    </th>
-                                    <th>
-                                        <i class="fas fa-plug me-1" style="color: #059669;"></i>
-                                        Voltaj (V)
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbl-voltaj"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tel Sürme Hızı Chart -->
-        <div class="col-lg-4">
-            <div class="card chart-card h-100" style="animation: fadeInUp 0.6s ease-out 0.6s both;">
-                <div class="card-header">
-                    <h5 class="card-title">
-                        <i class="fas fa-wind" style="color: var(--gold-secondary);"></i>
-                        Tel Sürme Hızı
-                    </h5>
-                    <div class="badge-premium">
-                        <i class="fas fa-chart-area me-1"></i>Gerçek Zamanlı
-                    </div>
-                </div>
-                <div class="chart-container">
-                    <canvas id="chartTel"></canvas>
-                </div>
-                <div class="card-footer p-0" style="border-top: 1px solid rgba(0,0,0,0.08);">
-                    <div class="table-responsive">
-                        <table class="table table-premium mb-0">
-                            <thead>
-                                <tr>
-                                    <th style="width: 45%;">
-                                        <i class="fas fa-clock me-1" style="color: #6B7280;"></i>
-                                        Zaman
-                                    </th>
-                                    <th>
-                                        <i class="fas fa-wind me-1" style="color: var(--gold-secondary);"></i>
-                                        Hız
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbl-tel"></tbody>
-                        </table>
-                    </div>
-                </div>
+        <div class="card-footer p-0">
+            <div class="table-responsive">
+                <table class="table table-premium mb-0" id="tbl-all">
+                    <thead>
+                        <tr>
+                            <th style="width:25%"><i class="fas fa-clock me-1" style="color:#6B7280;"></i>Zaman</th>
+                            <th style="width:25%"><i class="fas fa-bolt me-1" style="color:#DC2626;"></i>Amper (A)</th>
+                            <th style="width:25%"><i class="fas fa-plug me-1" style="color:#059669;"></i>Voltaj (V)</th>
+                            <th style="width:25%"><i class="fas fa-wind me-1"
+                                    style="color:var(--gold-secondary);"></i>Tel Hızı</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbl-all-body"></tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -253,11 +218,9 @@
     <script>
         // --- Shared helpers (avoid duplication) ---
         function setProgramPill(running, programText) {
-            const pill = document.getElementById('program-pill');
-            const progNameEl = document.getElementById('program-name');
-            const progDot = document.getElementById('program-status-dot');
-            const progState = document.getElementById('program-state-label');
-            if (!pill || !progDot || !progState) return;
+            const name = document.getElementById('program-name');
+            const dot = document.getElementById('program-status-dot');
+            const lbl = document.getElementById('program-state-label');
             if (running) {
                 progDot.classList.remove('inactive');
                 progDot.classList.add('active');
@@ -278,28 +241,54 @@
         }
 
         function applyRobotStatusStyles(isRunning) {
-            const txtStatus = document.getElementById('txt-status');
-            const statusIcon = document.getElementById('status-icon');
-            const robotIconContainer = document.getElementById('robot-icon-container');
-            const statusBadge = document.getElementById('status-badge');
-            if (txtStatus) {
-                txtStatus.textContent = isRunning ? 'Robot çalışıyor' : 'Robot durdu';
-                txtStatus.style.color = isRunning ? '#10B981' : '#DC2626';
+            const txt = document.getElementById('txt-status');
+            const ico = document.getElementById('status-icon');
+            const box = document.getElementById('robot-icon-container');
+            const badge = document.getElementById('status-badge');
+            txt.textContent = isRunning ? 'Robot çalışıyor' : 'Robot durdu';
+            txt.style.color = isRunning ? '#10B981' : '#DC2626';
+            box.style.background = isRunning
+                ? 'linear-gradient(135deg,rgba(16,185,129,.15) 0%,rgba(16,185,129,.05) 100%)'
+                : 'linear-gradient(135deg,rgba(220,38,38,.15) 0%,rgba(220,38,38,.05) 100%)';
+            box.style.color = isRunning ? '#10B981' : '#DC2626';
+            ico.style.background = isRunning ? '#10B981' : '#DC2626';
+            ico.classList.toggle('active', isRunning);
+            badge.style.background = isRunning ? 'rgba(16,185,129,.1)' : 'rgba(220,38,38,.1)';
+            badge.style.color = isRunning ? '#10B981' : '#DC2626';
+        }
+
+        function fmtTime(iso) {
+            const d = new Date(iso);
+            return d.toLocaleTimeString('tr-TR', { hour12: false });
+        }
+
+        // --------------- Tablo helpers ----------------
+        const MAX_TABLE_ROWS = 20;
+        const PLACEHOLDER_ROWS = 8;
+
+        function renderEmptyRows() {
+            const tb = document.getElementById('tbl-all-body');
+            if (!tb) return;
+            tb.innerHTML = '';
+            for (let i = 0; i < PLACEHOLDER_ROWS; i++) {
+                const tr = document.createElement('tr');
+                tr.className = 'empty-row';
+                tr.innerHTML = `<td>—</td><td>—</td><td>—</td><td>—</td>`;
+                tb.appendChild(tr);
             }
-            if (robotIconContainer) {
-                robotIconContainer.style.background = isRunning
-                    ? 'linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0.05) 100%)'
-                    : 'linear-gradient(135deg, rgba(220,38,38,0.15) 0%, rgba(220,38,38,0.05) 100%)';
-                robotIconContainer.style.color = isRunning ? '#10B981' : '#DC2626';
-            }
-            if (statusIcon) {
-                statusIcon.style.background = isRunning ? '#10B981' : '#DC2626';
-                statusIcon.classList.toggle('active', isRunning);
-            }
-            if (statusBadge) {
-                statusBadge.style.background = isRunning ? 'rgba(16,185,129,0.1)' : 'rgba(220,38,38,0.1)';
-                statusBadge.style.color = isRunning ? '#10B981' : '#DC2626';
-            }
+        }
+
+        function clearPlaceholders() {
+            document.querySelectorAll('#tbl-all-body .empty-row')?.forEach(el => el.remove());
+        }
+
+        function addUnifiedRow(time, amper, voltaj, tel) {
+            clearPlaceholders();
+            const tb = document.getElementById('tbl-all-body');
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${time}</td><td>${amper}</td><td>${voltaj}</td><td>${tel}</td>`;
+            if (tb.firstChild) tb.insertBefore(tr, tb.firstChild); else tb.appendChild(tr);
+            while (tb.children.length > MAX_TABLE_ROWS) tb.removeChild(tb.lastChild);
         }
 
         function resetLiveData() {
@@ -308,24 +297,10 @@
             dataPoints.voltaj = [];
             dataPoints.telHizi = [];
             updateCharts();
-            ['tbl-amper','tbl-voltaj','tbl-tel'].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = ''; });
+            ['tbl-amper', 'tbl-voltaj', 'tbl-tel'].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = ''; });
         }
 
-        function updateCharts() {
-            chA.data.labels = [...dataPoints.labels];
-            chA.data.datasets[0].data = [...dataPoints.amper];
-            chA.update('active');
-
-            chV.data.labels = [...dataPoints.labels];
-            chV.data.datasets[0].data = [...dataPoints.voltaj];
-            chV.update('active');
-
-            chW.data.labels = [...dataPoints.labels];
-            chW.data.datasets[0].data = [...dataPoints.telHizi];
-            chW.update('active');
-        }
-
-        // Sayfa açıldığında robotun son durumunu API'den çek
+        // --------------- İlk durum (API) ---------------
         window.addEventListener('DOMContentLoaded', async () => {
             try {
                 const res = await fetch('/api/robot/status');
@@ -335,7 +310,7 @@
                     setProgramPill(running, data.aktifProgram || '');
                     applyRobotStatusStyles(running);
                 }
-            } catch {}
+            } catch { }
         });
 
         // SignalR bağlantısı
@@ -357,39 +332,39 @@
         });
 
         // Sistem durumu (fault/normal) güncelleyici
-    connection.on("ReceiveSystemStatus", (sysStatus) => {
-      const card = document.getElementById('system-status-card');
-      const iconBox = document.getElementById('system-status-icon');
-      const valAlarm = document.getElementById('val-alarm');
-      const valAlarmMsg = document.getElementById('val-alarm-msg');
-      const badge = document.getElementById('alarm-indicator');
+        connection.on("ReceiveSystemStatus", (sysStatus) => {
+            const card = document.getElementById('system-status-card');
+            const iconBox = document.getElementById('system-status-icon');
+            const valAlarm = document.getElementById('val-alarm');
+            const valAlarmMsg = document.getElementById('val-alarm-msg');
+            const badge = document.getElementById('alarm-indicator');
 
-      if (!card || !iconBox || !valAlarm || !valAlarmMsg || !badge) return;
+            if (!card || !iconBox || !valAlarm || !valAlarmMsg || !badge) return;
 
-      const isFault = (sysStatus === 'Fault');
-      card.setAttribute('data-status', isFault ? 'fault' : 'normal');
-      iconBox.style.background = isFault ? 'linear-gradient(135deg,#dc2626,#b91c1c)' : 'linear-gradient(135deg,#059669,#10b981)';
-      iconBox.style.color = '#fff';
-      valAlarm.textContent = isFault ? 'Fault' : 'Normal';
-      valAlarm.className = isFault ? 'mb-0 text-danger fw-bold' : 'mb-0 text-success fw-semibold';
-      valAlarmMsg.textContent = isFault ? 'Hata alındı' : 'Alarm bulunmuyor';
-      badge.className = 'badge-premium d-inline-flex align-items-center gap-1';
-      badge.style.background = isFault ? 'linear-gradient(135deg,#dc2626,#ef4444)' : 'var(--gradient-gold)';
-      badge.style.color = isFault ? '#fff' : '#1F2937';
-      badge.innerHTML = isFault
-        ? '<i class="fas fa-exclamation-triangle me-1"></i><span id="alarm-indicator-text">FAULT</span>'
-        : '<i class="fas fa-check-circle me-1"></i><span id="alarm-indicator-text">OK</span>';
-    });
+            const isFault = (sysStatus === 'Fault');
+            card.setAttribute('data-status', isFault ? 'fault' : 'normal');
+            iconBox.style.background = isFault ? 'linear-gradient(135deg,#dc2626,#b91c1c)' : 'linear-gradient(135deg,#059669,#10b981)';
+            iconBox.style.color = '#fff';
+            valAlarm.textContent = isFault ? 'Fault' : 'Normal';
+            valAlarm.className = isFault ? 'mb-0 text-danger fw-bold' : 'mb-0 text-success fw-semibold';
+            valAlarmMsg.textContent = isFault ? 'Hata alındı' : 'Alarm bulunmuyor';
+            badge.className = 'badge-premium d-inline-flex align-items-center gap-1';
+            badge.style.background = isFault ? 'linear-gradient(135deg,#dc2626,#ef4444)' : 'var(--gradient-gold)';
+            badge.style.color = isFault ? '#fff' : '#1F2937';
+            badge.innerHTML = isFault
+                ? '<i class="fas fa-exclamation-triangle me-1"></i><span id="alarm-indicator-text">FAULT</span>'
+                : '<i class="fas fa-check-circle me-1"></i><span id="alarm-indicator-text">OK</span>';
+        });
 
         // Canlı veri geldiğinde grafik ve tabloya ekle
-        connection.on("ReceiveLiveData", (amper, voltaj, telSurmeHizi,kaynakHizi, zamanIso) => {
+        connection.on("ReceiveLiveData", (amper, voltaj, telSurmeHizi, kaynakHizi, zamanIso) => {
             // Grafiklere ve tablolara ekle
             const timeLabel = fmtTime(zamanIso);
             dataPoints.labels.push(timeLabel);
             dataPoints.amper.push(parseFloat(amper));
             dataPoints.voltaj.push(parseFloat(voltaj));
             dataPoints.telHizi.push(parseFloat(telSurmeHizi));
-            document.getElementById("val-speed").innerText=kaynakHizi
+            document.getElementById("val-speed").innerText = kaynakHizi
             if (dataPoints.labels.length > MAX_DATA_POINTS) {
                 dataPoints.labels.shift();
                 dataPoints.amper.shift();
@@ -399,12 +374,19 @@
 
             updateCharts();
 
+
+            const speedEl = document.getElementById("val-speed");
+            if (speedEl) {
+                // 1 basamak göster (örneğin 1.6)
+                speedEl.textContent = parseFloat(kaynakHizi).toFixed(1);
+            }
+
             updateTable('tbl-amper', amper, timeLabel, 'a');
             updateTable('tbl-voltaj', voltaj, timeLabel, 'v');
             updateTable('tbl-tel', telSurmeHizi, timeLabel, 'w');
         });
 
-    connection.start().catch(err => console.error(err.toString()));
+        connection.start().catch(err => console.error(err.toString()));
 
         // Chart helpers
         const makeChart = (canvasId, label, color = '#007bff') => {
@@ -440,9 +422,9 @@
                         intersect: false,
                     },
                     scales: {
-                        x: { 
-                            ticks: { 
-                                autoSkip: true, 
+                        x: {
+                            ticks: {
+                                autoSkip: true,
                                 maxTicksLimit: 8,
                                 color: '#6c757d'
                             },
@@ -453,7 +435,7 @@
                                 color: '#495057'
                             }
                         },
-                        y: { 
+                        y: {
                             beginAtZero: true,
                             grid: { color: 'rgba(0,0,0,0.1)' },
                             ticks: {
@@ -467,16 +449,16 @@
                         }
                     },
                     plugins: {
-                        legend: { 
-                            display: true, 
+                        legend: {
+                            display: true,
                             position: 'top',
                             labels: {
                                 usePointStyle: true,
                                 padding: 15
                             }
                         },
-                        tooltip: { 
-                            mode: 'index', 
+                        tooltip: {
+                            mode: 'index',
                             intersect: false,
                             backgroundColor: 'rgba(0,0,0,0.8)',
                             titleColor: 'white',
