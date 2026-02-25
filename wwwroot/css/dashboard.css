@@ -70,12 +70,59 @@
 /* Charts */
 .charts-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap:2rem; margin-bottom:2rem; }
 .chart-card{ background:var(--glass-bg); backdrop-filter: blur(20px); border-radius: var(--border-radius); border:1px solid var(--glass-border); box-shadow: var(--shadow-glass); padding:1.5rem; position:relative; overflow:hidden; }
-.chart-header{ display:flex; align-items:center; justify-content:between; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid rgba(0,0,0,.1); }
-.chart-title{ font-size:1.2rem; font-weight:600; color:#2c3e50; margin:0; }
+
+
+.chart-header{
+  display:flex;
+  align-items:center;
+  justify-content: space-between; /* between -> space-between */
+  gap:.75rem;
+  flex-wrap: wrap;               /* uzun başlık taşmasın */
+}
+.chart-title{
+  display:flex;
+  align-items:center;
+  gap:.5rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: normal;           /* satıra insin */
+  overflow-wrap: anywhere;       /* çok uzunsa kır */
+}
+
+
 .chart-container{ height:300px; position:relative; }
 
 /* Success Rate */
-.success-rate-display{ padding:1.5rem; display:flex; align-items:center; justify-content:space-between; gap:2rem; height:250px; }
+.success-rate-display{
+  padding: 1rem;          /* 1.5rem -> daha sıkı */
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 1rem;              /* 2rem -> daha sıkı */
+  height: auto;           /* 250px -> auto (en kritik) */
+  flex-wrap: wrap;        /* daralınca alta insin */
+}
+
+.success-meta{ flex: 0 0 auto; min-width: 140px; }
+.success-stats{ flex: 1 1 220px; min-width: 0; }  /* shrink edebilsin */
+.stat-item{ min-width: 0; }                        /* taşmayı keser */
+
+/* Program adı çok uzunsa kartı şişirmesin */
+.success-program-name{
+  max-width: 160px;       /* 220px -> küçült */
+  overflow-wrap:anywhere;
+}
+
+/* Canvas wrapper’ını class yapman en temizi (inline yerine) */
+.success-pie-wrap{
+  width:120px;
+  height:120px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex: 0 0 120px;
+   overflow:auto;     /* scroll aktif */
+}
 .success-circle{ position:relative; width:120px; height:120px; border-radius:50%; background: conic-gradient(from 0deg,#11998e 0% 97%, #f1f3f4 97% 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow:0 8px 25px rgba(17,153,142,.3); }
 .success-circle::before{ content:""; position:absolute; inset:8px; background:#fff; border-radius:50%; z-index:1; }
 .success-percentage{ position:relative; z-index:2; font-size:2rem; font-weight:800; color:#11998e; line-height:1; }

@@ -55,7 +55,6 @@ namespace FanucRelease.Services
                 Console.Error.WriteLine($"Log dosyasına yazılamadı: {logEx.Message}");
             }
         }
-
         private void SaveRobotStatusToFile()
         {
             try
@@ -87,8 +86,6 @@ namespace FanucRelease.Services
                 }
             }
         }
-
-
         private double FixFloat(double value)
         {
             if (double.IsNaN(value) || double.IsInfinity(value))
@@ -262,6 +259,7 @@ namespace FanucRelease.Services
                             }
                             programVerisi.ProgramAdi = prog_baslat ?? string.Empty;
                             programVerisi.BaslangicZamani = DateTime.Now;
+                            programVerisi.Tarih = DateTime.Now.Date;
 
                             veri.Clear();
                         }
@@ -401,6 +399,13 @@ namespace FanucRelease.Services
 
                                     // Şimdi kaynağı kaydet
                                     db.Kaynaklar.Add(kaynak);
+                                    if (hatalar.Count > 0)
+                                    {
+                                        db.Hatalar.AddRange(hatalar);
+                                        await db.SaveChangesAsync();
+                                        hatalar.Clear();
+                                        LogToFile($"{hatalar.Count} KayOFF içindeki hata kaydı veritabanına yazıldı.");
+                                    }
                                     await db.SaveChangesAsync();
                                 }
                             }
@@ -408,10 +413,6 @@ namespace FanucRelease.Services
                             {
                                 LogToFile("Kaynak veri tabanına yazılırken hata oluştu", ex);
                             }
-
-
-
-
 
                             veri.Clear();
 

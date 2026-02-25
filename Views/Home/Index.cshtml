@@ -3,11 +3,10 @@
     Layout = "_Layout";
     var items = Model.GecmisProgramlar ?? Array.Empty<FanucRelease.Models.ViewModels.GecmisProgramRow>();
     var program = Model.SonProgram;
+    var sonProgramHataSayisi = Model.SonProgram?.Hatalar?.Count() ?? 0;
     int toplamKaynak = Model.ToplamKaynak;
     int basariliKaynak = Model.BasariliKaynak;
     int basariOrani = toplamKaynak > 0 ? (int)System.Math.Round(basariliKaynak * 100.0 / toplamKaynak) : 0;
-    // Son program için başarı/başarısızlık: controller tarafından hazırlanmış değerler öncelikli
-    var kaynakListLocal = (program?.Kaynaklar ?? Enumerable.Empty<FanucRelease.Models.Kaynak>()).ToList();
     int programToplam = Model.SonProgramToplam;
     int programBasarili = Model.SonProgramBasarili;
     int programBasarisiz = Model.SonProgramBasarisiz;
@@ -96,7 +95,7 @@
                 <div class="stat-header">
                     <div>
                         <h3 class="stat-value" id="hataCount">@Model.HataToplam</h3>
-                        <p class="stat-label">Toplam Hata</p>
+                        <p class="stat-label">Toplam Alarm</p>
                         <div style="margin-top: .5rem;" class="stat-trend @Model.HataTrendClass">
                             <i class="@Model.HataTrendIcon"></i>
                             <span>@Model.HataTrendText</span>
@@ -247,8 +246,9 @@
                 <div class="kaynak-grid">
                     @for (int i = 0; i < kaynaklar.Count; i++)
                     {
+                        
                         var k = kaynaklar[i];
-                        var ad = $"Kaynak-{(i + 1).ToString("D2")}";
+                        var ad = k.KaynakAdi;
                         var bas = k.BaslangicSaati == default ? "—" : k.BaslangicSaati.ToString("HH:mm");
                         var bit = k.BitisSaati == default ? "—" : k.BitisSaati.ToString("HH:mm");
                         var ts = k.ToplamSure != default
@@ -256,7 +256,7 @@
                         : (k.BitisSaati - k.BaslangicSaati);
                         if (ts < TimeSpan.Zero) { ts = TimeSpan.Zero; }
                         var totalMinutes = (int)Math.Round(ts.TotalMinutes);
-                        var sureText = ts.TotalHours >= 1 ? $"{(int)ts.TotalHours} sa {ts.Minutes} dk" : $"{totalMinutes}                    dk";
+                        var sureText = $"{(int)ts.TotalHours:D2}:{ts.Minutes:D2}:{ts.Seconds:D2}";
                         var statusClass = k.basarili_mi ? "success" : "danger";
                         // 'fa-times' geniş destekli (FA5/FA6 alias), görünmemeyi önler
                         var statusIcon = k.basarili_mi ? "fas fa-check" : "fas fa-times";
@@ -279,6 +279,7 @@
                     }
                 </div>
             </div>
+     
         </div>
 
         <!-- Charts Section -->
@@ -286,7 +287,7 @@
             <div class="chart-card success-rate-card">
                 <div class="chart-header">
                     <h5 class="chart-title">
-                        <i class="fas fa-chart-pie"></i> Son Program Başarı Oranı
+                        <i class="fas fa-chart-pie"></i> Son Program Kaynaklarının Başarı Oranı
                     </h5>
                 </div>
                 <div class="success-rate-display">
@@ -303,28 +304,32 @@
                             <i class="fas fa-check-circle"></i>
                             <div>
                                 <span class="stat-number">@programBasarili</span>
-                                <span class="stat-text">Başarılı</span>
+                                <span class="stat-text">Başarılı Biten </span>
                             </div>
                         </div>
                         <div class="stat-item error-stat">
                             <i class="fas fa-times-circle"></i>
                             <div>
-                                <span class="stat-number">@programBasarisiz</span>
-                                <span class="stat-text">Hatalı</span>
+                                <span class="stat-number">@sonProgramHataSayisi</span>
+                                <span class="stat-text">Alarmlar</span>
                             </div>
                         </div>
                         <div class="stat-item total-stat">
                             <i class="fas fa-bolt"></i>
                             <div>
                                 <span class="stat-number">@programToplam</span>
-                                <span class="stat-text">Toplam</span>
+                                <span class="stat-text">Toplam Kaynak</span>
                             </div>
                         </div>
+                        
                     </div>
-                    <!-- todayPie canvas eklendi: Chart.js context hatasını önlemek için varlık kontrolü yapılacak -->
-                    <div style="width:120px; height:120px; display:flex; align-items:center; justify-content:center;">
+                    
+                    <div class="success-pie-wrap" >
                         <canvas id="todayPie" width="100" height="100" aria-label="Başarı Oranı Grafiği"></canvas>
                     </div>
+
+
+                    
                 </div>
             </div>
 
@@ -334,7 +339,8 @@
                         <i class="fas fa-chart-bar"></i> Son Kaynak Verileri
                     </h5>
                 </div>
-                <div class="chart-container" style="padding:1rem;">
+
+                <div class="chart-container" style="padding:1rem; max-height:300px; overflow:auto;">
                     @if (sonBasarili == null)
                     {
                         <div style="color:#6c757d; font-weight:600;">Veri bulunamadı.</div>
@@ -388,6 +394,7 @@
                         </div>
                     }
                 </div>
+
             </div>
 
             <div class="chart-card alarm-card">
@@ -515,6 +522,8 @@
 </div>
 
 <script>
+    
+    
     // Chart.js configurations with modern styling
     const chartDefaults = {
         responsive: true,
@@ -541,13 +550,14 @@
 
     // DOM ready: init chart and handle loading animation
     document.addEventListener('DOMContentLoaded', function () {
+        
         // Today Success Rate Pie Chart
         const todayPieCanvas = document.getElementById('todayPie');
         if (todayPieCanvas) {
             new Chart(todayPieCanvas, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Başarılı', 'Hatalı'],
+                    labels: ['Başarılı', 'Alarm'],
                     datasets: [{
                         data: [@programBasarili, @programBasarisiz],
                         backgroundColor: ['#11998e', '#ff416c'],
