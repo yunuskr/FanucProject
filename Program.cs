@@ -1,12 +1,16 @@
 using FanucRelease.Data;
 using FanucRelease.Services;
 using FanucRelease.Services.Interfaces;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Uygulamayı aynı ağdan erişilebilir hale getir
+builder.WebHost.UseUrls("http://0.0.0.0:5000");
 
 // DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -26,7 +30,7 @@ builder.Services.AddScoped<IOperatorService, OperatorService>();
 builder.Services.AddScoped<IAnlikKaynakService, AnlikKaynakService>();
 builder.Services.AddHostedService<RobotTcpListenerService>();
 
-// 🔐 AUTH
+// AUTH
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(opt =>
     {
@@ -44,12 +48,13 @@ var app = builder.Build();
 // Pipeline
 if (!app.Environment.IsDevelopment())
 {
-    // Burayı /Home/Error yapıyoruz, çünkü Error action genelde HomeController’da.
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// Aynı ağda test için önce HTTP kullan
+// app.UseHttpsRedirection();
+
 app.UseStaticFiles();
 
 // Serve icons folder from project root at /icons
@@ -67,13 +72,13 @@ app.UseAuthorization();
 // SignalR Hub endpoint
 app.MapHub<RobotStatusHub>("/robotStatusHub");
 
-// Routes (önce Areas, sonra Default)
+// Routes
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Admin}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Login}/{action=Index}/{id?}"); // ⬅️ Root = Login
+    pattern: "{controller=Login}/{action=Index}/{id?}");
 
 app.Run();
