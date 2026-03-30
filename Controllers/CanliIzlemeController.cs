@@ -1,12 +1,6 @@
-// Controllers/CanliIzlemeController.cs
-using System;
-using System.Linq;
-using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using FanucRelease.Data;
 using FanucRelease.Services.Interfaces;
-using FanucRelease.Models;
 
 namespace FanucRelease.Controllers
 {
