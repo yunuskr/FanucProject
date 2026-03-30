@@ -10,7 +10,10 @@ using System.IO;
 var builder = WebApplication.CreateBuilder(args);
 
 // Uygulamayı aynı ağdan erişilebilir hale getir
-builder.WebHost.UseUrls("http://0.0.0.0:5000");
+builder.WebHost.UseUrls(
+    "http://localhost:5000",
+    "http://0.0.0.0:5000"
+);
 
 // DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
