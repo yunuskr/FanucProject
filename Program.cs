@@ -47,7 +47,8 @@ builder.Services.AddAuthorization();
 builder.Services.AddSignalR();
 
 var app = builder.Build();
-
+var cs = builder.Configuration.GetConnectionString("DefaultConnection");
+Console.WriteLine("AKTIF CS: " + cs);
 // Pipeline
 if (!app.Environment.IsDevelopment())
 {
