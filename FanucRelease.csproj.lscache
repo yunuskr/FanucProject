@@ -128,7 +128,6 @@ Models/
  ProgramVerisi.cs
  RobotStatusHub.cs
  Settings.cs
- TrafoBilgisi.cs
  ViewModels/
   DashboardViewModel.cs
   GecmisProgramRow.cs
@@ -163,7 +162,6 @@ Services/
  ProgramVerisiService.cs
  RobotTcpListenerService.cs
  SettingsService.cs
- TrafoBilgisiService.cs
 ViewModels/
  GecmisProgramlarVM.cs
  KaynakDetayVM.cs
