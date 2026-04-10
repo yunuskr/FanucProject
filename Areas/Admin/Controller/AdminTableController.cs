@@ -20,7 +20,7 @@ namespace FanucRelease.Areas.Admin.Controllers
             var adminler = await _adminService.GetAllAsync();
             return View(adminler);
         }
-         [HttpPost]
+        [HttpPost]
         public async Task<IActionResult> AddAdmin(FanucRelease.Models.Admin admin)
         {
             if (ModelState.IsValid)
@@ -48,8 +48,9 @@ namespace FanucRelease.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
+
             await _adminService.DeleteAsync(id);
             return Ok();
         }
-            }
+    }
 }

@@ -1,388 +1,530 @@
-@* _Layout.cshtml *@
-<!doctype html>
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? string.Empty;
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? string.Empty;
+
+    bool IsActive(string ctrl, string? act = null) =>
+        string.Equals(currentController, ctrl, StringComparison.OrdinalIgnoreCase) &&
+        (act == null || string.Equals(currentAction, act, StringComparison.OrdinalIgnoreCase));
+
+    string pageTitle = ViewData["Title"]?.ToString() ?? "Admin Panel";
+
+    bool userMenuOpen = currentController == "OperatorTable" || currentController == "AdminTable";
+}
+<!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="utf-8" />
-    <title>Fanuc Release Admin Panel</title>
+    <title>@pageTitle - RoboEye Admin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="RoboEye Admin Yönetim Paneli" name="description" />
+    <meta content="Robentex End. Ver. A.Ş." name="author" />
 
-    <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
-    <meta content="Themesbrand" name="author" />
+    <link rel="shortcut icon" href="~/favicon.ico" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+    <link href="~/lib/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" asp-append-version="true">
+        <link href="~/lib/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet" />
+        <link href="~/css/site.css" rel="stylesheet" />
 
-    <!-- Favicon -->
-    <link rel="shortcut icon" href="~/assets/images/favicon.ico">
+        <style>
+                :root {
+                    --brand-gradient: linear-gradient(90deg, #c77700, #d4a800);
+                    --sidebar-width: 280px;
+                    --topbar-height: 70px;
+                    --glass-bg: rgba(255, 255, 255, 0.95);
+                    --glass-border: rgba(255, 255, 255, 0.3);
+                    --shadow-glass: 0 8px 32px rgba(31, 38, 135, 0.2);
+                    --border-radius: 15px;
+                    --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+                }
 
-    <!-- CSS -->
-    <link href="~/assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css" />
-    <link href="~/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
-    <link href="~/assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css" />
+                * {
+                    box-sizing: border-box;
+                }
 
-    @RenderSection("Styles", required: false)
+                body {
+                    font-family: 'Poppins', sans-serif;
+                    background: linear-gradient(135deg, #f09701 0%, #face00 50%, #f09701 100%);
+                    background-attachment: fixed;
+                    min-height: 100vh;
+                    color: #2c3e50;
+                    overflow-x: hidden;
+                    margin: 0;
+                }
 
-    <style>
-        /* Menü oku ve aktif görünüm */
-        .has-arrow.active { font-weight: bold; }
-        .has-arrow::after {
-            content: '\25BC';
-            float: right;
-            transition: transform 0.2s;
-        }
-        .has-arrow.active::after { transform: rotate(180deg); }
+                .layout-wrapper {
+                    display: flex;
+                    min-height: 100vh;
+                    width: 100%;
+                }
 
-        /* MetisMenu görünürlük netleştirme (tema çakışmalarına karşı) */
-        .sub-menu.mm-collapse { display: none; }
-        .sub-menu.mm-collapse.mm-show { display: block; }
-    </style>
-</head>
+                .sidebar {
+                    width: var(--sidebar-width);
+                    background: #222222;
+                    backdrop-filter: blur(20px);
+                    border-right: 1px solid var(--glass-border);
+                    box-shadow: var(--shadow-glass);
+                    position: fixed;
+                    height: 100vh;
+                    left: 0;
+                    top: 0;
+                    z-index: 1000;
+                    overflow-y: auto;
+                    transition: var(--transition);
+                }
 
-<body>
-    <!-- <body data-layout="horizontal" data-topbar="colored"> -->
+                .sidebar-header {
+                    padding: 1.5rem;
+                    text-align: center;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+                    margin-bottom: 1rem;
+                }
 
-    <div id="layout-wrapper">
-        <!-- Topbar -->
-        <header id="page-topbar">
-            <div class="navbar-header">
-                <div class="d-flex">
-                    <!-- LOGO -->
-                    <div class="navbar-brand-box">
-                        <a href="~/" class="logo logo-dark">
-                            <span class="logo-sm">
-                                <img src="~/assets/images/logo-sm.png" alt="" height="22">
-                            </span>
-                            <span class="logo-lg">
-                                <img src="~/assets/images/logo-dark.png" alt="" height="20">
-                            </span>
-                        </a>
-                        <a href="~/" class="logo logo-light">
-                            <span class="logo-sm">
-                                <img src="~/assets/images/logo-sm.png" alt="" height="22">
-                            </span>
-                            <span class="logo-lg">
-                                <img src="~/assets/images/logo-light.png" alt="" height="20">
-                            </span>
-                        </a>
+                .sidebar-logo {
+                    font-size: 1.8rem;
+                    font-weight: 700;
+                    background: var(--brand-gradient);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    margin-bottom: 0.5rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: .5rem;
+                }
+
+                .sidebar-tagline {
+                    color: #ffffff;
+                    font-size: 0.85rem;
+                    font-weight: 400;
+                }
+
+                .sidebar-nav {
+                    padding: 0 1rem;
+                }
+
+                .nav-section {
+                    margin-bottom: 2rem;
+                }
+
+                .nav-section-title {
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    color: #ffffff;
+                    margin-bottom: 1rem;
+                    padding: 0 1rem;
+                }
+
+                .nav-item {
+                    margin-bottom: .5rem;
+                }
+
+                .nav-link {
+                    display: flex;
+                    align-items: center;
+                    padding: 1rem;
+                    border-radius: var(--border-radius);
+                    text-decoration: none;
+                    color: #ffffff;
+                    transition: var(--transition);
+                    font-weight: 500;
+                }
+
+                .nav-link:hover,
+                .nav-link.active {
+                    background: var(--brand-gradient);
+                    color: white;
+                    transform: translateX(5px);
+                    text-decoration: none;
+                    box-shadow: var(--shadow-glass);
+                }
+
+                .nav-link i {
+                    width: 20px;
+                    margin-right: 1rem;
+                    font-size: 1.05rem;
+                    text-align: center;
+                }
+
+                .has-submenu {
+                    position: relative;
+                }
+
+                .submenu-toggle {
+                    justify-content: flex-start;
+                    position: relative;
+                }
+
+                .submenu-arrow {
+                    margin-left: auto !important;
+                    margin-right: 0 !important;
+                    width: auto !important;
+                    font-size: .85rem !important;
+                    transition: transform 0.3s ease;
+                }
+
+                .sub-links {
+                    margin-top: .35rem;
+                    margin-left: .75rem;
+                    display: flex;
+                    flex-direction: column;
+                    gap: .35rem;
+                    max-height: 0;
+                    overflow: hidden;
+                    opacity: 0;
+                    pointer-events: none;
+                    transition: max-height 0.35s ease, opacity 0.25s ease;
+                }
+
+                .has-submenu:hover .sub-links,
+                .has-submenu.submenu-open .sub-links {
+                    max-height: 200px;
+                    opacity: 1;
+                    pointer-events: auto;
+                }
+
+                .has-submenu:hover .submenu-arrow,
+                .has-submenu.submenu-open .submenu-arrow {
+                    transform: rotate(180deg);
+                }
+
+                .sub-link {
+                    display: flex;
+                    align-items: center;
+                    padding: .8rem 1rem;
+                    border-radius: 12px;
+                    text-decoration: none;
+                    color: rgba(255, 255, 255, .85);
+                    transition: var(--transition);
+                    font-size: .95rem;
+                }
+
+                .sub-link:hover,
+                .sub-link.active {
+                    background: rgba(255, 255, 255, .10);
+                    color: #fff;
+                    text-decoration: none;
+                }
+
+                .main-content {
+                    margin-left: var(--sidebar-width) !important;
+                    width: calc(100% - var(--sidebar-width));
+                    display: flex;
+                    flex-direction: column;
+                    min-height: 100vh;
+                    background: none !important;
+                    padding: 0 !important;
+                }
+
+                .topbar {
+                    height: var(--topbar-height);
+                    background: #222222;
+                    backdrop-filter: blur(20px);
+                    border-bottom: 1px solid var(--glass-border);
+                    box-shadow: var(--shadow-glass);
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 0 2rem;
+                    position: sticky;
+                    top: 0;
+                    z-index: 999;
+                }
+
+                .topbar-title {
+                    font-size: 1.35rem;
+                    font-weight: 600;
+                    color: #ffffff;
+                }
+
+                .topbar-actions {
+                    display: flex;
+                    align-items: center;
+                    gap: 1rem;
+                }
+
+                .topbar-user {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                    padding: 0.55rem 1rem;
+                    background: rgba(255, 255, 255, 1);
+                    border-radius: var(--border-radius);
+                    cursor: pointer;
+                    transition: var(--transition);
+                }
+
+                .topbar-user:hover {
+                    background: var(--brand-gradient);
+                    color: white;
+                }
+
+                .topbar-avatar {
+                    width: 35px;
+                    height: 35px;
+                    background: var(--brand-gradient);
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    font-weight: 600;
+                    flex-shrink: 0;
+                }
+
+                .content-area {
+                    flex: 1;
+                    padding: 2rem;
+                    background: radial-gradient(circle at 35% 50%, #b87900 0%, #704800 30%, #2f1f00 55%, #0f0f0f 100%);
+                }
+
+                .page-shell {
+                    background: transparent;
+                    border: none;
+                    border-radius: 22px;
+                    padding: 0;
+                    box-shadow: none;
+                }
+
+                .dropdown-menu {
+                    background: var(--glass-bg);
+                    backdrop-filter: blur(20px);
+                    border: 1px solid var(--glass-border);
+                    box-shadow: var(--shadow-glass);
+                    border-radius: var(--border-radius);
+                    overflow: hidden;
+                }
+
+                .dropdown-item {
+                    color: #2c3e50;
+                    padding: 0.75rem 1rem;
+                    transition: var(--transition);
+                }
+
+                .dropdown-item:hover {
+                    background: var(--brand-gradient);
+                    color: white;
+                }
+
+                @@media (max-width: 768px) {
+                    .sidebar {
+                        transform: translateX(-100%);
+                        transition: transform 0.3s ease;
+                    }
+
+                    .sidebar.show {
+                        transform: translateX(0);
+                    }
+
+                    .main-content {
+                        margin-left: 0 !important;
+                        width: 100% !important;
+                    }
+
+                    .mobile-toggle {
+                        display: block !important;
+                    }
+
+                    .has-submenu:hover .sub-links {
+                        max-height: 0;
+                        opacity: 0;
+                        pointer-events: none;
+                    }
+
+                    .has-submenu.submenu-open .sub-links {
+                        max-height: 200px;
+                        opacity: 1;
+                        pointer-events: auto;
+                    }
+                }
+
+                @@media (min-width: 769px) {
+                    .mobile-toggle {
+                        display: none !important;
+                    }
+                }
+
+                .mobile-toggle {
+                    background: none;
+                    border: none;
+                    font-size: 1.2rem;
+                    color: #fff;
+                    cursor: pointer;
+                    padding: 0.5rem;
+                    border-radius: var(--border-radius);
+                }
+        </style>
+
+        @RenderSection("Styles", required: false)
+    </head>
+
+    <body>
+        <div class="layout-wrapper">
+            <nav class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <div class="sidebar-logo">
+                        <img src="/images/favicon-ArcTab.png" alt="Robot"
+                             style="width:34px; height:34px; object-fit:contain; filter: drop-shadow(0 1px 1px rgba(0,0,0,.2));" />
+                        ArcTab
                     </div>
-
-                    <button type="button" class="btn btn-sm px-3 font-size-16 header-item waves-effect vertical-menu-btn">
-                        <i class="fa fa-fw fa-bars"></i>
-                    </button>
-
-                    <!-- Search -->
-                    <form class="app-search d-none d-lg-block">
-                        <div class="position-relative">
-                            <input type="text" class="form-control" placeholder="Search...">
-                            <span class="uil-search"></span>
-                        </div>
-                    </form>
+                    <div class="sidebar-tagline">Admin Yönetim Paneli</div>
                 </div>
 
-                <div class="d-flex">
-                    <!-- Mobile search -->
-                    <div class="dropdown d-inline-block d-lg-none ms-2">
-                        <button type="button" class="btn header-item noti-icon waves-effect"
-                                id="page-header-search-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="uil-search"></i>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0" aria-labelledby="page-header-search-dropdown">
-                            <form class="p-3">
-                                <div class="m-0">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" placeholder="Search ..." aria-label="Recipient's username">
-                                        <button class="btn btn-primary" type="submit"><i class="mdi mdi-magnify"></i></button>
-                                    </div>
-                                </div>
-                            </form>
+                <div class="sidebar-nav">
+                    <div class="nav-section">
+                        <div class="nav-section-title">Admin Menü</div>
+
+                        <div class="nav-item">
+                            <a class="nav-link @(IsActive("AdminHome") ? "active" : "")" asp-area="Admin"
+                                   asp-controller="AdminHome" asp-action="Index">
+                                <i class="fas fa-house"></i>
+                                <span>Admin Anasayfa</span>
+                            </a>
                         </div>
-                    </div>
 
-                    <!-- Fullscreen -->
-                    <div class="dropdown d-none d-lg-inline-block ms-1">
-                        <button type="button" class="btn header-item noti-icon waves-effect" data-bs-toggle="fullscreen">
-                            <i class="uil-minus-path"></i>
-                        </button>
-                    </div>
+                        <div class="nav-item has-submenu @(userMenuOpen ? "submenu-open" : "")">
+                            <a class="nav-link submenu-toggle @((userMenuOpen) ? "active" : "")" href="javascript:void(0);">
+                                <i class="fas fa-users"></i>
+                                <span>Kullanıcı Yönetimi</span>
+                                <i class="fas fa-chevron-down submenu-arrow"></i>
+                            </a>
 
-                    <!-- User -->
-                        <div class="dropdown d-inline-block">
-                            <button type="button" class="btn header-item waves-effect" data-bs-toggle="dropdown" aria-expanded="false">
-                                <img class="rounded-circle header-profile-user" src="~/assets/images/users/avatar-4.jpg" alt="">
-                                <span class="ms-2">
-                                    @(User?.Identity?.IsAuthenticated == true ? User.FindFirst("Username")?.Value : "Misafir")
-                                </span>
-                                <i class="uil-angle-down ms-1"></i>
-                            </button>
+                            <div class="sub-links">
+                                <a class="sub-link @(IsActive("OperatorTable") ? "active" : "")" asp-area="Admin"
+                                       asp-controller="OperatorTable" asp-action="Index">
+                                    Operatörler
+                                </a>
 
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <div class="dropdown-header noti-title">
-                                    @if (User?.Identity?.IsAuthenticated == true)
-                                    {
-                                        <h6 class="text-overflow m-0">Hoş geldin, @User.Identity!.Name!</h6>
-                                        <small class="text-muted">
-                                            Rol: @User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value
-                                        </small>
-                                    }
-                                    else
-                                    {
-                                        <h6 class="text-overflow m-0">Giriş yapılmadı</h6>
-                                    }
-                                </div>
-
-                                @if (User?.Identity?.IsAuthenticated == true)
-                                {
-                                    <a class="dropdown-item" href="#">
-                                        <i class="uil uil-user-circle me-1 text-muted"></i> Profilim
-                                    </a>
-                                    <a class="dropdown-item" href="#">
-                                        <i class="uil uil-cog me-1 text-muted"></i> Ayarlar
-                                    </a>
-
-                                    @if (User.IsInRole("Admin"))
-                                    {
-                                        <a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="Index">
-                                            <i class="uil uil-home me-1 text-muted"></i> Kullanıcı Paneline Dön
-                                        </a>
-                                    }
-
-                                    <hr class="dropdown-divider my-1" />
-
-                                    <form asp-controller="Login" asp-action="Logout" method="post" class="px-2">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit" class="dropdown-item text-danger">
-                                            <i class="uil uil-sign-out-alt me-1 text-muted"></i> Çıkış Yap
-                                        </button>
-                                    </form>
-                                }
-                                else
-                                {
-                                    <a class="dropdown-item text-primary" asp-area="" asp-controller="Login" asp-action="Index">
-                                        <i class="uil uil-sign-in-alt me-1 text-muted"></i> Giriş Yap
-                                    </a>
-                                }
+                                <a class="sub-link @(IsActive("AdminTable") ? "active" : "")" asp-area="Admin"
+                                       asp-controller="AdminTable" asp-action="Index">
+                                    Adminler
+                                </a>
                             </div>
                         </div>
 
-                    <!-- Right bar toggle -->
-                    <div class="dropdown d-inline-block">
-                        <button type="button" class="btn header-item noti-icon right-bar-toggle waves-effect">
-                            <i class="uil-cog"></i>
-                        </button>
+                        <div class="nav-item">
+                            <a class="nav-link @(IsActive("ProgramVerileri") ? "active" : "")" asp-area="Admin"
+                                   asp-controller="ProgramVerileri" asp-action="Index">
+                                <i class="fas fa-database"></i>
+                                <span>Program Verileri</span>
+                            </a>
+                        </div>
+
+                        <div class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="fas fa-arrow-left"></i>
+                                <span>Ana Panele Dön</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </header>
-        <!-- /Topbar -->
+            </nav>
 
-        <!-- ========== Left Sidebar Start ========== -->
-        <div class="vertical-menu">
-            <!-- LOGO (sidebar içi) -->
-            <div class="navbar-brand-box">
-                <a asp-controller="" asp-action="" class="logo logo-dark">
-                    <span class="logo-sm">
-                        <img src="~/assets/images/logo-sm.png" alt="" height="22">
-                    </span>
-                    <span class="logo-lg">
-                        <img src="~/assets/images/logo-dark.png" alt="" height="20">
-                    </span>
-                </a>
-                <a href="~/" class="logo logo-light">
-                    <span class="logo-sm">
-                        <img src="~/assets/images/logo-sm.png" alt="" height="22">
-                    </span>
-                    <span class="logo-lg">
-                        <img src="~/assets/images/logo-light.png" alt="" height="20">
-                    </span>
-                </a>
-            </div>
+            <div class="main-content">
+                <header class="topbar">
+                    <div class="d-flex align-items-center">
+                        <button class="mobile-toggle me-3" id="mobileToggle">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <div class="topbar-title">@pageTitle</div>
+                    </div>
 
-            <button type="button" class="btn btn-sm px-3 font-size-16 header-item waves-effect vertical-menu-btn">
-                <i class="fa fa-fw fa-bars"></i>
-            </button>
+                    <div class="topbar-actions">
+                        @if (User?.Identity?.IsAuthenticated == true)
+                        {
+                            <div class="dropdown">
+                                <div class="topbar-user" data-bs-toggle="dropdown" role="button">
+                                    <div class="topbar-avatar">
+                                        @User.Identity!.Name?.Substring(0, 1).ToUpper()
+                                    </div>
+                                    <div class="d-none d-md-block">
+                                        <div style="font-size: 0.9rem; font-weight: 500;">@User.Identity!.Name</div>
+                                        <div style="font-size: 0.75rem; color: #6c757d;">Admin</div>
+                                    </div>
+                                    <i class="fas fa-chevron-down ms-1"></i>
+                                </div>
 
-            <div data-simplebar class="sidebar-menu-scroll">
-                <div id="sidebar-menu">
-                    <ul class="metismenu list-unstyled" id="side-menu">
-
-                        <!-- Başlık -->
-                        <li class="menu-title">Yönetim Menüsü</li>
-
-                        <!-- Açılır Menülü Kullanıcı Grubu -->
-                        <li>
-                            <a href="javascript:void(0);" class="has-arrow waves-effect">
-                                <i class="uil-users-alt"></i>
-                                <span>Kullanıcı Yönetimi</span>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="Index">
+                                            <i class="fas fa-home me-2"></i>Kullanıcı Paneline Dön
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li>
+                                        <form method="post" asp-area="" asp-controller="Login" asp-action="Logout">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="dropdown-item">
+                                                <i class="fas fa-sign-out-alt me-2"></i>Çıkış Yap
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        }
+                        else
+                        {
+                            <a class="btn btn-outline-light" asp-controller="Login" asp-action="Index">
+                                <i class="fas fa-sign-in-alt me-1"></i>Giriş Yap
                             </a>
-                            <ul class="sub-menu" aria-expanded="false">
-                                <li><a asp-area="Admin" asp-controller="OperatorTable" asp-action="Index">Operatör</a></li>
-                                <li><a asp-area="Admin" asp-controller="AdminTable" asp-action="Index">Admin</a></li>
-                            </ul>
-                        </li>
-                        <!-- Program Yönetimi -->
-                        <li>
-                            <a href="javascript:void(0);" class="has-arrow waves-effect">
-                                <i class="uil-database"></i>
-                                <span>Program Yönetimi</span>
-                            </a>
-                            <ul class="sub-menu" aria-expanded="false">
-                                <!-- Controller adını kendi projene göre düzenle -->
-                                <li>
-                                    <a asp-area="Admin" asp-controller="ProgramVerileri" asp-action="Index">
-                                        Program Verileri
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+                        }
+                    </div>
+                </header>
 
-        </div>
-        <!-- /Left Sidebar End -->
-
-        <!-- ============================================================== -->
-        <!-- Start right Content here -->
-        <!-- ============================================================== -->
-        <div class="main-content">
-            <div class="page-content">
-                <div class="container-fluid">
-                    @RenderBody()
-                </div>
+                <main class="content-area">
+                    <div class="page-shell">
+                        @RenderBody()
+                    </div>
+                </main>
             </div>
         </div>
-        <!-- ============================================================== -->
-        <!-- End right Content -->
-        <!-- ============================================================== -->
-    </div>
-    <!-- END layout-wrapper -->
 
-    <!-- Right Sidebar -->
-    <div class="right-bar">
-        <div data-simplebar class="h-100">
-            <div class="rightbar-title d-flex align-items-center p-3">
-                <h5 class="m-0 me-2">Settings</h5>
-            </div>
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="~/js/site.js"></script>
 
-            <hr class="m-0" />
+        <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const sidebar = document.getElementById('sidebar');
+                    const mobileToggle = document.getElementById('mobileToggle');
+                    const submenuItems = document.querySelectorAll('.has-submenu');
 
-            <div class="p-4">
-                <h6 class="mt-4 mb-3 pt-2">Topbar Color</h6>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="topbar-color" id="topbar-color-light"
-                           value="light" onchange="document.body.setAttribute('data-topbar', 'light')">
-                    <label class="form-check-label" for="topbar-color-light">Light</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="topbar-color" id="topbar-color-dark" value="dark"
-                           onchange="document.body.setAttribute('data-topbar', 'dark')">
-                    <label class="form-check-label" for="topbar-color-dark">Dark</label>
-                </div>
-
-                <h6 class="mt-4 mb-3 pt-2 sidebar-setting">Sidebar Size</h6>
-                <div class="form-check sidebar-setting">
-                    <input class="form-check-input" type="radio" name="sidebar-size" id="sidebar-size-default"
-                           value="default" onchange="document.body.setAttribute('data-sidebar-size', 'lg')">
-                    <label class="form-check-label" for="sidebar-size-default">Default</label>
-                </div>
-                <div class="form-check sidebar-setting">
-                    <input class="form-check-input" type="radio" name="sidebar-size" id="sidebar-size-compact"
-                           value="compact" onchange="document.body.setAttribute('data-sidebar-size', 'small')">
-                    <label class="form-check-label" for="sidebar-size-compact">Compact</label>
-                </div>
-                <div class="form-check sidebar-setting">
-                    <input class="form-check-input" type="radio" name="sidebar-size" id="sidebar-size-small"
-                           value="small" onchange="document.body.setAttribute('data-sidebar-size', 'sm')">
-                    <label class="form-check-label" for="sidebar-size-small">Small (Icon View)</label>
-                </div>
-
-                <h6 class="mt-4 mb-3 pt-2 sidebar-setting">Sidebar Color</h6>
-                <div class="form-check sidebar-setting">
-                    <input class="form-check-input" type="radio" name="sidebar-color" id="sidebar-color-light"
-                           value="light" onchange="document.body.setAttribute('data-sidebar', 'light')">
-                    <label class="form-check-label" for="sidebar-color-light">Light</label>
-                </div>
-                <div class="form-check sidebar-setting">
-                    <input class="form-check-input" type="radio" name="sidebar-color" id="sidebar-color-dark"
-                           value="dark" onchange="document.body.setAttribute('data-sidebar', 'dark')">
-                    <label class="form-check-label" for="sidebar-color-dark">Dark</label>
-                </div>
-                <div class="form-check sidebar-setting">
-                    <input class="form-check-input" type="radio" name="sidebar-color" id="sidebar-color-colored"
-                           value="colored" onchange="document.body.setAttribute('data-sidebar', 'colored')">
-                    <label class="form-check-label" for="sidebar-color-colored">Colored</label>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- /Right Sidebar -->
-
-    <div class="rightbar-overlay"></div>
-
-    <!-- JS: Sıra çok önemli -->
-    <script src="~/assets/libs/jquery/jquery.min.js"></script>
-    <script src="~/assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-    <!-- MetisMenu (doğru yol) -->
-    <script src="~/assets/libs/metismenu/metisMenu.min.js"></script>
-
-    <script src="~/assets/libs/simplebar/simplebar.min.js"></script>
-    <script src="~/assets/libs/node-waves/waves.min.js"></script>
-
-    <!-- Tema ana script -->
-    <script src="~/assets/js/app.js"></script>
-
-    <!-- (Opsiyonel) DataTables -->
-    <script src="~/assets/libs/datatables.net/js/jquery.dataTables.min.js"></script>
-    <script src="~/assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
-    <script src="~/assets/libs/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
-    <script src="~/assets/libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js"></script>
-    <script src="~/assets/libs/jszip/jszip.min.js"></script>
-    <script src="~/assets/libs/datatables.net-buttons/js/buttons.html5.min.js"></script>
-    <script src="~/assets/libs/datatables.net-buttons/js/buttons.print.min.js"></script>
-    <script src="~/assets/libs/datatables.net-buttons/js/buttons.colVis.min.js"></script>
-
-    @await RenderSectionAsync("Scripts", required: false)
-
-    <script>
-        // MetisMenu güvenli init + fallback
-        (function () {
-            function initMetisMenuSafe() {
-                var $menu = $("#side-menu");
-                if (!$menu.length) {
-                    console.error("#side-menu bulunamadı");
-                    return;
-                }
-                if (typeof $.fn.metisMenu !== "function") {
-                    console.error("metisMenu yüklü değil (dosya yolu/404 veya çift jQuery). Fallback devrede.");
-                    return;
-                }
-                try {
-                    if ($menu.data('mm')) { $menu.metisMenu('dispose'); }
-                } catch (e) { /* eski sürümse dispose yok, sorun değil */ }
-                $menu.metisMenu({ toggle: true });
-            }
-
-            // Fallback: metisMenu yoksa dahi aç/kapa çalışsın
-            document.addEventListener("click", function (e) {
-                var btn = e.target.closest("a.has-arrow");
-                if (!btn) return;
-                var sub = btn.parentElement.querySelector(".sub-menu");
-                if (!sub) return;
-
-                if (typeof $.fn.metisMenu !== "function") {
-                    e.preventDefault();
-                    btn.classList.toggle("active");
-                    if (sub.classList.contains("mm-show")) {
-                        sub.classList.remove("mm-show");
-                        sub.style.display = "none";
-                    } else {
-                        sub.classList.add("mm-show");
-                        sub.style.display = "block";
+                    if (mobileToggle) {
+                        mobileToggle.addEventListener('click', function () {
+                            sidebar.classList.toggle('show');
+                        });
                     }
-                }
-            });
 
-            // Sayfa hazır olunca deneyelim
-            $(function () { initMetisMenuSafe(); });
-        })();
-    </script>
-</body>
+                    document.addEventListener('click', function (e) {
+                        if (window.innerWidth <= 768 &&
+                            !sidebar.contains(e.target) &&
+                            !mobileToggle?.contains(e.target) &&
+                            sidebar.classList.contains('show')) {
+                            sidebar.classList.remove('show');
+                        }
+                    });
+
+                    submenuItems.forEach(function (item) {
+                        const toggle = item.querySelector('.submenu-toggle');
+
+                        if (toggle) {
+                            toggle.addEventListener('click', function (e) {
+                                if (window.innerWidth <= 768) {
+                                    e.preventDefault();
+                                    item.classList.toggle('submenu-open');
+                                }
+                            });
+                        }
+                    });
+                });
+        </script>
+
+        @RenderSection("Scripts", required: false)
+    </body>
+
 </html>
