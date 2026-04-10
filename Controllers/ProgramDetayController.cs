@@ -22,18 +22,23 @@ public class ProgramDetayController : Controller
     [HttpGet]
     public async Task<IActionResult> Index(int? id)
     {
-        // Geçmiş programlar listesi (son 10–20 kayıt)
+        // Geçmiş programlar listesi
         var sonProgramlar = await _programService.GetRecentProgramsWithHatalarAsync(20);
 
         // Detayını göstereceğimiz program
         ProgramVerisi? program = null;
+
         if (id.HasValue && id.Value > 0)
             program = await _programService.GetProgramWithDetailsByIdAsync(id.Value);
         else
             program = await _programService.GetLatestProgramWithDetailsAsync();
 
         if (program is null)
-            return NotFound("Gösterilecek program bulunamadı.");
+        {
+            ViewBag.EmptyMessage = "Gösterilecek program bulunamadı.";
+            ViewBag.EmptyDescription = "Henüz kayıtlı bir program verisi bulunmuyor. Yeni program verileri geldiğinde burada görüntülenecektir.";
+            return View("EmptyState");
+        }
 
         var vm = new ProgramDetayIndexVM
         {
@@ -74,32 +79,32 @@ public class ProgramDetayController : Controller
         return View(vm); // Views/ProgramDetay/KaynakDetay.cshtml
     }
     [HttpGet]
-public async Task<IActionResult> Hatalar(int id)
-{
-    if (id <= 0) return BadRequest();
-
-    // Program bilgisi (başlık/geri dönüş için)
-    var program = await _programService.GetProgramHeaderByIdAsync(id);
-
-    if (program is null) return NotFound();
-
-    // Bu programa ait tüm hatalar
-    var hatalar = await _hataService.GetHatalarByProgramIdAsync(id);
-
-    var vm = new ProgramHatalarVM
+    public async Task<IActionResult> Hatalar(int id)
     {
-        ProgramId = program.Id,
-        ProgramAdi = program.ProgramAdi,
-        OperatorAdSoyad = program.Operator is null ? null : $"{program.Operator.Ad} {program.Operator.Soyad}",
-        Hatalar = hatalar.Select(h => new ProgramHatalarVM.HataRow
-        {
-            Id = h.Id,
-            Tip = h.Tip.ToString(),
-            Aciklama = h.Aciklama,
-            Zaman = h.Zaman
-        }).ToList()
-    };
+        if (id <= 0) return BadRequest();
 
-    return View(vm); // Views/ProgramDetay/Hatalar.cshtml
-}
+        // Program bilgisi (başlık/geri dönüş için)
+        var program = await _programService.GetProgramHeaderByIdAsync(id);
+
+        if (program is null) return NotFound();
+
+        // Bu programa ait tüm hatalar
+        var hatalar = await _hataService.GetHatalarByProgramIdAsync(id);
+
+        var vm = new ProgramHatalarVM
+        {
+            ProgramId = program.Id,
+            ProgramAdi = program.ProgramAdi,
+            OperatorAdSoyad = program.Operator is null ? null : $"{program.Operator.Ad} {program.Operator.Soyad}",
+            Hatalar = hatalar.Select(h => new ProgramHatalarVM.HataRow
+            {
+                Id = h.Id,
+                Tip = h.Tip.ToString(),
+                Aciklama = h.Aciklama,
+                Zaman = h.Zaman
+            }).ToList()
+        };
+
+        return View(vm); // Views/ProgramDetay/Hatalar.cshtml
+    }
 }

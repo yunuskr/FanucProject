@@ -552,6 +552,7 @@ Views/
   Index.cshtml
   Operator.cshtml
  ProgramDetay/
+  EmptyState.cshtml
   Hatalar.cshtml
   Index.cshtml
   KaynakDetay.cshtml
@@ -585,6 +586,7 @@ Views/
   Index.cshtml
   Operator.cshtml
  ProgramDetay/
+  EmptyState.cshtml
   Hatalar.cshtml
   Index.cshtml
   KaynakDetay.cshtml
